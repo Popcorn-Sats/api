@@ -32,9 +32,16 @@ Configure the database credentials in `./config/config.json` for the local envir
 
 Set environment:
 
-export NODE_ENV=local
-export NODE_CONFIG_DIR="$(pwd)/config/"
+`export NODE_ENV=local`
+
+`export NODE_CONFIG_DIR="$(pwd)/config/"`
 
 ## Start server
 
 `npm start`
+
+## Test
+
+Testing with [Jest](https://jestjs.io)
+
+Run `npm run test` to run the entire test suite.

@@ -73,6 +73,7 @@ router.get('/:accountId', (req, res, next) => {
 
 // Edit transaction
 router.put('/', (req, res, next) => {
+    console.log(req.body)
     let { id, date, description, category, payee, block_height, txid, balance_change, account, address, fee, size } = req.body;
     let errors = [];
 

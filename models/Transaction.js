@@ -24,13 +24,13 @@ module.exports = (sequelize, DataTypes) => {
         description: {
             type: DataTypes.STRING
         },
-        /*account: {
-            type: DataTypes.INTEGER,
-            
-        },
-        payee: {
-            type: DataTypes.INTEGER
-        },*/
+        // account: {
+        //    type: DataTypes.INTEGER,
+        //    
+        //},
+        //payee: {
+        //    type: DataTypes.INTEGER
+        // },
     })
 
     Transaction.associate = models => {
@@ -47,6 +47,10 @@ module.exports = (sequelize, DataTypes) => {
           });
 
         Transaction.TransactionLedgers = Transaction.hasMany(models.transactionledger)
+    }
+
+    Transaction.findByTransactionId = (txid) => {
+       return this.findOne({ where: { txid } });
     }
 
     return Transaction

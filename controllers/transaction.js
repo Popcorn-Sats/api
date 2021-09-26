@@ -1,15 +1,11 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-console */
-const express = require('express')
-
-const router = express.Router()
 const Sequelize = require('sequelize')
 const db = require('../models')
 
 const {Op} = Sequelize
 
-// Get all transactions
-router.get('/', (req, res) => 
+const getTransactions = async (req, res) => {
     db.transaction.findAll({
         include: [
             {
@@ -28,10 +24,10 @@ router.get('/', (req, res) =>
         ]
     })
         .then(transactions => res.json(transactions))
-        .catch(err => console.log(err)));
+        .catch(err => res(err))
+}
 
-// Get transactions for :accountId
-router.get('/:accountId', (req, res, next) => {
+const getTransactionsByAccount = async (req, res, next) => {
     const {accountId} = req.params
     db.transaction.findAll(
         {
@@ -49,7 +45,7 @@ router.get('/:accountId', (req, res, next) => {
                     model: db.transactionledger,
                     include: [db.account],
                     where: {
-                       accountId
+                      accountId
                     }
                     // This only brings over the single ledger.
                     // Wider scope needed
@@ -72,10 +68,9 @@ router.get('/:accountId', (req, res, next) => {
     )
     .then(transactions => res.json(transactions))
     .catch(err => console.log(err))
-})
+}
 
-// Edit transaction
-router.put('/', (req, res, next) => {
+const editTransaction = async (req, res, next) => {
     console.log(req.body)
     const { id, date, description, category, payee, block_height, txid, balance_change, account, address, fee, size } = req.body;
     const errors = [];
@@ -101,10 +96,9 @@ router.put('/', (req, res, next) => {
     )
     .then(transaction => res.json(transaction).send())
     .catch(err => console.log(err))
-})   
+}
 
-// Add transaction
-router.post('/add', async (req, res, next) => {
+const addTransaction = async (req, res, next) => {
     console.log(req.body);
     
     const { blockHeight, txid, balance_change, address, network_fee, size, description, sender, category, recipient } = req.body;
@@ -121,14 +115,14 @@ router.post('/add', async (req, res, next) => {
 
     // Helper function to return an array of objects according to key, value, or key and value matching
     function getObjects(obj, key, val) {
-        var objects = [];
-        for (var i in obj) {
+        const objects = [];
+        for (let i in obj) {
             if (!obj.hasOwnProperty(i)) continue;
             if (typeof obj[i] == 'object') {
                 objects = objects.concat(getObjects(obj[i], key, val));    
             } else 
-            //if key matches and value matches or if key matches and value is not passed (eliminating the case where key matches but passed value does not)
-            //this seems to be duplicating the object ...
+            // if key matches and value matches or if key matches and value is not passed (eliminating the case where key matches but passed value does not)
+            // this seems to be duplicating the object ...
             if (i == key && obj[i] == val || i == key && val == '') { //
                 objects.push(obj);
             } else if (obj[i] == val && key == ''){
@@ -194,7 +188,7 @@ router.post('/add', async (req, res, next) => {
                 })
                 .then(
                     account => {
-                        //console.log(account)
+                        // console.log(account)
                         senderId = account[id]
                     }
                 )
@@ -224,7 +218,7 @@ router.post('/add', async (req, res, next) => {
                 })
                 .then(
                     account => {
-                        //console.log(account)
+                        // console.log(account)
                         recipientId = account[id]
                     }
                 )
@@ -337,25 +331,30 @@ router.post('/add', async (req, res, next) => {
         .then(transaction => res.json(transaction).send())
         .catch(err => console.log(err));
     }
-});
+}
 
+// Search transactions
+const searchTransactions = async (req, res) => {
 
-// Search for transactions
-router.get('/search', (req, res) => {
-    const { term } = req.query;
-    // How to make this case-agnostic without making everything lowercase?
+  const { term } = req.query;
+  // How to make this case-agnostic without making everything lowercase?
+  db.transaction.findAll({ where: Sequelize.or(
+      { category: { [Op.like]: `%${  term  }%` } },
+      { description: { [Op.like]: `%${  term  }%` } },
+      { payee: { [Op.like]: `%${  term  }%` } },
+      { block_height: { [Op.like]: `%${  term  }%` } },
+      { txid: { [Op.like]: `%${  term  }%` } },
+      { account: { [Op.like]: `%${  term  }%` } },
+      { address: { [Op.like]: `%${  term  }%` } }
+  )})
+  .then(transactions => res.render('transactions', { transactions }))
+  .catch(err => console.log(err));
+}
 
-    db.transaction.findAll({ where: Sequelize.or(
-        { category: { [Op.like]: `%${  term  }%` } },
-        { description: { [Op.like]: `%${  term  }%` } },
-        { payee: { [Op.like]: `%${  term  }%` } },
-        { block_height: { [Op.like]: `%${  term  }%` } },
-        { txid: { [Op.like]: `%${  term  }%` } },
-        { account: { [Op.like]: `%${  term  }%` } },
-        { address: { [Op.like]: `%${  term  }%` } }
-    )})
-    .then(transactions => res.render('transactions', { transactions }))
-    .catch(err => console.log(err));
-});
-
-module.exports = router;
+module.exports = {
+  getTransactions,
+  getTransactionsByAccount,
+  editTransaction,
+  addTransaction,
+  searchTransactions
+}

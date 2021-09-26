@@ -1,20 +1,21 @@
-const express = require('express');
-const app = express();
-const db = require('./models');
+const express = require('express')
+
+const app = express()
 const cors = require('cors')
-const PORT = process.env.PORT || 2121;
+const db = require('./models')
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(cors());
+const PORT = process.env.PORT || 2121
+const getRoutes = require('./routes')
 
-// API routes (TODO: create API file in /routes)
-app.use('/accounts', require('./routes/accounts'));
-app.use('/categories', require('./routes/categories'));
-app.use('/transactions', require('./routes/transactions'));
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
+app.use(cors())
+
+app.use(getRoutes())
 
 db.sequelize.sync().then(() => {
     app.listen(PORT, () => {
-        console.log(`Listening on port ${PORT}`);
-    });
-});
+        // eslint-disable-next-line no-console
+        console.log(`Listening on port ${PORT}`)
+    })
+})

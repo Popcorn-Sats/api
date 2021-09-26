@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-console */
 const express = require('express')
 
@@ -47,9 +48,9 @@ router.get('/:accountId', (req, res, next) => {
                 {
                     model: db.transactionledger,
                     include: [db.account],
-                    // where: {
-                    //    accountId: accountId
-                    // }
+                    where: {
+                       accountId
+                    }
                     // This only brings over the single ledger.
                     // Wider scope needed
                     // Consider running a small script 
@@ -163,7 +164,7 @@ router.post('/add', async (req, res, next) => {
                 })
                 .then(
                     category => {
-                        //console.log(category)
+                        // console.log(category)
                         categoryid = category[id]
                     }
                 )

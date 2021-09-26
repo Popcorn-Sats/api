@@ -1,9 +1,11 @@
-const express = require('express');
-const router = express.Router();
-const db = require('../models');
+/* eslint-disable no-console */
+const express = require('express')
 
-const Sequelize = require('sequelize');
-const Op = Sequelize.Op;
+const router = express.Router()
+const Sequelize = require('sequelize')
+const db = require('../models')
+
+const {Op} = Sequelize
 
 // Get all transactions
 router.get('/', (req, res) => 
@@ -29,7 +31,7 @@ router.get('/', (req, res) =>
 
 // Get transactions for :accountId
 router.get('/:accountId', (req, res, next) => {
-    let accountId = req.params.accountId;
+    const {accountId} = req.params
     db.transaction.findAll(
         {
             include: [
@@ -45,9 +47,9 @@ router.get('/:accountId', (req, res, next) => {
                 {
                     model: db.transactionledger,
                     include: [db.account],
-                    //where: {
+                    // where: {
                     //    accountId: accountId
-                    //}
+                    // }
                     // This only brings over the single ledger.
                     // Wider scope needed
                     // Consider running a small script 
@@ -60,7 +62,7 @@ router.get('/:accountId', (req, res, next) => {
                     {
                         model: db.transactionledger,
                         where: {
-                            accountId: accountId
+                            accountId
                         }
                     }
                 ]
@@ -74,8 +76,8 @@ router.get('/:accountId', (req, res, next) => {
 // Edit transaction
 router.put('/', (req, res, next) => {
     console.log(req.body)
-    let { id, date, description, category, payee, block_height, txid, balance_change, account, address, fee, size } = req.body;
-    let errors = [];
+    const { id, date, description, category, payee, block_height, txid, balance_change, account, address, fee, size } = req.body;
+    const errors = [];
 
     db.transaction.update(
         { 
@@ -92,7 +94,7 @@ router.put('/', (req, res, next) => {
             size 
         }, {
             where: {
-                id: id
+                id
             }
         }
     )
@@ -104,8 +106,8 @@ router.put('/', (req, res, next) => {
 router.post('/add', async (req, res, next) => {
     console.log(req.body);
     
-    let { blockHeight, txid, balance_change, address, network_fee, size, description, sender, category, recipient } = req.body;
-    let errors = [];
+    const { blockHeight, txid, balance_change, address, network_fee, size, description, sender, category, recipient } = req.body;
+    const errors = [];
     let categoryid;
     let blockId;
     let senderId;
@@ -256,7 +258,7 @@ router.post('/add', async (req, res, next) => {
             })
             .then(
                 block => {
-                    //console.log(block)
+                    // console.log(block)
                     blockId = block[id]
                 }
             )
@@ -343,13 +345,13 @@ router.get('/search', (req, res) => {
     // How to make this case-agnostic without making everything lowercase?
 
     db.transaction.findAll({ where: Sequelize.or(
-        { category: { [Op.like]: '%' + term + '%' } },
-        { description: { [Op.like]: '%' + term + '%' } },
-        { payee: { [Op.like]: '%' + term + '%' } },
-        { block_height: { [Op.like]: '%' + term + '%' } },
-        { txid: { [Op.like]: '%' + term + '%' } },
-        { account: { [Op.like]: '%' + term + '%' } },
-        { address: { [Op.like]: '%' + term + '%' } }
+        { category: { [Op.like]: `%${  term  }%` } },
+        { description: { [Op.like]: `%${  term  }%` } },
+        { payee: { [Op.like]: `%${  term  }%` } },
+        { block_height: { [Op.like]: `%${  term  }%` } },
+        { txid: { [Op.like]: `%${  term  }%` } },
+        { account: { [Op.like]: `%${  term  }%` } },
+        { address: { [Op.like]: `%${  term  }%` } }
     )})
     .then(transactions => res.render('transactions', { transactions }))
     .catch(err => console.log(err));

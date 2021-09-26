@@ -1,9 +1,11 @@
-const express = require('express');
-const router = express.Router();
-const db = require('../models');
+/* eslint-disable no-console */
+const express = require('express')
 
-const Sequelize = require('sequelize');
-const Op = Sequelize.Op;
+const router = express.Router()
+const Sequelize = require('sequelize')
+const db = require('../models')
+
+const {Op} = Sequelize
 
 // Get category list
 router.get('/', (req, res) => 
@@ -33,8 +35,8 @@ router.get('/', (req, res) =>
 // router.put('/:accountId', (req, res, next) => {
 router.put('/', (req, res, next) => {
     console.log(req.body)
-    let { id, name } = req.body;
-    let errors = [];
+    const { id, name } = req.body;
+    const errors = [];
 
     
     db.category.update(
@@ -42,7 +44,7 @@ router.put('/', (req, res, next) => {
             name
         }, {
             where: {
-                id: id
+                id
             }
         }
     )
@@ -52,8 +54,8 @@ router.put('/', (req, res, next) => {
 
 // Add category
 router.post('/add', (req, res, next) => {
-    let { name } = req.body;
-    let errors = [];
+    const { name } = req.body;
+    const errors = [];
 
     // Validate fields
     if(!name) {

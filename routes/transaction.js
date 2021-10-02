@@ -6,7 +6,7 @@ const router = express.Router()
 
 router
   .get('/', ctrl.getTransactions)
-  .get('/:accountId', ctrl.getTransactionsByAccount)
+  .get('/:accountId', ctrl.getTransactionsForAccount)
   .put('/', ctrl.editTransaction)
   .post('/add', ctrl.addTransaction)
   .get('/search', ctrl.searchTransactions)

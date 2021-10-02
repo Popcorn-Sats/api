@@ -2,6 +2,7 @@
 /* eslint-disable no-console */
 const Sequelize = require('sequelize')
 const db = require('../models')
+const { getTransactionsByAccount } = require('../services/transaction')
 
 const {Op} = Sequelize
 
@@ -27,50 +28,14 @@ const getTransactions = async (req, res) => {
         .catch(err => res(err))
 }
 
-const getTransactionsByAccount = async (req, res, next) => {
+const getTransactionsForAccount = async (req, res) => {
     const {accountId} = req.params
-    db.transaction.findAll(
-        {
-            include: [
-                {
-                    model: db.category,
-                },
-                {
-                    model: db.block,
-                },
-                {
-                    model: db.transactiontype,
-                },
-                {
-                    model: db.transactionledger,
-                    include: [db.account],
-                    where: {
-                      accountId
-                    }
-                    // This only brings over the single ledger.
-                    // Wider scope needed
-                    // Consider running a small script 
-                    // like this to find the txids. Then grab those txns?
-                }
-            ]
-        }, {
-            where: {
-                include: [
-                    {
-                        model: db.transactionledger,
-                        where: {
-                            accountId
-                        }
-                    }
-                ]
-            }
-        }
-    )
-    .then(transactions => res.json(transactions))
-    .catch(err => console.log(err))
+    const transactions = await getTransactionsByAccount(accountId)
+    // const status = transactions.failed ? 400 : 200
+    res.json(transactions)
 }
 
-const editTransaction = async (req, res, next) => {
+const editTransaction = async (req, res) => {
     console.log(req.body)
     const { id, date, description, category, payee, block_height, txid, balance_change, account, address, fee, size } = req.body;
     const errors = [];
@@ -95,10 +60,14 @@ const editTransaction = async (req, res, next) => {
         }
     )
     .then(transaction => res.json(transaction).send())
-    .catch(err => console.log(err))
+    .catch(err => {
+      errors.push(err)
+      res(errors)
+      console.log(err)
+    })
 }
 
-const addTransaction = async (req, res, next) => {
+const addTransaction = async (req, res) => {
     console.log(req.body);
     
     const { blockHeight, txid, balance_change, address, network_fee, size, description, sender, category, recipient } = req.body;
@@ -353,7 +322,7 @@ const searchTransactions = async (req, res) => {
 
 module.exports = {
   getTransactions,
-  getTransactionsByAccount,
+  getTransactionsForAccount,
   editTransaction,
   addTransaction,
   searchTransactions

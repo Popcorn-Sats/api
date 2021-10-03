@@ -1,6 +1,30 @@
 const db = require('../models')
 
-module.exports.getTransactionsByAccount = async (accountId) => {
+module.exports.getAllTransactions = async () => {
+  const transactions = await db.transaction.findAll({
+    include: [
+        {
+            model: db.category,
+        },
+        {
+            model: db.block,
+        },
+        {
+            model: db.transactiontype,
+        },
+        {
+            model: db.transactionledger,
+            include: [db.account]
+        }
+    ]
+  })
+  if (!transactions) {
+    return { failed: true, message: "No transactions were found" }
+  }
+  return transactions
+}
+
+module.exports.getTransactionsByAccountID = async (accountId) => {
   const transactions = await db.transaction.findAll(
     {
         include: [

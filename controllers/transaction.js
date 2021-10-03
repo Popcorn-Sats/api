@@ -2,35 +2,19 @@
 /* eslint-disable no-console */
 const Sequelize = require('sequelize')
 const db = require('../models')
-const { getTransactionsByAccount } = require('../services/transaction')
+const { getTransactionsByAccountID, getAllTransactions } = require('../services/transaction')
 
 const {Op} = Sequelize
 
 const getTransactions = async (req, res) => {
-    db.transaction.findAll({
-        include: [
-            {
-                model: db.category,
-            },
-            {
-                model: db.block,
-            },
-            {
-                model: db.transactiontype,
-            },
-            {
-                model: db.transactionledger,
-                include: [db.account]
-            }
-        ]
-    })
-        .then(transactions => res.json(transactions))
-        .catch(err => res(err))
+  const transactions = await getAllTransactions()
+  res.json(transactions)
+  // .catch(err => res(err))
 }
 
 const getTransactionsForAccount = async (req, res) => {
     const {accountId} = req.params
-    const transactions = await getTransactionsByAccount(accountId)
+    const transactions = await getTransactionsByAccountID(accountId)
     // const status = transactions.failed ? 400 : 200
     res.json(transactions)
 }

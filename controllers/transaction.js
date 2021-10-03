@@ -2,9 +2,11 @@
 /* eslint-disable no-console */
 const Sequelize = require('sequelize')
 const db = require('../models')
-const { getTransactionsByAccountID, getAllTransactions } = require('../services/transaction')
+const { getTransactionsByAccountID, getAllTransactions, editFullTransaction } = require('../services/transaction')
 
 const {Op} = Sequelize
+
+// TODO: Error handling
 
 const getTransactions = async (req, res) => {
   const transactions = await getAllTransactions()
@@ -13,42 +15,16 @@ const getTransactions = async (req, res) => {
 }
 
 const getTransactionsForAccount = async (req, res) => {
-    const {accountId} = req.params
-    const transactions = await getTransactionsByAccountID(accountId)
-    // const status = transactions.failed ? 400 : 200
-    res.json(transactions)
+  const {accountId} = req.params
+  const transactions = await getTransactionsByAccountID(accountId)
+  // const status = transactions.failed ? 400 : 200
+  res.json(transactions)
 }
 
 const editTransaction = async (req, res) => {
-    console.log(req.body)
-    const { id, date, description, category, payee, block_height, txid, balance_change, account, address, fee, size } = req.body;
-    const errors = [];
-
-    db.transaction.update(
-        { 
-            date,
-            description, 
-            category, 
-            payee, 
-            block_height, 
-            txid, 
-            balance_change, 
-            account, 
-            address, 
-            fee, 
-            size 
-        }, {
-            where: {
-                id
-            }
-        }
-    )
-    .then(transaction => res.json(transaction).send())
-    .catch(err => {
-      errors.push(err)
-      res(errors)
-      console.log(err)
-    })
+  const transaction = req.body
+  const editedTransaction = await editFullTransaction(transaction)
+  res.json(editedTransaction).send()
 }
 
 const addTransaction = async (req, res) => {

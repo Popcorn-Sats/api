@@ -67,3 +67,37 @@ module.exports.getTransactionsByAccountID = async (accountId) => {
   }
   return transactions
 }
+
+module.exports.editFullTransaction = async (transaction) => {
+  // eslint-disable-next-line camelcase
+  const { id, date, description, category, payee, block_height, txid, balance_change, account, address, fee, size } = transaction
+  const errors = []
+
+  db.transaction.update(
+    { 
+        date,
+        description, 
+        category, 
+        payee, 
+        block_height, 
+        txid, 
+        balance_change, 
+        account, 
+        address, 
+        fee, 
+        size 
+    }, {
+        where: {
+            id
+        }
+    }
+  )
+
+  .catch(err => {
+    errors.push(err)
+    // res(errors)
+    // console.log(err)
+  })
+
+  return transaction
+}

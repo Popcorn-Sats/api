@@ -144,6 +144,7 @@ module.exports.createTransaction = async (transaction) => {
 
   if (sender) {
     senderId = await checkAndCreateAccount(sender)
+    // console.log("Received senderId: ", senderId)
   }
 
   if (recipient) {

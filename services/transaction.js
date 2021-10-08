@@ -123,7 +123,6 @@ module.exports.editFullTransaction = async (transaction) => {
   return transaction
 }
 
-// TODO: Break up all this shit across other services
 module.exports.createTransaction = async (transaction) => {
   const { blockHeight, txid, balance_change, address, network_fee, size, description, sender, category, recipient } = transaction
   const errors = []

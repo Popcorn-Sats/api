@@ -1,35 +1,17 @@
 /* eslint-disable no-console */
 const express = require('express')
 
+const ctrl = require('../controllers/category')
+
 const router = express.Router()
+
 const Sequelize = require('sequelize')
 const db = require('../models')
 
 const {Op} = Sequelize
 
-// Get category list
-router.get('/', (req, res) => 
-    db.category.findAll({
-        attributes: {
-            include: [
-                [
-                    // Something weird going on below where Sequelize makes transaction.categoryId all lowercase. Had to change the column name ...
-                    Sequelize.literal(`(
-                        SELECT SUM(balance_change)
-                        FROM transactions AS transaction
-                        WHERE
-                            transaction.categoryId = category.id
-                    )`),
-                    'balance'
-                ]
-            ]
-        },
-        order: [
-            ['name', 'ASC'],
-        ]
-    })
-        .then(categories => res.json(categories))
-        .catch(err => console.log(err)));
+router
+  .get('/', ctrl.getCategories)
 
 // Edit category
 // router.put('/:accountId', (req, res, next) => {

@@ -1,7 +1,34 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-console */
+const Sequelize = require('sequelize')
 const db = require('../models')
 const { getObjects } = require('../utils/getObjects')
+
+module.exports.getAllCategories = async () => {
+  const categories = await db.category.findAll({
+    attributes: {
+        include: [
+            [
+                // Something weird going on below where Sequelize makes transaction.categoryId all lowercase. Had to change the column name ...
+                Sequelize.literal(`(
+                    SELECT SUM(balance_change)
+                    FROM transactions AS transaction
+                    WHERE
+                        transaction.categoryId = category.id
+                )`),
+                'balance'
+            ]
+        ]
+    },
+    order: [
+        ['name', 'ASC'],
+    ]
+  })
+  if (!categories) {
+    return { failed: true, message: "No categories were found" }
+  }
+  return categories
+}
 
 module.exports.checkAndCreateCategory = async (category) => {
   let categoryid

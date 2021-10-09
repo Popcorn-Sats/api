@@ -30,6 +30,28 @@ module.exports.getAllCategories = async () => {
   return categories
 }
 
+module.exports.editCategoryById = async (category) => {
+  const { id, name } = category 
+  const errors = []
+
+  db.category.update(
+    { 
+        name
+    }, {
+        where: {
+            id
+        }
+    }
+  )
+
+  .catch(err => {
+    errors.push(err)
+    // res(errors)
+    // console.log(err)
+  })
+  return category
+}
+
 module.exports.checkAndCreateCategory = async (category) => {
   let categoryid
   let categoryMatch

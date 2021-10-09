@@ -12,27 +12,7 @@ const {Op} = Sequelize
 
 router
   .get('/', ctrl.getCategories)
-
-// Edit category
-// router.put('/:accountId', (req, res, next) => {
-router.put('/', (req, res, next) => {
-    console.log(req.body)
-    const { id, name } = req.body;
-    const errors = [];
-
-    
-    db.category.update(
-        { 
-            name
-        }, {
-            where: {
-                id
-            }
-        }
-    )
-    .then(category => res.json(category))
-    .catch(err => console.log(err))
-})   
+  .put('/', ctrl.editCategory)
 
 // Add category
 router.post('/add', (req, res, next) => {

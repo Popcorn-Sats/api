@@ -87,12 +87,10 @@ module.exports.createCategory = async (category) => {
     } */
 }
 
-// FIXME: Doesn't work
 module.exports.searchAllCategories = async (term) => {
-  // How to make this case-agnostic without making everything lowercase?
   const errors = []
-  const result = db.category.findAll({ where: Sequelize.or(
-    { name: { [Op.like]: '%' + term + '%' } }
+  const result = await db.category.findAll({ where: Sequelize.or(
+    { name: { [Op.iLike]: `%${  term  }%` } }
   )})
   .catch(err => {
     errors.push(err)

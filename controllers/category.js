@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 const Sequelize = require('sequelize')
 const db = require('../models')
-const { getAllCategories, editCategoryById } = require('../services/category')
+const { getAllCategories, editCategoryById, createCategory } = require('../services/category')
 
 const {Op} = Sequelize
 
@@ -20,7 +20,15 @@ const editCategory = async (req, res) => {
   // .catch(err => res(err))
 }
 
+const addCategory = async (req, res) => {
+  const category = req.body
+  const newCategory = await createCategory(category)
+  // const newCategory = await checkAndCreateCategory(category)
+  res.json(newCategory).send()
+}
+
 module.exports = {
   getCategories,
   editCategory,
+  addCategory
 }

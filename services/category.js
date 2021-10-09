@@ -52,6 +52,39 @@ module.exports.editCategoryById = async (category) => {
   return category
 }
 
+module.exports.createCategory = async (category) => {
+  const { name } = category
+  const errors = []
+  const newCategory = await db.category.create({
+    name
+  })
+
+  .catch(err => {
+    errors.push(err)
+  })
+  return newCategory
+
+    /* // Validate fields
+    if(!name) {
+        res.status(400).send()
+    }
+
+    // Check for  errors
+    if(errors.length > 0) {
+        res.send('add', {
+            errors,
+            name
+        })
+    } else {
+        // Insert into table
+        db.category.create({
+            name
+        })
+        .then(category => res.json(category))
+        .catch(err => console.log(err));
+    } */
+}
+
 module.exports.checkAndCreateCategory = async (category) => {
   let categoryid
   let categoryMatch

@@ -13,32 +13,7 @@ const {Op} = Sequelize
 router
   .get('/', ctrl.getCategories)
   .put('/', ctrl.editCategory)
-
-// Add category
-router.post('/add', (req, res, next) => {
-    const { name } = req.body;
-    const errors = [];
-
-    // Validate fields
-    if(!name) {
-        res.status(400).send()
-    }
-
-    // Check for  errors
-    if(errors.length > 0) {
-        res.send('add', {
-            errors,
-            name
-        })
-    } else {
-        // Insert into table
-        db.category.create({
-            name
-        })
-        .then(category => res.json(category))
-        .catch(err => console.log(err));
-    }
-});
+  .post('/add', ctrl.addCategory)
 
 // Search for categories
 router.get('/search', (req, res) => {

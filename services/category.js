@@ -4,6 +4,8 @@ const Sequelize = require('sequelize')
 const db = require('../models')
 const { getObjects } = require('../utils/getObjects')
 
+const {Op} = Sequelize
+
 module.exports.getAllCategories = async () => {
   const categories = await db.category.findAll({
     attributes: {
@@ -83,6 +85,19 @@ module.exports.createCategory = async (category) => {
         .then(category => res.json(category))
         .catch(err => console.log(err));
     } */
+}
+
+// FIXME: Doesn't work
+module.exports.searchAllCategories = async (term) => {
+  // How to make this case-agnostic without making everything lowercase?
+  const errors = []
+  const result = db.category.findAll({ where: Sequelize.or(
+    { name: { [Op.like]: '%' + term + '%' } }
+  )})
+  .catch(err => {
+    errors.push(err)
+  })
+  return(result)
 }
 
 module.exports.checkAndCreateCategory = async (category) => {

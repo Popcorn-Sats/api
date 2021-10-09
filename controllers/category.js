@@ -1,9 +1,5 @@
 /* eslint-disable no-console */
-const Sequelize = require('sequelize')
-const db = require('../models')
-const { getAllCategories, editCategoryById, createCategory } = require('../services/category')
-
-const {Op} = Sequelize
+const { getAllCategories, editCategoryById, createCategory, searchAllCategories } = require('../services/category')
 
 // TODO: Error handling
 
@@ -27,8 +23,16 @@ const addCategory = async (req, res) => {
   res.json(newCategory).send()
 }
 
+const searchCategories = async (req, res) => {
+  const { term } = req.query
+  const result = await searchAllCategories(term)
+  // res.render('categories', { result })
+  res.json(result).send()
+}
+
 module.exports = {
   getCategories,
   editCategory,
-  addCategory
+  addCategory,
+  searchCategories
 }

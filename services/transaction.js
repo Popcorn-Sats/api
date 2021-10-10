@@ -1,9 +1,12 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-console */
+const Sequelize = require('sequelize')
 const db = require('../models')
 const { checkAndCreateAccount } = require('./account')
 const { checkAndCreateBlock } = require('./block')
 const { checkAndCreateCategory } = require('./category')
+
+const {Op} = Sequelize
 
 
 module.exports.getAllTransactions = async () => {
@@ -121,6 +124,23 @@ module.exports.editFullTransaction = async (transaction) => {
   })
 
   return transaction
+}
+
+module.exports.searchAllTransactions = async (term) => {
+  const errors = []
+  const result = await db.transaction.findAll({ where: Sequelize.or(
+      // { category: { [Op.iLike]: `%${  term  }%` } },
+      { description: { [Op.iLike]: `%${  term  }%` } },
+      // { payee: { [Op.iLike]: `%${  term  }%` } },
+      // { block_height: { [Op.iLike]: `%${  term  }%` } },
+      // { txid: { [Op.iLike]: `%${  term  }%` } },
+      // { account: { [Op.iLike]: `%${  term  }%` } },
+      // { address: { [Op.iLike]: `%${  term  }%` } }
+  )})
+  .catch(err => {
+    errors.push(err)
+  })
+  return(result)
 }
 
 module.exports.createTransaction = async (transaction) => {

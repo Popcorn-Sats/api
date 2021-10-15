@@ -90,11 +90,12 @@ module.exports.createAccount = async (account) => {
 
 module.exports.searchAllAccounts = async (term) => {
   const errors = []
+  // FIXME: broken as fuck with > 1 attributes
   const result = await db.account.findAll({ where: Sequelize.or(
-      { xpub: { [Op.iLike]: `%${  term  }%` } },
+      // { xpub: { [Op.iLike]: `%${  term  }%` } },
       { name: { [Op.iLike]: `%${  term  }%` } },
-      { notes: { [Op.iLike]: `%${  term  }%` } },
-      { accounttype: { [Op.iLike]: `%${  term  }%` } }
+      // { notes: { [Op.iLike]: `%${  term  }%` } },
+      // { accounttype: { [Op.iLike]: `%${  term  }%` } }
   )})
   .catch(err => {
     errors.push(err)

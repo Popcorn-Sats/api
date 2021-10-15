@@ -2,19 +2,16 @@ const express = require('express');
 const router = express.Router();
 const db = require('../models');
 
+const ctrl = require('../controllers/account')
+
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 
-// Get account list
-router.get('/', (req, res) => 
-    db.account.findAll({
-        order: [
-            ['id', 'ASC'],
-        ],
-        include: [db.xpub, db.accounttype]
-    })
-        .then(accounts => res.send(accounts))
-        .catch(err => console.log(err)));
+router
+  .get('/', ctrl.getAccounts)
+  .put('/', ctrl.editAccount)
+  .post('/add', ctrl.addAccount)
+  .get('/search', ctrl.searchAccounts)
 
 // Edit account
 // router.put('/:accountId', (req, res, next) => {

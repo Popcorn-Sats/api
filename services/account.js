@@ -3,6 +3,19 @@
 const db = require('../models')
 const { getObjects } = require('../utils/getObjects')
 
+module.exports.getAllAccounts = async () => {
+  const accounts = await db.account.findAll({
+    order: [
+        ['id', 'ASC'],
+    ],
+    include: [db.xpub, db.accounttype]
+  })
+  if (!accounts) {
+    return { failed: true, message: "No accounts were found" }
+  }
+  return accounts
+}
+
 module.exports.checkAndCreateAccount = async (name) => {
   let accountMatch
   let accountId

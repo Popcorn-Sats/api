@@ -1,38 +1,38 @@
 /* eslint-disable no-console */
 const { getTransactionsByAccountID, getAllTransactions, editFullTransaction, createTransaction, searchAllTransactions } = require('../services/transaction')
 
-// TODO: Error handling
-
 const getTransactions = async (req, res) => {
   const transactions = await getAllTransactions()
-  res.json(transactions)
-  // .catch(err => res(err))
+  const status = transactions.failed ? 400 : 200
+  res.status(status).json(transactions).send()
 }
 
 const getTransactionsForAccount = async (req, res) => {
   const {accountId} = req.params
   const transactions = await getTransactionsByAccountID(accountId)
-  // const status = transactions.failed ? 400 : 200
-  res.json(transactions)
+  const status = transactions.failed ? 400 : 200
+  res.status(status).json(transactions).send()
 }
 
 const editTransaction = async (req, res) => {
   const transaction = req.body
   const editedTransaction = await editFullTransaction(transaction)
-  res.json(editedTransaction).send()
+  const status = editedTransaction.failed ? 400 : 200
+  res.status(status).json(editedTransaction).send()
 }
 
 const addTransaction = async (req, res) => {
   const transaction = req.body
   const newTransaction = await createTransaction(transaction)
-  res.json(newTransaction).send()
+  const status = newTransaction.failed ? 400 : 200
+  res.status(status).json(newTransaction).send()
 }
 
 const searchTransactions = async (req, res) => {
   const { term } = req.query
   const result = await searchAllTransactions(term)
-  // res.render('transactions', { result })
-  res.json(result).send()
+  const status = result.failed ? 400 : 200
+  res.status(status).json(result).send()
 }
 
 module.exports = {

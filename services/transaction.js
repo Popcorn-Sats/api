@@ -10,6 +10,7 @@ const {Op} = Sequelize
 
 
 module.exports.getAllTransactions = async () => {
+  const errors = []
   const transactions = await db.transaction.findAll({
     include: [
         {
@@ -27,6 +28,10 @@ module.exports.getAllTransactions = async () => {
         }
     ]
   })
+  .catch(err => {
+    errors.push(err)
+    return errors
+  })
   if (!transactions) {
     return { failed: true, message: "No transactions were found" }
   }
@@ -34,6 +39,7 @@ module.exports.getAllTransactions = async () => {
 }
 
 module.exports.getTransactionsByAccountID = async (accountId) => {
+  const errors = []
   const transactions = await db.transaction.findAll(
     {
         include: [
@@ -52,7 +58,7 @@ module.exports.getTransactionsByAccountID = async (accountId) => {
                 where: {
                   accountId
                 }
-                // This only brings over the single ledger.
+                // FIXME: This only brings over the single ledger.
                 // Wider scope needed
                 // Consider running a small script 
                 // like this to find the txids. Then grab those txns?
@@ -71,6 +77,10 @@ module.exports.getTransactionsByAccountID = async (accountId) => {
         }
     }
   )
+  .catch(err => {
+    errors.push(err)
+    return errors
+  })
   if (!transactions) {
     return { failed: true, message: "Transactions for account not found" }
   }
@@ -97,7 +107,7 @@ module.exports.editFullTransaction = async (transaction) => {
   } = transaction
   const errors = []
 
-  db.transaction.update(
+  const editedTransaction = await db.transaction.update(
     { 
         date,
         description, 
@@ -119,11 +129,12 @@ module.exports.editFullTransaction = async (transaction) => {
 
   .catch(err => {
     errors.push(err)
-    // res(errors)
-    // console.log(err)
+    return errors
   })
-
-  return transaction
+  if (!editedTransaction) {
+    return { failed: true, message: "Transaction to edit not found" }
+  }
+  return editedTransaction
 }
 
 module.exports.searchAllTransactions = async (term) => {
@@ -154,7 +165,6 @@ module.exports.createTransaction = async (transaction) => {
   // Validate required fields
   if(!balance_change || !sender || !recipient) {
     return { failed: true, message: "Missing required field(s)" }
-      // res.status(400).send()
   }
 
   if (category) {
@@ -247,6 +257,4 @@ module.exports.createTransaction = async (transaction) => {
       ]
   })
   return newTransaction
-  // .then(transaction => res.json(transaction).send())
-  // .catch(err => console.log(err));
 }

@@ -139,15 +139,16 @@ module.exports.editFullTransaction = async (transaction) => {
 
 module.exports.searchAllTransactions = async (term) => {
   const errors = []
-  const result = await db.transaction.findAll({ where: Sequelize.or(
-      // { category: { [Op.iLike]: `%${  term  }%` } },
+  const result = await db.transaction.findAll({ where: {[Op.or]: [
+      { '$category.name$': { [Op.iLike]: `%${  term  }%` } },
       { description: { [Op.iLike]: `%${  term  }%` } },
       // { payee: { [Op.iLike]: `%${  term  }%` } },
       // { block_height: { [Op.iLike]: `%${  term  }%` } },
       // { txid: { [Op.iLike]: `%${  term  }%` } },
       // { account: { [Op.iLike]: `%${  term  }%` } },
       // { address: { [Op.iLike]: `%${  term  }%` } }
-  )})
+  ]},
+  include: [{ model: db.category }]})
   .catch(err => {
     errors.push(err)
   })

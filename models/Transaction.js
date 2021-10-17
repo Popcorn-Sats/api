@@ -23,14 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     description: {
       type: DataTypes.STRING,
-    },
-    // account: {
-    //    type: DataTypes.INTEGER,
-    //
-    // },
-    // payee: {
-    //    type: DataTypes.INTEGER
-    // },
+    }
   })
 
   Transaction.associate = (models) => {

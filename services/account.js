@@ -46,6 +46,20 @@ module.exports.createAccount = async (account) => {
   const accounttype = parseInt(account.accountType, 10)
   const errors = []
 
+  // Validate required fields
+  if(!name || !birthday || !accounttype) {
+    return { failed: true, message: "Missing required field(s)" }
+  }
+
+  // Check for  errors
+  if (errors.length > 0) {
+    return ('add', {
+      name, 
+      birthday, 
+      accounttype
+    })
+  }
+
   const newAccount = await db.account.create({
     name, 
     notes, 
@@ -57,44 +71,18 @@ module.exports.createAccount = async (account) => {
     return errors
   })
   return newAccount
-
-  /* // Validate fields
-  if(!name || !birthday || !accounttype) {
-      res.status(400).send()
-  }
-
-  // Check for  errors
-  if(errors.length > 0) {
-      res.send('add', {
-          errors,
-          name, 
-          notes, 
-          birthday, 
-          accounttype
-      })
-  } else {
-      // Insert into table
-      db.account.create({
-          name, 
-          notes, 
-          birthday, 
-          accounttype
-      })
-      .then(account => res.json(account))
-      .catch(err => {
-        errors.push(err)
-      });
-  } */
 }
 
 module.exports.searchAllAccounts = async (term) => {
   const errors = []
-  // FIXME: broken as fuck with > 1 attributes
-  const result = await db.account.findAll({ where: Sequelize.or(
-      // { xpub: { [Op.iLike]: `%${  term  }%` } },
+  const result = await db.account.findAll({ where: {[Op.or]: [
+      { '$xpub.name$': { [Op.iLike]: `%${  term  }%` } },
       { name: { [Op.iLike]: `%${  term  }%` } },
-      // { notes: { [Op.iLike]: `%${  term  }%` } }
-  )})
+      { notes: { [Op.iLike]: `%${  term  }%` } }
+  ]},
+include: [
+  { model: db.xpub },
+]})
   .catch(err => {
     errors.push(err)
     return errors

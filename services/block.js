@@ -5,10 +5,9 @@ module.exports.checkAndCreateBlock = async (blockHeight) => {
   const errors = []
   const blocks = await db.block.findAll({
     where: {
-        height: blockHeight
-      }
+      height: blockHeight
     }
-  )
+  })
   if (blocks[0]) {
     blockId = blocks[0].dataValues.id
   } else {

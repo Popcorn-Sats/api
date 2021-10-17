@@ -3,6 +3,7 @@ module.exports = (sequelize, DataTypes) => {
     // Note: primary key needed in model for Sequelize to merge properly on 'hasMany'
     id: {
       type: DataTypes.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
     },
     txid: {

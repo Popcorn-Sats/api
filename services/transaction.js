@@ -174,7 +174,6 @@ module.exports.createTransaction = async (transaction) => {
 
   if (sender) {
     senderId = await checkAndCreateAccount(sender)
-    // console.log("Received senderId: ", senderId)
   }
 
   if (recipient) {
@@ -187,28 +186,12 @@ module.exports.createTransaction = async (transaction) => {
 
   // Check for  errors
   if (errors.length > 0) {
-      /* res.send('add', {
-          balance_change, 
-          sender, 
-          recipient
-      }) */
       return ('add', {
         balance_change, 
         sender, 
         recipient
     })
   }
-  // Find transaction index
-  // TODO: this is a stupid amount of data to get one ID. Can Sequelize reduce the burden?
-  let transactionsIndex
-  await db.transaction.findAll({
-      order: [
-          ['id', 'ASC'],
-      ],
-  })
-  .then (transactions => {
-      transactionsIndex = transactions[transactions.length - 1].dataValues.id + 1
-  })
   // Find transactionledger index
   let ledgerDebitIndex
   let ledgerCreditIndex
@@ -223,7 +206,6 @@ module.exports.createTransaction = async (transaction) => {
   })
   // Insert into table
   const newTransaction = await db.transaction.create({
-      id: transactionsIndex,
       blockId, 
       txid, 
       balance_change, 
@@ -238,7 +220,6 @@ module.exports.createTransaction = async (transaction) => {
               // TODO: how to deal with split recipients (e.g. network fees, PayJoin, exchange payouts)
               id: ledgerCreditIndex,
               accountId: recipientId,
-              transactionId: transactionsIndex,
               transactiontypeId: 2
           },
           {
@@ -246,7 +227,6 @@ module.exports.createTransaction = async (transaction) => {
               // TODO: how to deal with multiple signers
               id: ledgerDebitIndex,
               accountId: senderId,
-              transactionId: transactionsIndex,
               transactiontypeId: 1
           }
       ]

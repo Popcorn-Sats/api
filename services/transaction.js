@@ -158,7 +158,6 @@ module.exports.searchAllTransactions = async (term) => {
 module.exports.createTransaction = async (transaction) => {
   const { blockHeight, txid, balance_change, address, network_fee, size, description, sender, category, recipient } = transaction
   const errors = []
-  let thisCategory
   let categoryid
   let blockId
   let thisSender
@@ -172,8 +171,8 @@ module.exports.createTransaction = async (transaction) => {
   }
 
   if (category) {
-    thisCategory = await checkAndCreateCategory(category)
-    categoryid = thisCategory.id
+    categoryid = await checkAndCreateCategory(category)
+    if (categoryid.errors) {return { failed: true, message: categoryid.errors }}
   }
 
   if (sender) {

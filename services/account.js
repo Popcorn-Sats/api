@@ -36,8 +36,7 @@ module.exports.editAccountById = async (account) => {
   )
   .catch(err => {
     errors.push(err)
-    // res(errors)
-    // console.log(err)
+    return errors
   })
   return editedAccount
 }
@@ -55,6 +54,7 @@ module.exports.createAccount = async (account) => {
   })
   .catch(err => {
     errors.push(err)
+    return errors
   })
   return newAccount
 
@@ -93,11 +93,11 @@ module.exports.searchAllAccounts = async (term) => {
   const result = await db.account.findAll({ where: Sequelize.or(
       // { xpub: { [Op.iLike]: `%${  term  }%` } },
       { name: { [Op.iLike]: `%${  term  }%` } },
-      // { notes: { [Op.iLike]: `%${  term  }%` } },
-      // { accounttype: { [Op.iLike]: `%${  term  }%` } }
+      // { notes: { [Op.iLike]: `%${  term  }%` } }
   )})
   .catch(err => {
     errors.push(err)
+    return errors
   })
   return(result)
 }

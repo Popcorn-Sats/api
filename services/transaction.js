@@ -8,6 +8,35 @@ const { checkAndCreateCategory } = require('./category')
 
 const {Op} = Sequelize
 
+const transactionByUUID = async (id) => {
+  console.log("Getting by UUID: ", id)
+  const errors = []
+  const transaction = await db.transaction.findAll({
+    where: {
+        id
+    },
+    include: [
+      {
+          model: db.category,
+      },
+      {
+          model: db.block,
+      },
+      {
+          model: db.transactiontype,
+      },
+      {
+          model: db.transactionledger,
+          include: [db.account]
+      }
+    ]
+  })
+  .catch(err => {
+    errors.push(err)
+    return errors
+  })
+  return transaction
+}
 
 module.exports.getAllTransactions = async () => {
   const errors = []
@@ -88,7 +117,10 @@ module.exports.getTransactionsByAccountID = async (accountId) => {
 }
 
 // TODO: get single specified transaction for detailed view/editing. Cut excess from higher order services (e.g. per account)
-module.exports.getTransactionByID = async (id) => id
+module.exports.getTransactionByID = async (id) => {
+  const transaction = await transactionByUUID(id)
+  return transaction
+}
 
 module.exports.editFullTransaction = async (transaction) => {
   const { 

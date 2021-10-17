@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-const { getTransactionsByAccountID, getAllTransactions, editFullTransaction, createTransaction, searchAllTransactions } = require('../services/transaction')
+const { getTransactionsByAccountID, getTransactionByID, getAllTransactions, editFullTransaction, createTransaction, searchAllTransactions } = require('../services/transaction')
 
 const getTransactions = async (req, res) => {
   const transactions = await getAllTransactions()
@@ -12,6 +12,13 @@ const getTransactionsForAccount = async (req, res) => {
   const transactions = await getTransactionsByAccountID(accountId)
   const status = transactions.failed ? 400 : 200
   res.status(status).json(transactions).send()
+}
+
+const getTransactionByTransactionID = async (req, res) => {
+  const {transactionId} = req.params
+  const transaction = await getTransactionByID(transactionId)
+  const status = transaction.failed ? 400 : 200
+  res.status(status).json(transaction).send()
 }
 
 const editTransaction = async (req, res) => {
@@ -38,6 +45,7 @@ const searchTransactions = async (req, res) => {
 module.exports = {
   getTransactions,
   getTransactionsForAccount,
+  getTransactionByTransactionID,
   editTransaction,
   addTransaction,
   searchTransactions

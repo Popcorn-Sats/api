@@ -142,10 +142,13 @@ module.exports.searchAllTransactions = async (term) => {
   const result = await db.transaction.findAll({ where: {[Op.or]: [
       { '$category.name$': { [Op.iLike]: `%${  term  }%` } },
       { description: { [Op.iLike]: `%${  term  }%` } },
-      { block_height: { [Op.iLike]: `%${  term  }%` } },
+      // { '$block.height$': { [Op.iLike]: `%${  parseInt(term, 10)  }%` } },
       { txid: { [Op.iLike]: `%${  term  }%` } }
   ]},
-  include: [{ model: db.category }]})
+  include: [
+    { model: db.category },
+    // { model: db.block },
+  ]})
   .catch(err => {
     errors.push(err)
   })

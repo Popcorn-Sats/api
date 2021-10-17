@@ -38,6 +38,25 @@ const transactionByUUID = async (id) => {
   return transaction
 }
 
+const listTransactionsByAccountId = async (accountId) => {
+  const errors = []
+  const transactions = []
+  const ledgers = await db.transactionledger.findAll({
+    where: {
+      accountId
+    }
+  })
+  .catch(err => {
+    errors.push(err)
+    return errors
+  })
+  ledgers.forEach(ledger => {
+    transactions.push(ledger.transactionId)
+  });
+  console.log(transactions)
+  return transactions
+}
+
 module.exports.getAllTransactions = async () => {
   const errors = []
   const transactions = await db.transaction.findAll({
@@ -69,43 +88,33 @@ module.exports.getAllTransactions = async () => {
 
 module.exports.getTransactionsByAccountID = async (accountId) => {
   const errors = []
-  const transactions = await db.transaction.findAll(
-    {
-        include: [
-            {
-                model: db.category,
-            },
-            {
-                model: db.block,
-            },
-            {
-                model: db.transactiontype,
-            },
-            {
-                model: db.transactionledger,
-                include: [db.account],
-                where: {
-                  accountId
-                }
-                // FIXME: This only brings over the single ledger.
-                // Wider scope needed
-                // Consider running a small script 
-                // like this to find the txids. Then grab those txns?
-            }
-        ]
-    }, {
-        where: {
-            include: [
-                {
-                    model: db.transactionledger,
-                    where: {
-                        accountId
-                    }
-                }
-            ]
+  const transactionList = await listTransactionsByAccountId(accountId)
+  .catch(err => {
+    errors.push(err)
+    return errors
+  })
+  const transactions = await db.transaction.findAll({
+    where: {
+      id: {
+        [Op.in]: transactionList
+      }
+    },
+    include: [
+        {
+            model: db.category,
+        },
+        {
+            model: db.block,
+        },
+        {
+            model: db.transactiontype,
+        },
+        {
+            model: db.transactionledger,
+            include: [db.account]
         }
-    }
-  )
+    ]
+  })
   .catch(err => {
     errors.push(err)
     return errors

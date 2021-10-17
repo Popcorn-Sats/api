@@ -125,7 +125,6 @@ module.exports.getTransactionsByAccountID = async (accountId) => {
   return transactions
 }
 
-// TODO: get single specified transaction for detailed view/editing. Cut excess from higher order services (e.g. per account)
 module.exports.getTransactionByID = async (id) => {
   const transaction = await transactionByUUID(id)
   return transaction
@@ -237,18 +236,6 @@ module.exports.createTransaction = async (transaction) => {
         recipient
     })
   }
-  // Find transactionledger index
-  let ledgerDebitIndex
-  let ledgerCreditIndex
-  await db.transactionledger.findAll({
-      order: [
-          ['id', 'ASC'],
-      ],
-  })
-  .then (ledgers => {
-      ledgerCreditIndex = ledgers[ledgers.length - 1].dataValues.id + 1
-      ledgerDebitIndex = ledgerCreditIndex + 1
-  })
   // Insert into table
   const newTransaction = await db.transaction.create({
       blockId, 
@@ -263,14 +250,12 @@ module.exports.createTransaction = async (transaction) => {
           {
               // Recipient
               // TODO: how to deal with split recipients (e.g. network fees, PayJoin, exchange payouts)
-              id: ledgerCreditIndex,
               accountId: recipientId,
               transactiontypeId: 2
           },
           {
               // Sender
-              // TODO: how to deal with multiple signers
-              id: ledgerDebitIndex,
+              // TODO: how to deal with multiple signers\
               accountId: senderId,
               transactiontypeId: 1
           }

@@ -1,38 +1,25 @@
-/* eslint-disable camelcase */
-/* eslint-disable no-console */
 const db = require('../models')
-const { getObjects } = require('../utils/getObjects')
 
-// FIXME: This is just adding new blocks each time, not returning if already exists
 module.exports.checkAndCreateBlock = async (blockHeight) => {
   let blockId
-  let blockMatch
-  let blockIndex
-  await db.block.findAll({
-    order: [
-        ['id', 'ASC'],
-    ],
-  })
-  .then(blocks => {
-      blockIndex = blocks[blocks.length -1].dataValues.id + 1
-      blockMatch = getObjects(blocks, '', blockHeight)
-  })
-  if (blockMatch[0]) {
-      blockId = blockMatch[0].id
-  }
-  else {
-      // Insert into table
-      db.block.create({
-          id: blockIndex,
-          height: blockHeight
-      })
-      .then(
-          block => {
-              // console.log(block)
-              blockId = block.id
-          }
-      )
-      .catch(err => console.log(err));
+  const errors = []
+  const blocks = await db.block.findAll({
+    where: {
+        height: blockHeight
+      }
+    }
+  )
+  if (blocks[0]) {
+    blockId = blocks[0].dataValues.id
+  } else {
+    const newBlock = await db.block.create({
+      height: blockHeight
+    })
+    .catch(err => {
+      errors.push(err)
+      return errors
+    })
+    blockId = newBlock.dataValues.id
   }
   return blockId
 }

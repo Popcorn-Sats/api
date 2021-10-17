@@ -158,9 +158,12 @@ module.exports.searchAllTransactions = async (term) => {
 module.exports.createTransaction = async (transaction) => {
   const { blockHeight, txid, balance_change, address, network_fee, size, description, sender, category, recipient } = transaction
   const errors = []
+  let thisCategory
   let categoryid
   let blockId
+  let thisSender
   let senderId
+  let thisRecipient
   let recipientId
 
   // Validate required fields
@@ -169,19 +172,23 @@ module.exports.createTransaction = async (transaction) => {
   }
 
   if (category) {
-    categoryid = await checkAndCreateCategory(category)
+    thisCategory = await checkAndCreateCategory(category)
+    categoryid = thisCategory.id
   }
 
   if (sender) {
-    senderId = await checkAndCreateAccount(sender)
+    thisSender = await checkAndCreateAccount(sender)
+    senderId = thisSender.id
   }
 
   if (recipient) {
-    recipientId = await checkAndCreateAccount(recipient)    
+    thisRecipient = await checkAndCreateAccount(recipient)
+    recipientId = thisRecipient.id
   }
 
   if (blockHeight) {
     blockId = await checkAndCreateBlock(blockHeight)
+    if (blockId.errors) {return { failed: true, message: blockId.errors }}
   }
 
   // Check for  errors

@@ -2,7 +2,6 @@
 /* eslint-disable no-console */
 const Sequelize = require('sequelize')
 const db = require('../models')
-const { getObjects } = require('../utils/getObjects')
 
 const {Op} = Sequelize
 
@@ -104,32 +103,24 @@ module.exports.searchAllAccounts = async (term) => {
 }
 
 module.exports.checkAndCreateAccount = async (name) => {
-  let accountMatch
   let accountId
-  await db.account.findAll({
-    order: [
-        ['id', 'ASC'],
-    ],
+  const errors = []
+  const accounts = await db.account.findAll({
+    where: {
+      name
+    }
   })
-  .then(accounts => {
-      accountMatch = getObjects(accounts, '', name)
-      if (accountMatch[0]) {
-          accountId = accountMatch[0].id
-      }
-      else {
-          // Insert into table
-          db.account.create({
-              name
-          })
-          .then(
-              account => {
-                  // console.log(account)
-                  accountId = account.id
-              }
-          )
-          .catch(err => console.log(err));
-      }
-  })
-  .catch(err => console.log(err));
+  if (accounts[0]) {
+    accountId = accounts[0].dataValues.id
+  } else {
+    const newAccount = await db.account.create({
+      name
+    })
+    .catch(err => {
+      errors.push(err)
+      return errors
+    })
+    accountId = newAccount.dataValues.id
+  }
   return accountId
 }

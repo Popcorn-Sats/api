@@ -160,9 +160,7 @@ module.exports.createTransaction = async (transaction) => {
   const errors = []
   let categoryid
   let blockId
-  let thisSender
   let senderId
-  let thisRecipient
   let recipientId
 
   // Validate required fields
@@ -176,13 +174,13 @@ module.exports.createTransaction = async (transaction) => {
   }
 
   if (sender) {
-    thisSender = await checkAndCreateAccount(sender)
-    senderId = thisSender.id
+    senderId = await checkAndCreateAccount(sender)
+    if (senderId.errors) {return { failed: true, message: senderId.errors }}
   }
 
   if (recipient) {
-    thisRecipient = await checkAndCreateAccount(recipient)
-    recipientId = thisRecipient.id
+    recipientId = await checkAndCreateAccount(recipient)
+    if (recipientId.errors) {return { failed: true, message: recipientId.errors }}
   }
 
   if (blockHeight) {

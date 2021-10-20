@@ -35,64 +35,71 @@ module.exports.editCategoryById = async (category) => {
   const { id, name } = category 
   const errors = []
 
-  db.category.update(
+  // Validate required fields
+  if(!id || !name) {
+    return { failed: true, message: "Missing required field(s)" }
+  }
+
+  const editedCategory = await db.category.update(
     { 
         name
     }, {
         where: {
             id
-        }
+        },
+        returning: true
     }
   )
-
   .catch(err => {
     errors.push(err)
-    // res(errors)
-    // console.log(err)
+    return errors
   })
-  return category
+
+  if(!editedCategory) {
+    return { failed: true, message: "Something went wrong—category wasn't edited", errors }
+  }
+
+  return editedCategory
 }
 
 module.exports.createCategory = async (category) => {
   const { name } = category
   const errors = []
+
+  // Validate fields
+  if(!name) {
+      return { failed: true, message: "No category name provided" }
+  }
+
   const newCategory = await db.category.create({
     name
   })
-
   .catch(err => {
     errors.push(err)
+    return errors
   })
+
+  if(!newCategory) {
+    return { failed: true, message: "Something went wrong—category wasn't created", errors }
+  }
+
   return newCategory
 
-    /* // Validate fields
-    if(!name) {
-        res.status(400).send()
-    }
-
-    // Check for  errors
-    if(errors.length > 0) {
-        res.send('add', {
-            errors,
-            name
-        })
-    } else {
-        // Insert into table
-        db.category.create({
-            name
-        })
-        .then(category => res.json(category))
-        .catch(err => console.log(err));
-    } */
 }
 
 module.exports.searchAllCategories = async (term) => {
   const errors = []
+
+  if(!term) {
+    return { failed: true, message: "No search term provided" }
+  }
+
   const result = await db.category.findAll({ where: Sequelize.or(
     { name: { [Op.iLike]: `%${  term  }%` } }
   )})
   .catch(err => {
     errors.push(err)
+    return errors
   })
   return(result)
 }
@@ -100,10 +107,19 @@ module.exports.searchAllCategories = async (term) => {
 module.exports.checkAndCreateCategory = async (category) => {
   let categoryid
   const errors = []
+
+  if(!category) {
+    return { failed: true, message: "No category name provided" }
+  }
+
   const categories = await db.category.findAll({
     where: {
       name: category
     }
+  })
+  .catch(err => {
+    errors.push(err)
+    return errors
   })
   if (categories[0]) {
     categoryid = categories[0].dataValues.id

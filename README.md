@@ -36,6 +36,14 @@ Set environment:
 
 `export NODE_CONFIG_DIR="$(pwd)/config/"`
 
+## Run DB Migrations
+
+`npx sequelize-cli db:migrate`
+
+## Run DB Seeders
+
+`npx sequelize-cli db:seed:all`
+
 ## Start server
 
 `npm start`

@@ -22,6 +22,17 @@ module.exports = {
         },
         allowNull: false
       },
+      addressId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: {
+            tableName: 'addresses',
+            // schema: 'schema'
+          },
+          key: 'id'
+        },
+        allowNull: false
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

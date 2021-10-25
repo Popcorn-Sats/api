@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Utxo.belongsTo(models.transactionledger)
+      Utxo.belongsTo(models.address)
     }
   };
   Utxo.init({

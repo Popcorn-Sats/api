@@ -1,6 +1,7 @@
 const {
   Model
-} = require('sequelize');
+} = require('sequelize')
+
 module.exports = (sequelize, DataTypes) => {
   class Address extends Model {
     /**
@@ -12,12 +13,12 @@ module.exports = (sequelize, DataTypes) => {
       Address.belongsTo(models.account)
       Address.hasMany(models.utxo)
     }
-  };
+  }
   Address.init({
     address: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'address',
-  });
+  })
   return Address;
-};
+}

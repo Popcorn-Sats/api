@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
         TransactionLedger.belongsTo(models.transaction)
         TransactionLedger.belongsTo(models.transactiontype)
         TransactionLedger.belongsTo(models.account)
-        TransactionLedger.hasOne(models.utxo)
+        TransactionLedger.belongsTo(models.utxo)
     }
 
     return TransactionLedger

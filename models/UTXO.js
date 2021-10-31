@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Utxo.belongsTo(models.transactionledger)
+      Utxo.hasMany(models.transactionledger)
       Utxo.belongsTo(models.address)
     }
   };

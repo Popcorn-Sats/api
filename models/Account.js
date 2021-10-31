@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE
         },
         active: {
-            type: DataTypes.INTEGER
+            type: DataTypes.BOOLEAN
         },
         owned: {
             type: DataTypes.BOOLEAN

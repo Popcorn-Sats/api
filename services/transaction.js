@@ -206,7 +206,9 @@ module.exports.createTransaction = async (transaction) => {
   // Validate required fields
   if(!balance_change || !sender || !recipient) {
     return { failed: true, message: "Missing required field(s)" }
-  }
+  }   // TODO: It shouldn't really work like this.
+      // It should accept arrays of inputs and outputs, incl addresses & utxos
+      // These thouse be processed as objects and pushed to ledgers array, which is referenced in model.create
 
   if(utxos) {
       // TODO: for utxo in utxos create array of transaction ledger primitives
@@ -252,16 +254,25 @@ module.exports.createTransaction = async (transaction) => {
       categoryid, 
       transactionledgers: [
           {
+              // Fee
+              accountId: 0,
+              transactiontypeId: 1,
+              amount: network_fee
+              // TODO: Add 'Network Fees' to Accounts and AccountTypes tables
+          },
+          {
               // Recipient
               // TODO: how to deal with split recipients (e.g. network fees, PayJoin, exchange payouts)
               accountId: recipientId,
-              transactiontypeId: 2
+              transactiontypeId: 2,
+              amount: balance_change
           },
           {
               // Sender
               // TODO: how to deal with multiple signers\
               accountId: senderId,
-              transactiontypeId: 1
+              transactiontypeId: 1,
+              amount: balance_change
           }
       ]
   }, {

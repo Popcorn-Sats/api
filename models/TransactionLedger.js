@@ -8,6 +8,9 @@ module.exports = (sequelize, DataTypes) => {
         address: {
             type: DataTypes.STRING
         },
+        amount: {
+          type: DataTypes.INTEGER
+        }
 
 
     })

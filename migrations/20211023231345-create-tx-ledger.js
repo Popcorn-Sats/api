@@ -40,6 +40,16 @@ module.exports = {
         },
         allowNull: false
       },
+      utxoId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: {
+            tableName: 'utxos',
+          },
+          key: 'id'
+        },
+        allowNull: true
+      },
       address: {
         allowNull: true,
         type: Sequelize.STRING

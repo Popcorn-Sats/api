@@ -58,7 +58,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        accountId: 25,
+        accountId: 12,
         transactionId: 38,
         transactiontypeId: 2,
         address: null,
@@ -67,7 +67,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        accountId: 22,
+        accountId: 10,
         transactionId: 38,
         transactiontypeId: 1,
         address: null,
@@ -94,7 +94,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        accountId: 25,
+        accountId: 10,
         transactionId: 40,
         transactiontypeId: 2,
         address: null,
@@ -103,7 +103,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        accountId: 22,
+        accountId: 12,
         transactionId: 40,
         transactiontypeId: 1,
         address: null,

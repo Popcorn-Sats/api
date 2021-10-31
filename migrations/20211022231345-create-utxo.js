@@ -11,17 +11,6 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
-      transactionledgerId: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: {
-            tableName: 'transactionledgers',
-            // schema: 'schema'
-          },
-          key: 'id'
-        },
-        allowNull: false
-      },
       addressId: {
         type: Sequelize.INTEGER,
         references: {

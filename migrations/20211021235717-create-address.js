@@ -10,6 +10,17 @@ module.exports = {
       address: {
         type: Sequelize.STRING
       },
+      accountId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: {
+            tableName: 'accounts',
+            // schema: 'schema'
+          },
+          key: 'id'
+        },
+        allowNull: false
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

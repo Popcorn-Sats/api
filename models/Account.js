@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE
         },
         active: {
-            type: DataTypes.INTEGER
+            type: DataTypes.BOOLEAN
         },
         owned: {
             type: DataTypes.BOOLEAN
@@ -22,11 +22,12 @@ module.exports = (sequelize, DataTypes) => {
     Account.associate = (models) => {
         Account.hasOne(models.xpub, {
             onDelete: "cascade"
-        })
+        }) // Should account just have an optional unique XPub field?
         Account.belongsTo(models.accounttype, {
             
         })
         Account.hasMany(models.transactionledger)
+        Account.hasMany(models.address)
     }
     return Account
 }

@@ -27,7 +27,7 @@ const transactionByUUID = async (id) => {
       },
       {
           model: db.transactionledger,
-          include: [db.account]
+          include: [db.account, db.utxo]
       }
     ]
   })
@@ -72,7 +72,7 @@ module.exports.getAllTransactions = async () => {
         },
         {
             model: db.transactionledger,
-            include: [db.account]
+            include: [db.account, db.utxo]
         }
     ]
   })
@@ -111,7 +111,7 @@ module.exports.getTransactionsByAccountID = async (accountId) => {
         },
         {
             model: db.transactionledger,
-            include: [db.account]
+            include: [db.account, db.utxo]
         }
     ]
   })
@@ -166,7 +166,7 @@ module.exports.editFullTransaction = async (transaction) => {
         }
     }
   )
-
+// TODO: Add transaction ledger logic
   .catch(err => {
     errors.push(err)
     return errors
@@ -196,7 +196,7 @@ module.exports.searchAllTransactions = async (term) => {
 }
 
 module.exports.createTransaction = async (transaction) => {
-  const { blockHeight, txid, balance_change, address, network_fee, size, description, sender, category, recipient } = transaction
+  const { blockHeight, txid, balance_change, address, network_fee, size, description, sender, category, recipient, utxos } = transaction
   const errors = []
   let categoryid
   let blockId
@@ -206,6 +206,10 @@ module.exports.createTransaction = async (transaction) => {
   // Validate required fields
   if(!balance_change || !sender || !recipient) {
     return { failed: true, message: "Missing required field(s)" }
+  }
+
+  if(utxos) {
+      // TODO: for utxo in utxos create array of transaction ledger primitives
   }
 
   if (category) {

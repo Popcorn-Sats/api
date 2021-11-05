@@ -6,16 +6,39 @@ const db = require('../models')
 const {Op} = Sequelize
 
 module.exports.getAllAccounts = async () => {
+  const errors = []
   const accounts = await db.account.findAll({
     order: [
         ['id', 'ASC'],
     ],
     include: [db.xpub, db.accounttype]
   })
+  .catch(err => {
+    errors.push(err)
+    return errors
+  })
   if (!accounts) {
     return { failed: true, message: "No accounts were found" }
   }
   return accounts
+}
+
+module.exports.getAccountById = async (id) => {
+  const errors = []
+  const account = await db.account.findOne({
+    where: {
+      id
+    },
+    include: [db.xpub, db.accounttype]
+  })
+  .catch(err => {
+    errors.push(err)
+    return errors
+  })
+  if (!account) {
+    return { failed: true, message: "No accounts were found" }
+  }
+  return account
 }
 
 module.exports.editAccountById = async (account) => {

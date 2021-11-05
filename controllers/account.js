@@ -1,11 +1,18 @@
 /* eslint-disable no-console */
-const { getAllAccounts, editAccountById, createAccount, searchAllAccounts } = require('../services/account')
+const { getAllAccounts, editAccountById, createAccount, searchAllAccounts, getAccountById } = require('../services/account')
 
 // TODO: Error handling
 
 const getAccounts = async (req, res) => {
   const accounts = await getAllAccounts()
   res.json(accounts).send()
+  // .catch(err => res(err))
+}
+
+const getSingleAccount = async (req, res) => {
+  const {accountId} = req.params
+  const account = await getAccountById(accountId)
+  res.json(account).send()
   // .catch(err => res(err))
 }
 
@@ -32,6 +39,7 @@ const searchAccounts = async (req, res) => {
 
 module.exports = {
   getAccounts,
+  getSingleAccount,
   editAccount,
   addAccount,
   searchAccounts

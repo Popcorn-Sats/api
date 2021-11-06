@@ -11,7 +11,7 @@ const {Op} = Sequelize
 const transactionByUUID = async (id) => {
   console.log("Getting by UUID: ", id)
   const errors = []
-  const transaction = await db.transaction.findAll({
+  const transaction = await db.transaction.findOne({
     where: {
         id
     },

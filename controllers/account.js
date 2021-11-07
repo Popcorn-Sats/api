@@ -5,36 +5,38 @@ const { getAllAccounts, editAccountById, createAccount, searchAllAccounts, getAc
 
 const getAccounts = async (req, res) => {
   const accounts = await getAllAccounts()
-  res.json(accounts).send()
-  // .catch(err => res(err))
+  .catch(err => res.status(500).send(err))
+  return res.json(accounts)
 }
 
 const getSingleAccount = async (req, res) => {
   const {accountId} = req.params
   const account = await getAccountById(accountId)
-  res.json(account).send()
-  // .catch(err => res(err))
+  .catch(err => res.status(500).send(err))
+  return res.json(account)
 }
 
 const editAccount = async (req, res) => {
   const account = req.body
   const editedAccount = await editAccountById(account)
-  res.json(editedAccount).send()
-  // .catch(err => res(err))
+  .catch(err => res.status(500).send(err))
+  return res.json(editedAccount)
 }
 
 const addAccount = async (req, res) => {
   const account = req.body
   const newAccount = await createAccount(account)
+  .catch(err => res.status(500).send(err))
   // const newAccount = await checkAndCreateAccount(account)
-  res.json(newAccount).send()
+  res.json(newAccount)
 }
 
 const searchAccounts = async (req, res) => {
   const { term } = req.query
   const result = await searchAllAccounts(term)
+  .catch(err => res.status(500).send(err))
   // res.render('accounts', { result })
-  res.json(result).send()
+  res.json(result)
 }
 
 module.exports = {

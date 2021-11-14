@@ -5,6 +5,7 @@ const db = require('../models')
 const { checkAndCreateAccount } = require('./account')
 const { checkAndCreateBlock } = require('./block')
 const { checkAndCreateCategory } = require('./category')
+const { checkAndCreateUtxo } = require('./utxo')
 
 const {Op} = Sequelize
 
@@ -195,8 +196,12 @@ module.exports.searchAllTransactions = async (term) => {
   return(result)
 }
 
+/* const balanceLedgers = async (ledgers) => {
+
+} */
+
 module.exports.createTransaction = async (transaction) => {
-  const { blockHeight, txid, balance_change, address, network_fee, size, description, sender, category, recipient, utxos } = transaction
+  const { blockHeight, txid, balance_change, address, network_fee, size, description, sender, category, recipient, ledgers } = transaction
   const errors = []
   let categoryid
   let blockId
@@ -204,15 +209,43 @@ module.exports.createTransaction = async (transaction) => {
   let recipientId
 
   // Validate required fields
-  if(!balance_change || !sender || !recipient) {
+  if( !ledgers || !balance_change || !sender || !recipient) {
     return { failed: true, message: "Missing required field(s)" }
   }   // TODO: It shouldn't really work like this.
       // It should accept arrays of inputs and outputs, incl addresses & utxos
       // These thouse be processed as objects and pushed to ledgers array, which is referenced in model.create
 
-  if(utxos) {
-      // TODO: for utxo in utxos create array of transaction ledger primitives
+  // Add network fee to ledgers
+  const transactionledgers = []
+
+  transactionledgers.push({
+    // Fee
+    accountId: 0,
+    transactiontypeId: 1,
+    amount: network_fee
+  })
+
+  for(let i = 0; i < ledgers.length; i += 1) {
+    const rawLedger = ledgers[i]
+    console.log("Creating ledger ", rawLedger)
+    const accountId = await checkAndCreateAccount(rawLedger.name)
+    const ledger = {
+      amount: rawLedger.amount,
+      accountId,
+      transactiontypeId: rawLedger.transactiontypeId,
+      utxoId: await checkAndCreateUtxo(rawLedger.utxo, rawLedger.address, accountId)
+    }
+    // Arrange the object
+    console.log("pushing ledger to ledgers")
+    transactionledgers.push(ledger)
   }
+
+  /* await balanceLedgers(transactionledgers)
+    .catch(err => {
+      errors.push(err)
+      return {failed: true, message: "Ledgers don't balance", errors}
+    })
+    .next() */
 
   if (category) {
     categoryid = await checkAndCreateCategory(category)
@@ -252,29 +285,7 @@ module.exports.createTransaction = async (transaction) => {
       size, 
       description, 
       categoryid, 
-      transactionledgers: [
-          {
-              // Fee
-              accountId: 0,
-              transactiontypeId: 1,
-              amount: network_fee
-              // TODO: Add 'Network Fees' to Accounts and AccountTypes tables
-          },
-          {
-              // Recipient
-              // TODO: how to deal with split recipients (e.g. network fees, PayJoin, exchange payouts)
-              accountId: recipientId,
-              transactiontypeId: 2,
-              amount: balance_change
-          },
-          {
-              // Sender
-              // TODO: how to deal with multiple signers\
-              accountId: senderId,
-              transactiontypeId: 1,
-              amount: balance_change
-          }
-      ]
+      transactionledgers // await Promise.all(transactionledgers)
   }, {
       include: [
           {

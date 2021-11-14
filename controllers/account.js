@@ -35,7 +35,6 @@ const searchAccounts = async (req, res) => {
   const { term } = req.query
   const result = await searchAllAccounts(term)
   .catch(err => res.status(500).send(err))
-  // res.render('accounts', { result })
   res.json(result)
 }
 

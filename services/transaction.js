@@ -31,7 +31,19 @@ const transactionByUUID = async (id) => {
       },
       {
           model: db.transactionledger,
-          include: [db.account, db.utxo]
+          include: [
+            {
+              model: db.account
+            },
+            {
+              model: db.utxo,
+              include: [
+                {
+                  model: db.address
+                }
+              ]
+            }
+          ]
       }
     ]
   })
@@ -276,7 +288,7 @@ module.exports.createTransaction = async (transaction) => {
     })
   }
   // Insert into table
-  const newTransaction = await db.transaction.create({
+  let newTransaction = await db.transaction.create({
       blockId, 
       txid, 
       balance_change, 
@@ -289,10 +301,10 @@ module.exports.createTransaction = async (transaction) => {
   }, {
       include: [
           {
-              model: db.transactionledger,
-              include: [db.account, db.utxo] 
+              model: db.transactionledger
           }
       ]
   })
-  return newTransaction // TODO: return include account, utxo. utxo include address
+  newTransaction = await transactionByUUID(newTransaction.id)
+  return newTransaction
 }

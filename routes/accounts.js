@@ -11,4 +11,4 @@ router
   .get('/search', ctrl.searchAccounts)
   .get('/:accountId', ctrl.getSingleAccount)
 
-module.exports = router;
+module.exports = router

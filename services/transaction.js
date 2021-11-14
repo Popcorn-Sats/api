@@ -1,6 +1,9 @@
+/* eslint-disable no-await-in-loop */
+// Because transaction ledger loop awaits are dependent on each other
 /* eslint-disable camelcase */
 /* eslint-disable no-console */
 const Sequelize = require('sequelize')
+const _ = require('lodash')
 const db = require('../models')
 const { checkAndCreateAccount } = require('./account')
 const { checkAndCreateBlock } = require('./block')
@@ -196,9 +199,11 @@ module.exports.searchAllTransactions = async (term) => {
   return(result)
 }
 
-/* const balanceLedgers = async (ledgers) => {
-
-} */
+const balanceLedgers = async (ledgers) => {
+  const debits = _.sum(_.map(_.filter(ledgers, {transactiontypeId: 1}), 'amount'))
+  const credits = _.sum(_.map(_.filter(ledgers, {transactiontypeId: 2}), 'amount'))
+  return credits === debits
+}
 
 module.exports.createTransaction = async (transaction) => {
   const { blockHeight, txid, balance_change, address, network_fee, size, description, sender, category, recipient, ledgers } = transaction
@@ -211,23 +216,19 @@ module.exports.createTransaction = async (transaction) => {
   // Validate required fields
   if( !ledgers || !balance_change || !sender || !recipient) {
     return { failed: true, message: "Missing required field(s)" }
-  }   // TODO: It shouldn't really work like this.
-      // It should accept arrays of inputs and outputs, incl addresses & utxos
-      // These thouse be processed as objects and pushed to ledgers array, which is referenced in model.create
+  } // TODO: balance change should be on a per-account basis by the front end, checking which ledger applies. Same w/ senders/recipients
 
-  // Add network fee to ledgers
   const transactionledgers = []
 
   transactionledgers.push({
     // Fee
     accountId: 0,
-    transactiontypeId: 1,
+    transactiontypeId: 2,
     amount: network_fee
   })
 
   for(let i = 0; i < ledgers.length; i += 1) {
     const rawLedger = ledgers[i]
-    console.log("Creating ledger ", rawLedger)
     const accountId = await checkAndCreateAccount(rawLedger.name)
     const ledger = {
       amount: rawLedger.amount,
@@ -235,17 +236,16 @@ module.exports.createTransaction = async (transaction) => {
       transactiontypeId: rawLedger.transactiontypeId,
       utxoId: await checkAndCreateUtxo(rawLedger.utxo, rawLedger.address, accountId)
     }
-    // Arrange the object
-    console.log("pushing ledger to ledgers")
     transactionledgers.push(ledger)
   }
 
-  /* await balanceLedgers(transactionledgers)
-    .catch(err => {
-      errors.push(err)
-      return {failed: true, message: "Ledgers don't balance", errors}
-    })
-    .next() */
+  const ledgersBalanced = await balanceLedgers(transactionledgers)
+
+  if (!ledgersBalanced) {
+    errors.push("Ledgers don't balance")
+    console.log("Ledgers don't balance")
+    return {failed: true, message: "Ledgers don't balance", errors}
+  }
 
   if (category) {
     categoryid = await checkAndCreateCategory(category)
@@ -285,13 +285,14 @@ module.exports.createTransaction = async (transaction) => {
       size, 
       description, 
       categoryid, 
-      transactionledgers // await Promise.all(transactionledgers)
+      transactionledgers
   }, {
       include: [
           {
-              model: db.transactionledger
+              model: db.transactionledger,
+              include: [db.account, db.utxo] 
           }
       ]
   })
-  return newTransaction
+  return newTransaction // TODO: return include account, utxo. utxo include address
 }

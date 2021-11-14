@@ -255,7 +255,6 @@ module.exports.createTransaction = async (transaction) => {
 
   if (!ledgersBalanced) {
     errors.push("Ledgers don't balance")
-    console.log("Ledgers don't balance")
     return {failed: true, message: "Ledgers don't balance", errors}
   }
 

@@ -2,6 +2,16 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
       await queryInterface.bulkInsert('accounts', [
       {
+        name: "Network Fees",
+        notes: null,
+        birthday: "2009-01-03",
+        active: true,
+        owned: false,
+        accounttypeId: 0,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
         name: "Wasabi",
         notes: "Used between exchanges and cold storage",
         birthday: "2020-10-01",
@@ -126,6 +136,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkDelete('transactionledgers', null, {});
+    await queryInterface.bulkDelete('accounts', null, {});
   }
 };

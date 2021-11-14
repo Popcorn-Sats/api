@@ -1,17 +1,21 @@
+/* eslint-disable no-await-in-loop */
+// Because transaction ledger loop awaits are dependent on each other
 /* eslint-disable camelcase */
 /* eslint-disable no-console */
 const Sequelize = require('sequelize')
+const _ = require('lodash')
 const db = require('../models')
 const { checkAndCreateAccount } = require('./account')
 const { checkAndCreateBlock } = require('./block')
 const { checkAndCreateCategory } = require('./category')
+const { checkAndCreateUtxo } = require('./utxo')
 
 const {Op} = Sequelize
 
 const transactionByUUID = async (id) => {
   console.log("Getting by UUID: ", id)
   const errors = []
-  const transaction = await db.transaction.findAll({
+  const transaction = await db.transaction.findOne({
     where: {
         id
     },
@@ -27,7 +31,19 @@ const transactionByUUID = async (id) => {
       },
       {
           model: db.transactionledger,
-          include: [db.account, db.utxo]
+          include: [
+            {
+              model: db.account
+            },
+            {
+              model: db.utxo,
+              include: [
+                {
+                  model: db.address
+                }
+              ]
+            }
+          ]
       }
     ]
   })
@@ -195,8 +211,14 @@ module.exports.searchAllTransactions = async (term) => {
   return(result)
 }
 
+const balanceLedgers = async (ledgers) => {
+  const debits = _.sum(_.map(_.filter(ledgers, {transactiontypeId: 1}), 'amount'))
+  const credits = _.sum(_.map(_.filter(ledgers, {transactiontypeId: 2}), 'amount'))
+  return credits === debits
+}
+
 module.exports.createTransaction = async (transaction) => {
-  const { blockHeight, txid, balance_change, address, network_fee, size, description, sender, category, recipient, utxos } = transaction
+  const { blockHeight, txid, balance_change, address, network_fee, size, description, sender, category, recipient, ledgers } = transaction
   const errors = []
   let categoryid
   let blockId
@@ -204,12 +226,36 @@ module.exports.createTransaction = async (transaction) => {
   let recipientId
 
   // Validate required fields
-  if(!balance_change || !sender || !recipient) {
+  if( !ledgers || !balance_change || !sender || !recipient) {
     return { failed: true, message: "Missing required field(s)" }
+  } // TODO: balance change should be on a per-account basis by the front end, checking which ledger applies. Same w/ senders/recipients
+
+  const transactionledgers = []
+
+  transactionledgers.push({
+    // Fee
+    accountId: 0,
+    transactiontypeId: 2,
+    amount: network_fee
+  })
+
+  for(let i = 0; i < ledgers.length; i += 1) {
+    const rawLedger = ledgers[i]
+    const accountId = await checkAndCreateAccount(rawLedger.name)
+    const ledger = {
+      amount: rawLedger.amount,
+      accountId,
+      transactiontypeId: rawLedger.transactiontypeId,
+      utxoId: await checkAndCreateUtxo(rawLedger.utxo, rawLedger.address, accountId)
+    }
+    transactionledgers.push(ledger)
   }
 
-  if(utxos) {
-      // TODO: for utxo in utxos create array of transaction ledger primitives
+  const ledgersBalanced = await balanceLedgers(transactionledgers)
+
+  if (!ledgersBalanced) {
+    errors.push("Ledgers don't balance")
+    return {failed: true, message: "Ledgers don't balance", errors}
   }
 
   if (category) {
@@ -241,7 +287,7 @@ module.exports.createTransaction = async (transaction) => {
     })
   }
   // Insert into table
-  const newTransaction = await db.transaction.create({
+  let newTransaction = await db.transaction.create({
       blockId, 
       txid, 
       balance_change, 
@@ -250,20 +296,7 @@ module.exports.createTransaction = async (transaction) => {
       size, 
       description, 
       categoryid, 
-      transactionledgers: [
-          {
-              // Recipient
-              // TODO: how to deal with split recipients (e.g. network fees, PayJoin, exchange payouts)
-              accountId: recipientId,
-              transactiontypeId: 2
-          },
-          {
-              // Sender
-              // TODO: how to deal with multiple signers\
-              accountId: senderId,
-              transactiontypeId: 1
-          }
-      ]
+      transactionledgers
   }, {
       include: [
           {
@@ -271,5 +304,6 @@ module.exports.createTransaction = async (transaction) => {
           }
       ]
   })
+  newTransaction = await transactionByUUID(newTransaction.id)
   return newTransaction
 }

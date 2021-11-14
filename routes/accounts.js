@@ -9,5 +9,6 @@ router
   .put('/', ctrl.editAccount)
   .post('/add', ctrl.addAccount)
   .get('/search', ctrl.searchAccounts)
+  .get('/:accountId', ctrl.getSingleAccount)
 
-module.exports = router;
+module.exports = router

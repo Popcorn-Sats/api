@@ -112,7 +112,7 @@ module.exports.checkAndCreateCategory = async (category) => {
     return { failed: true, message: "No category name provided" }
   }
 
-  const categories = await db.category.findAll({
+  const categoryObj = await db.category.findOne({
     where: {
       name: category
     }
@@ -121,8 +121,8 @@ module.exports.checkAndCreateCategory = async (category) => {
     errors.push(err)
     return errors
   })
-  if (categories[0]) {
-    categoryid = categories[0].dataValues.id
+  if (categoryObj) {
+    categoryid = categoryObj.dataValues.id
   } else {
     const newCategory = await db.category.create({
       name: category

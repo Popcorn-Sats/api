@@ -3,13 +3,13 @@ const db = require('../models')
 module.exports.checkAndCreateBlock = async (blockHeight) => {
   let blockId
   const errors = []
-  const blocks = await db.block.findAll({
+  const blockObj = await db.block.findOne({
     where: {
       height: blockHeight
     }
   })
-  if (blocks[0]) {
-    blockId = blocks[0].dataValues.id
+  if (blockObj) {
+    blockId = blockObj.dataValues.id
   } else {
     const newBlock = await db.block.create({
       height: blockHeight

@@ -3,13 +3,13 @@ const db = require('../models')
 module.exports.checkAndCreateAddress = async (address, accountId) => {
   let addressId
   const errors = []
-  const addresses = await db.address.findAll({
+  const addressObj = await db.address.findOne({
     where: {
       address
     }
   })
-  if (addresses[0]) {
-    addressId = addresses[0].dataValues.id
+  if (addressObj) {
+    addressId = addressObj.dataValues.id
   } else {
     const newAddress = await db.address.create({
       address,

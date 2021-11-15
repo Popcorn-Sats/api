@@ -65,12 +65,12 @@ module.exports.editAccountById = async (account) => {
 }
 
 module.exports.createAccount = async (account) => {
-  const { name, notes, birthday } = account
-  const accounttype = parseInt(account.accountType, 10)
+  const { name, notes, birthday, active, owned } = account
+  const accounttypeId = parseInt(account.accounttypeId, 10)
   const errors = []
 
   // Validate required fields
-  if(!name || !birthday || !accounttype) {
+  if(!name || !birthday || !accounttypeId) {
     return { failed: true, message: "Missing required field(s)" }
   }
 
@@ -79,7 +79,7 @@ module.exports.createAccount = async (account) => {
     return ('add', {
       name, 
       birthday, 
-      accounttype
+      accounttypeId
     })
   }
 
@@ -87,10 +87,13 @@ module.exports.createAccount = async (account) => {
     name, 
     notes, 
     birthday, 
-    accounttype
+    accounttypeId,
+    active: active || true,
+    owned: owned || true
   })
   .catch(err => {
     errors.push(err)
+    console.log(errors)
     return errors
   })
   return newAccount
@@ -116,16 +119,20 @@ include: [
 module.exports.checkAndCreateAccount = async (name) => {
   let accountId
   const errors = []
-  const accounts = await db.account.findAll({
+  const accountObj = await db.account.findOne({
     where: {
       name
     }
   })
-  if (accounts[0]) {
-    accountId = accounts[0].dataValues.id
+  if (accountObj) {
+    accountId = accountObj.dataValues.id
   } else {
     const newAccount = await db.account.create({
-      name
+      name,
+      birthday: new Date(), 
+      accounttypeId: 3,
+      active: true,
+      owned: false
     })
     .catch(err => {
       errors.push(err)

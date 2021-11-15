@@ -13,7 +13,6 @@ const { checkAndCreateUtxo } = require('./utxo')
 const {Op} = Sequelize
 
 const transactionByUUID = async (id) => {
-  console.log("Getting by UUID: ", id)
   const errors = []
   const transaction = await db.transaction.findOne({
     where: {

@@ -19,5 +19,10 @@
         "database": "luca",
         "host": "localhost",
         "dialect": "postgres"
+  },
+  "ELECTRUM": {
+    "HOST": "electrum.hodlister.co",
+    "PORT": 50002,
+    "TLS_ENABLED": true
   }
 }

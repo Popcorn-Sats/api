@@ -17,7 +17,13 @@ const electrumClient = new ElectrumClient(
   config.ELECTRUM.PORT,
   config.ELECTRUM.HOST,
   config.ELECTRUM.TLS_ENABLED ? 'tls' : 'tcp',
-  null,
+  {
+    proxy: {
+      host: "127.0.0.1",
+      port: 9050,
+      type: 5,
+    },
+  },
   electrumCallbacks
 )
 

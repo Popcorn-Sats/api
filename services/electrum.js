@@ -33,6 +33,7 @@ const initiate = () => {
     .catch((err) => {
       console.error(`Error connecting to Electrum Server at ${config.ELECTRUM.HOST}:${config.ELECTRUM.PORT}. Error: `, err);
     });
+  electrumClient.subscribe.on('blockchain.headers.subscribe', (v) => console.log(v))
 } 
 
 const getScriptHashBalance = (scripthash) => electrumClient.blockchainScripthash_getBalance(scripthash)
@@ -110,7 +111,19 @@ const getAddressTransactions = async (address, lastSeenTxId) => {
   }
 }
 
+const getTransaction = async (txHash, verbosity) {
+  initiate()
+  try {
+    const tx = await getRawTransaction(txHash, verbosity)
+    return tx
+  } catch (e) {
+    console.error(e)
+    return({"Error": e})
+  }
+}
+
 module.exports = {
   getAddress,
-  getAddressTransactions
+  getAddressTransactions,
+  getTransaction
 }

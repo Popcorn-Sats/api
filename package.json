@@ -12,8 +12,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bip32": "^3.0.1",
     "bitcoinjs-lib": "^6.0.0",
     "cors": "^2.8.5",
+    "ecpair": "^1.0.1",
     "express": "^4.17.1",
     "lodash": "^4.17.21",
     "pg": "^8.4.2",

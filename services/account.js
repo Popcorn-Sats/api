@@ -74,7 +74,7 @@ module.exports.createAccount = async (account) => {
     return { failed: true, message: "Missing required field(s)" }
   }
 
-  const xpubExists = db.xpub.findOne({
+  const xpubExists = await db.xpub.findOne({
     where: {
       name: publicKey
     }

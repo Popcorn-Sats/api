@@ -74,6 +74,16 @@ module.exports.createAccount = async (account) => {
     return { failed: true, message: "Missing required field(s)" }
   }
 
+  const xpubExists = db.xpub.findOne({
+    where: {
+      name: publicKey
+    }
+  })
+
+  if(xpubExists) {
+    return({failed: true, message: "Public key already associated with another account"})
+  }
+
   const newAccount = await db.account.create({
     name, 
     notes, 
@@ -81,7 +91,7 @@ module.exports.createAccount = async (account) => {
     accounttypeId,
     active: active || true,
     owned: owned || true,
-    xpub: {name: publicKey} // TODO: enforce unique
+    xpub: {name: publicKey}
   }, {
     include: [
         {

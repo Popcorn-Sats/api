@@ -65,7 +65,7 @@ module.exports.editAccountById = async (account) => {
 }
 
 module.exports.createAccount = async (account) => {
-  const { name, notes, birthday, active, owned } = account
+  const { name, notes, birthday, active, owned, publicKey } = account // TODO: add scripttype here and to model/migrations
   const accounttypeId = parseInt(account.accounttypeId, 10)
   const errors = []
 
@@ -74,22 +74,20 @@ module.exports.createAccount = async (account) => {
     return { failed: true, message: "Missing required field(s)" }
   }
 
-  // Check for  errors
-  if (errors.length > 0) {
-    return ('add', {
-      name, 
-      birthday, 
-      accounttypeId
-    })
-  }
-
   const newAccount = await db.account.create({
     name, 
     notes, 
     birthday, 
     accounttypeId,
     active: active || true,
-    owned: owned || true
+    owned: owned || true,
+    xpub: {name: publicKey} // TODO: enforce unique
+  }, {
+    include: [
+        {
+            model: db.xpub
+        }
+    ]
   })
   .catch(err => {
     errors.push(err)

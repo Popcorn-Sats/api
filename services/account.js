@@ -2,6 +2,7 @@
 /* eslint-disable no-console */
 const Sequelize = require('sequelize')
 const db = require('../models')
+const {getAddressFromXpub} = require('./bitcoin')
 
 const {Op} = Sequelize
 
@@ -104,6 +105,17 @@ module.exports.createAccount = async (account) => {
     console.log(errors)
     return errors
   })
+
+  const addresses = []
+
+  for(let i = 0; i < 100; i += 1) {
+    const address = await getAddressFromXpub(publicKey, 0, i)
+    // TODO: Add current addressIndex to xpub model. Add chain, addressIndex to address model
+    addresses.push(address)
+  }
+
+  console.log(addresses)
+
   return newAccount
 }
 

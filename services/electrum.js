@@ -111,7 +111,7 @@ const getAddressTransactions = async (address, lastSeenTxId) => {
   }
 }
 
-const getTransaction = async (txHash, verbosity) {
+const getTransaction = async (txHash, verbosity) => {
   initiate()
   try {
     const tx = await getRawTransaction(txHash, verbosity)

@@ -10,17 +10,17 @@ module.exports.getScriptHash = (address) => {
   return reversedHash
 }
 
-module.exports.getAddressFromXpub = (xpub, chain, addressIndex) => {
+module.exports.getAddressFromXpub = (xpub, chain, addressIndex, purpose) => {
   // m / purpose' / coin_type' / account' / change / address_index
+
+  /* Purpose can be: 
+    - `p2pkh` (m / 44' /) address beginning 1
+    - `p2wpkh` (m / 84' /) address beginning bc1 */
 
     const path = `${chain}/${addressIndex}`
     const node = Bitcoin.bip32.fromBase58(xpub).derivePath(path)
-    // TODO: pass in purpose
-    // e.g. m / 44' / 
-    // const {address} = Bitcoin.payments.p2pkh({ pubkey: node.publicKey })
-    // e.g. m / 84' /
-    const {address} = Bitcoin.payments.p2wpkh({ pubkey: node.publicKey })
 
-    console.log(`The address at index ${addressIndex} is ${address}`)
+    const {address} = Bitcoin.payments[purpose]({ pubkey: node.publicKey })
+
     return address
   }

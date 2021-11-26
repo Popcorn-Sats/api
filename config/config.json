@@ -21,8 +21,12 @@
         "dialect": "postgres"
   },
   "ELECTRUM": {
-    "HOST": "electrum.hodlister.co",
-    "PORT": 50002,
-    "TLS_ENABLED": true
+    "HOST": "",
+    "PORT": 50001,
+    "TLS_ENABLED": false
+  },
+  "BITCOIN": {
+    "GAPLIMIT": 100,
+    "NETWORK": "mainnet"
   }
 }

@@ -16,6 +16,7 @@
     "npm": "^8.0.0"
   },
   "dependencies": {
+    "@swan-bitcoin/xpub-lib": "^0.1.0",
     "bitcoinjs-lib": "5.2.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",

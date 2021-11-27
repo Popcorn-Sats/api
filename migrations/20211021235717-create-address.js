@@ -10,6 +10,12 @@ module.exports = {
       address: {
         type: Sequelize.STRING
       },
+      txIndex: {
+        type: Sequelize.INTEGER
+      },
+      chain: {
+        type: Sequelize.INTEGER
+      },
       accountId: {
         type: Sequelize.INTEGER,
         references: {

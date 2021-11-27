@@ -1,6 +1,6 @@
 const db = require('../models')
 
-module.exports.checkAndCreateAddress = async (address, accountId) => {
+module.exports.checkAndCreateAddress = async (address, accountId, txIndex, chain) => {
   let addressId
   const errors = []
   const addressObj = await db.address.findOne({
@@ -13,7 +13,9 @@ module.exports.checkAndCreateAddress = async (address, accountId) => {
   } else {
     const newAddress = await db.address.create({
       address,
-      accountId
+      accountId,
+      txIndex,
+      chain
     })
     .catch(err => {
       errors.push(err)
@@ -21,5 +23,6 @@ module.exports.checkAndCreateAddress = async (address, accountId) => {
     })
     addressId = newAddress.dataValues.id
   }
+  // TODO: electrum.getAddress then return transaction count
   return addressId
 }

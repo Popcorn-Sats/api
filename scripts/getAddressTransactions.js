@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const {getAddressTransactions} = require('../services/electrum')
 
 const address = process.argv[2];

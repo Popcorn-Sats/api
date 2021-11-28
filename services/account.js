@@ -1,8 +1,12 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable camelcase */
 /* eslint-disable no-console */
 const Sequelize = require('sequelize')
 const db = require('../models')
+const config = require('../config/config.json')
 const {getAddressFromXpub} = require('./bitcoin')
+const {getAddress} = require('./electrum')
+const {checkAndCreateAddress} = require('./address')
 
 const {Op} = Sequelize
 
@@ -65,8 +69,8 @@ module.exports.editAccountById = async (account) => {
   return editedAccount
 }
 
-module.exports.createAccount = async (account) => {
-  const { name, notes, birthday, active, owned, publicKey } = account // TODO: add scripttype here and to model/migrations
+module.exports.createAccount = async (account) => { // TODO: move logic to checkAndCreateAccount, change route
+  const { name, notes, birthday, active, owned, publicKey, purpose } = account
   const accounttypeId = parseInt(account.accounttypeId, 10)
   const errors = []
 
@@ -82,8 +86,11 @@ module.exports.createAccount = async (account) => {
   })
 
   if(xpubExists) {
+    console.log({failed: true, message: "Public key already associated with another account"})
     return({failed: true, message: "Public key already associated with another account"})
   }
+
+  console.log("New pubkey, proceeding …")
 
   const newAccount = await db.account.create({
     name, 
@@ -92,7 +99,7 @@ module.exports.createAccount = async (account) => {
     accounttypeId,
     active: active || true,
     owned: owned || true,
-    xpub: {name: publicKey}
+    xpub: {name: publicKey, purpose}
   }, {
     include: [
         {
@@ -106,15 +113,54 @@ module.exports.createAccount = async (account) => {
     return errors
   })
 
+  console.log("Created new account")
+
   const addresses = []
 
-  for(let i = 0; i < 100; i += 1) {
-    const address = await getAddressFromXpub(publicKey, 0, i)
-    // TODO: Add current addressIndex to xpub model. Add chain, addressIndex to address model
-    addresses.push(address)
+  // TODO: Move to new service `synchronizeAccount`?
+
+  let i = newAccount.xpub.dataValues.addressIndex
+  let j = newAccount.xpub.dataValues.addressIndex
+  let {addressIndex} = newAccount.xpub.dataValues
+
+  console.log({i, j, addressIndex, gap: config.BITCOIN.GAPLIMIT})
+
+  const syncNewAddresses = async () => {
+    console.log("syncing addresses")
+    const batch = addressIndex + config.BITCOIN.GAPLIMIT
+    console.log({batch})
+
+    console.log("AccountID: ", newAccount.dataValues.id)
+
+    for(i; i < batch; i += 1) {
+      const rawAddress = await getAddressFromXpub(publicKey, i, purpose)
+      await checkAndCreateAddress(rawAddress.address, newAccount.dataValues.id, i, 0)
+      addresses.push(rawAddress.address)
+    }
+
+    for(j; j < addresses.length; j += 1) {
+      // FIXME: this should be asynchronous / promise.all in the background after finding addressfromxpub
+      // FIXME: should batch calls to electrum on initial sync
+      // TODO: take optional address count flag for initial sync
+      const transactionsObj = await getAddress(addresses[j])
+      if (transactionsObj.chain_stats.tx_count > 0 || transactionsObj.mempool_stats.tx_count > 0) {
+        // TODO: create transaction + transactionLedgers + utxos, etc.
+        addressIndex = j
+        await db.xpub.update({
+          addressIndex
+        }, {
+          where: {
+            accountId: newAccount.dataValues.id
+          }
+        })
+      }
+      console.log({address: addresses[j], tx_count: transactionsObj.chain_stats.tx_count})
+    }
   }
 
-  console.log(addresses)
+  while (i - addressIndex < config.BITCOIN.GAPLIMIT) {
+    await syncNewAddresses()
+  }
 
   return newAccount
 }

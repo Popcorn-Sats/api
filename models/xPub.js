@@ -4,6 +4,13 @@ module.exports = (sequelize, DataTypes) => {
     
         name: {
             type: DataTypes.STRING
+        },
+        purpose: {
+            type: DataTypes.STRING
+        },
+        addressIndex: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0
         }
     });
 

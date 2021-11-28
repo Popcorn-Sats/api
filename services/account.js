@@ -75,7 +75,7 @@ module.exports.createAccount = async (account) => { // TODO: move logic to check
   const errors = []
 
   // Validate required fields
-  if(!name || !birthday || !accounttypeId) {
+  if(!name || !accounttypeId) {
     return { failed: true, message: "Missing required field(s)" }
   }
 

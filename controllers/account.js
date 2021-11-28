@@ -27,7 +27,6 @@ const addAccount = async (req, res) => {
   const account = req.body
   const newAccount = await createAccount(account)
   .catch(err => res.status(500).send(err))
-  // const newAccount = await checkAndCreateAccount(account)
   res.json(newAccount)
 }
 

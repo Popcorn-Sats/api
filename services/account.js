@@ -79,6 +79,17 @@ module.exports.createAccount = async (account) => { // TODO: move logic to check
     return { failed: true, message: "Missing required field(s)" }
   }
 
+  const accountExists = await db.account.findOne({
+    where: {
+      name
+    }
+  })
+
+  if (accountExists) {
+    console.log({failed: true, message: "An account with this name already exists"})
+    return({failed: true, message: "An account with this name already exists"})
+  }
+
   const xpubExists = await db.xpub.findOne({
     where: {
       name: publicKey

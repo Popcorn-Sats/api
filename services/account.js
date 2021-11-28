@@ -10,7 +10,7 @@ const {checkAndCreateAddress} = require('./address')
 
 const {Op} = Sequelize
 
-module.exports.getAllAccounts = async () => {
+const getAllAccounts = async () => {
   const errors = []
   const accounts = await db.account.findAll({
     order: [
@@ -28,7 +28,7 @@ module.exports.getAllAccounts = async () => {
   return accounts
 }
 
-module.exports.getAccountById = async (id) => {
+const getAccountById = async (id) => {
   const errors = []
   const account = await db.account.findOne({
     where: {
@@ -46,7 +46,7 @@ module.exports.getAccountById = async (id) => {
   return account
 }
 
-module.exports.editAccountById = async (account) => {
+const editAccountById = async (account) => {
   const { id, name, notes, birthday } = account
   const accounttype = parseInt(account.accounttype, 10)
   const errors = []
@@ -69,7 +69,53 @@ module.exports.editAccountById = async (account) => {
   return editedAccount
 }
 
-module.exports.createAccount = async (account) => { // TODO: move logic to checkAndCreateAccount, change route
+const syncAccount = async (accountId, startingIndex, publicKey, purpose) => {
+  const addresses = []
+  let i = startingIndex
+  let j = startingIndex
+  let addressIndex = startingIndex
+
+  console.log({i, j, addressIndex, gap: config.BITCOIN.GAPLIMIT})
+
+  const syncNewAddresses = async () => {
+    console.log("syncing addresses")
+    const batch = addressIndex + config.BITCOIN.GAPLIMIT
+    console.log({batch})
+
+    console.log({accountId})
+
+    for(i; i < batch; i += 1) {
+      const rawAddress = await getAddressFromXpub(publicKey, i, purpose)
+      await checkAndCreateAddress(rawAddress.address, accountId, i, 0)
+      addresses.push(rawAddress.address)
+    }
+
+    for(j; j < addresses.length; j += 1) {
+      // FIXME: this should be asynchronous / promise.all in the background after finding addressfromxpub
+      // FIXME: should batch calls to electrum on initial sync
+      // TODO: take optional address count flag for initial sync
+      const transactionsObj = await getAddress(addresses[j])
+      if (transactionsObj.chain_stats.tx_count > 0 || transactionsObj.mempool_stats.tx_count > 0) {
+        // TODO: create transaction + transactionLedgers + utxos, etc.
+        addressIndex = j
+        await db.xpub.update({
+          addressIndex
+        }, {
+          where: {
+            accountId
+          }
+        })
+      }
+      console.log({address: addresses[j], tx_count: transactionsObj.chain_stats.tx_count})
+    }
+  }
+
+  while (i - addressIndex < config.BITCOIN.GAPLIMIT) {
+    await syncNewAddresses()
+  }
+}
+
+const createAccount = async (account) => {
   const { name, notes, birthday, active, owned, publicKey, purpose } = account
   const accounttypeId = parseInt(account.accounttypeId, 10)
   const errors = []
@@ -126,57 +172,12 @@ module.exports.createAccount = async (account) => { // TODO: move logic to check
 
   console.log("Created new account")
 
-  const addresses = []
-
-  // TODO: Move to new service `synchronizeAccount`?
-
-  let i = newAccount.xpub.dataValues.addressIndex
-  let j = newAccount.xpub.dataValues.addressIndex
-  let {addressIndex} = newAccount.xpub.dataValues
-
-  console.log({i, j, addressIndex, gap: config.BITCOIN.GAPLIMIT})
-
-  const syncNewAddresses = async () => {
-    console.log("syncing addresses")
-    const batch = addressIndex + config.BITCOIN.GAPLIMIT
-    console.log({batch})
-
-    console.log("AccountID: ", newAccount.dataValues.id)
-
-    for(i; i < batch; i += 1) {
-      const rawAddress = await getAddressFromXpub(publicKey, i, purpose)
-      await checkAndCreateAddress(rawAddress.address, newAccount.dataValues.id, i, 0)
-      addresses.push(rawAddress.address)
-    }
-
-    for(j; j < addresses.length; j += 1) {
-      // FIXME: this should be asynchronous / promise.all in the background after finding addressfromxpub
-      // FIXME: should batch calls to electrum on initial sync
-      // TODO: take optional address count flag for initial sync
-      const transactionsObj = await getAddress(addresses[j])
-      if (transactionsObj.chain_stats.tx_count > 0 || transactionsObj.mempool_stats.tx_count > 0) {
-        // TODO: create transaction + transactionLedgers + utxos, etc.
-        addressIndex = j
-        await db.xpub.update({
-          addressIndex
-        }, {
-          where: {
-            accountId: newAccount.dataValues.id
-          }
-        })
-      }
-      console.log({address: addresses[j], tx_count: transactionsObj.chain_stats.tx_count})
-    }
-  }
-
-  while (i - addressIndex < config.BITCOIN.GAPLIMIT) {
-    await syncNewAddresses()
-  }
+  await syncAccount(newAccount.dataValues.id, newAccount.xpub.dataValues.addressIndex, publicKey, purpose)
 
   return newAccount
 }
 
-module.exports.searchAllAccounts = async (term) => {
+const searchAllAccounts = async (term) => {
   const errors = []
   const result = await db.account.findAll({ where: {[Op.or]: [
       { '$xpub.name$': { [Op.iLike]: `%${  term  }%` } },
@@ -193,7 +194,7 @@ include: [
   return(result)
 }
 
-module.exports.checkAndCreateAccount = async (name) => {
+const checkAndCreateAccount = async (name) => {
   let accountId
   const errors = []
   const accountObj = await db.account.findOne({
@@ -218,4 +219,14 @@ module.exports.checkAndCreateAccount = async (name) => {
     accountId = newAccount.dataValues.id
   }
   return accountId
+}
+
+module.exports = {
+  getAllAccounts,
+  getAccountById,
+  editAccountById,
+  syncAccount,
+  createAccount,
+  checkAndCreateAccount,
+  searchAllAccounts
 }

@@ -41,15 +41,3 @@ module.exports.getAddressesFromXpub = (extPubKey, addressCount, purpose, keyInde
 
   return address
 }
-
-
-/* 
-  Addresses using bitcoinjs:
-  m / purpose' / coin_type' / account' / change / address_index
-  Purpose can be: 
-    - `p2pkh` (m / 44' /) address beginning 1
-    - `p2wpkh` (m / 84' /) address beginning bc1
-  const path = `${chain}/${addressIndex}`
-  const node = Bitcoin.bip32.fromBase58(xpub).derivePath(path)
-  const {address} = Bitcoin.payments[purpose]({ pubkey: node.publicKey })
-  */

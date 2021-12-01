@@ -101,6 +101,9 @@ const getAddressTransactions = async (address, lastSeenTxId) => {
 
     for (let i = startingIndex; i < endIndex; i += 1) {
       const tx = await getRawTransaction(history[i].tx_hash, true)
+      const vin = await getRawTransaction(tx.vin[0].txid, true)
+      console.log(vin.vout[tx.vin[0].vout])
+      tx.fee = vin.vout[tx.vin[0].vout].value - tx.vout[0].value
       tx.blockHeight = history[i].height
       transactions.push(tx)
     }

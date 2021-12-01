@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable no-console */
 const Bitcoin = require('bitcoinjs-lib')
 const config = require('../config/config.json')
@@ -98,8 +99,9 @@ const getAddressTransactions = async (address, lastSeenTxId) => {
     }
     const endIndex = Math.min(startingIndex + 10, history.length)
 
-    for (let i = startingIndex; i < endIndex; i++) {
+    for (let i = startingIndex; i < endIndex; i += 1) {
       const tx = await getRawTransaction(history[i].tx_hash, true)
+      tx.blockHeight = history[i].height
       transactions.push(tx)
     }
 

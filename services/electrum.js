@@ -108,8 +108,8 @@ const getAddressTransactions = async (address, lastSeenTxId) => {
         console.log(vin.vout[tx.vin[j].vout])
         tx.vinArray.push(vin.vout[tx.vin[j].vout])
       }
-      const debits = _.sum(_.map(_.filter(tx.vinArray), 'value'))
-      const credits = _.sum(_.map(_.filter(tx.vout), 'value'))
+      const debits = _.sum(_.map(_.filter(tx.vinArray), 'value')) * 100000000
+      const credits = _.sum(_.map(_.filter(tx.vout), 'value')) * 100000000
       console.log({credits, debits})
       tx.fee = debits - credits
       tx.blockHeight = history[i].height

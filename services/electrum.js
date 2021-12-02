@@ -1,6 +1,7 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-console */
 const Bitcoin = require('bitcoinjs-lib')
+const _ = require('lodash')
 const config = require('../config/config.json')
 const ElectrumClient = require('../electrum-client')
 
@@ -101,9 +102,16 @@ const getAddressTransactions = async (address, lastSeenTxId) => {
 
     for (let i = startingIndex; i < endIndex; i += 1) {
       const tx = await getRawTransaction(history[i].tx_hash, true)
-      const vin = await getRawTransaction(tx.vin[0].txid, true)
-      console.log(vin.vout[tx.vin[0].vout])
-      tx.fee = vin.vout[tx.vin[0].vout].value - tx.vout[0].value
+      tx.vinArray = []
+      for (let j = 0; j < tx.vin.length; j += 1) {
+        const vin = await getRawTransaction(tx.vin[j].txid, true)
+        console.log(vin.vout[tx.vin[j].vout])
+        tx.vinArray.push(vin.vout[tx.vin[j].vout])
+      }
+      const debits = _.sum(_.map(_.filter(tx.vinArray), 'value'))
+      const credits = _.sum(_.map(_.filter(tx.vout), 'value'))
+      console.log({credits, debits})
+      tx.fee = debits - credits
       tx.blockHeight = history[i].height
       transactions.push(tx)
     }

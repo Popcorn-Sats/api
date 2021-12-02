@@ -72,7 +72,7 @@ const listTransactionsByAccountId = async (accountId) => {
   return transactions
 }
 
-module.exports.getAllTransactions = async () => {
+const getAllTransactions = async () => {
   const errors = []
   const transactions = await db.transaction.findAll({
     include: [
@@ -101,7 +101,7 @@ module.exports.getAllTransactions = async () => {
   return transactions
 }
 
-module.exports.getTransactionsByAccountID = async (accountId) => {
+const getTransactionsByAccountID = async (accountId) => {
   const errors = []
   const transactionList = await listTransactionsByAccountId(accountId)
   .catch(err => {
@@ -140,12 +140,12 @@ module.exports.getTransactionsByAccountID = async (accountId) => {
   return transactions
 }
 
-module.exports.getTransactionByID = async (id) => {
+const getTransactionByID = async (id) => {
   const transaction = await transactionByUUID(id)
   return transaction
 }
 
-module.exports.editFullTransaction = async (transaction) => {
+const editFullTransaction = async (transaction) => {
   const { 
     id,
     date,
@@ -192,7 +192,7 @@ module.exports.editFullTransaction = async (transaction) => {
   return editedTransaction
 }
 
-module.exports.searchAllTransactions = async (term) => {
+const searchAllTransactions = async (term) => {
   const errors = []
   const result = await db.transaction.findAll({ where: {[Op.or]: [
       { '$category.name$': { [Op.iLike]: `%${  term  }%` } },
@@ -216,7 +216,7 @@ const balanceLedgers = async (ledgers) => {
   return credits === debits
 }
 
-module.exports.createTransaction = async (transaction) => {
+const createTransaction = async (transaction) => {
   const { blockHeight, txid, balance_change, address, network_fee, size, description, sender, category, recipient, ledgers } = transaction
   const errors = []
   let categoryid
@@ -305,4 +305,13 @@ module.exports.createTransaction = async (transaction) => {
   })
   newTransaction = await transactionByUUID(newTransaction.id)
   return newTransaction
+}
+
+module.exports = {
+  getAllTransactions,
+  getTransactionsByAccountID,
+  getTransactionByID,
+  editFullTransaction,
+  searchAllTransactions,
+  createTransaction
 }

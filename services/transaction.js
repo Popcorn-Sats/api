@@ -5,12 +5,40 @@
 const Sequelize = require('sequelize')
 const _ = require('lodash')
 const db = require('../models')
-const { checkAndCreateAccount } = require('./account')
 const { checkAndCreateBlock } = require('./block')
 const { checkAndCreateCategory } = require('./category')
 const { checkAndCreateUtxo } = require('./utxo')
+const { getAddressTransactions } = require('./electrum')
 
 const {Op} = Sequelize
+
+// FIXME: copied here due to circular dependency with services/account calling services/transaction on initial sync
+const checkAndCreateAccount = async (name) => {
+  let accountId
+  const errors = []
+  const accountObj = await db.account.findOne({
+    where: {
+      name
+    }
+  })
+  if (accountObj) {
+    accountId = accountObj.dataValues.id
+  } else {
+    const newAccount = await db.account.create({
+      name,
+      birthday: new Date(), 
+      accounttypeId: 3,
+      active: true,
+      owned: false
+    })
+    .catch(err => {
+      errors.push(err)
+      return errors
+    })
+    accountId = newAccount.dataValues.id
+  }
+  return accountId
+}
 
 const transactionByUUID = async (id) => {
   const errors = []
@@ -240,7 +268,7 @@ const createTransaction = async (transaction) => {
 
   for(let i = 0; i < ledgers.length; i += 1) {
     const rawLedger = ledgers[i]
-    const accountId = await checkAndCreateAccount(rawLedger.name)
+    const accountId = rawLedger.name ? await checkAndCreateAccount(rawLedger.name) : null
     const ledger = {
       amount: rawLedger.amount,
       accountId,
@@ -307,11 +335,54 @@ const createTransaction = async (transaction) => {
   return newTransaction
 }
 
+const createAddressTransactions = async (address) => {
+  console.log(address)
+  console.log("We are in createTransactionsForAddress")
+  const transactionsArray = []
+  const transactions = await getAddressTransactions(address)
+  const {length} = transactions
+  for (let i = 0; i < length; i += 1) {
+    const transaction = {}
+    transaction.blockHeight = transactions[i].blockHeight
+    transaction.txid = transactions[i].txid
+    transaction.network_fee = transactions[i].fee
+    transaction.size = transactions[i].size
+    transaction.sender = "Redundant"
+    transaction.recipient = "Redundant"
+    transaction.balance_change = 1
+    transaction.ledgers = []
+    for (let j = 0; j < transactions[i].vinArray.length; j += 1) {
+      const ledger = {
+        transactiontypeId: 1,
+        amount: transactions[i].vinArray[j].value * 100000000,
+        utxo: `${transactions[i].txid}, ${transactions[i].vinArray[j].n}`,
+        address: transactions[i].vinArray[j].scriptPubKey.address
+      }
+      transaction.ledgers.push(ledger)
+    }
+    for (let k = 0; k < transactions[i].vout.length; k += 1) {
+      const ledger = {
+        transactiontypeId: 2,
+        amount: transactions[i].vout[k].value * 100000000,
+        utxo: `${transactions[i].txid}, ${transactions[i].vout[k].n}`,
+        address: transactions[i].vout[k].scriptPubKey.address
+      }
+      transaction.ledgers.push(ledger)
+    }
+    transactionsArray.push(transaction)
+    console.log(transaction)
+    const result = await createTransaction(transaction)
+    console.log(result)
+  }
+  return transactionsArray
+}
+
 module.exports = {
   getAllTransactions,
   getTransactionsByAccountID,
   getTransactionByID,
   editFullTransaction,
   searchAllTransactions,
-  createTransaction
+  createTransaction,
+  createAddressTransactions,
 }

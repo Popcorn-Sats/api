@@ -7,6 +7,7 @@ const config = require('../config/config.json')
 const {getAddressFromXpub} = require('./bitcoin')
 const {getAddress} = require('./electrum')
 const {checkAndCreateAddress} = require('./address')
+const {createAddressTransactions} = require('./transaction')
 
 const {Op} = Sequelize
 
@@ -94,9 +95,22 @@ const syncAccount = async (accountId, startingIndex, publicKey, purpose) => {
       // FIXME: this should be asynchronous / promise.all in the background after finding addressfromxpub
       // FIXME: should batch calls to electrum on initial sync
       // TODO: take optional address count flag for initial sync
-      const transactionsObj = await getAddress(addresses[j])
+      console.log("Here we are")
+      const address = addresses[j]
+      console.log({address})
+      const transactionsObj = await getAddress(address)
+      console.log({transactionsObj})
       if (transactionsObj.chain_stats.tx_count > 0 || transactionsObj.mempool_stats.tx_count > 0) {
         // TODO: create transaction + transactionLedgers + utxos, etc.
+        console.log({message: "Here we go", address})
+        // FIXME: JSON circular structure error on transactions service. Move back to this
+        try {
+          const transactions = await createAddressTransactions(address) // await promise.all
+          console.log(transactions)
+        } catch (e) {
+          console.error(e)
+          return({"Error": e})
+        }
         addressIndex = j
         await db.xpub.update({
           addressIndex
@@ -108,6 +122,7 @@ const syncAccount = async (accountId, startingIndex, publicKey, purpose) => {
       }
       console.log({address: addresses[j], tx_count: transactionsObj.chain_stats.tx_count})
     }
+    return addresses
   }
 
   while (i - addressIndex < config.BITCOIN.GAPLIMIT) {

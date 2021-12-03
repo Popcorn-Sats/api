@@ -9,6 +9,7 @@ module.exports.checkAndCreateAddress = async (address, accountId, txIndex, chain
     }
   })
   if (addressObj) {
+    // TODO: check if needs to be updated (i.e. might be syncing a new account that has transfers to other owned accounts)
     addressId = addressObj.dataValues.id
   } else {
     const newAddress = await db.address.create({

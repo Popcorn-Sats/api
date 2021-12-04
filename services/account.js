@@ -101,11 +101,9 @@ const syncAccount = async (accountId, startingIndex, publicKey, purpose) => {
       const transactionsObj = await getAddress(address)
       console.log({transactionsObj})
       if (transactionsObj.chain_stats.tx_count > 0 || transactionsObj.mempool_stats.tx_count > 0) {
-        // TODO: create transaction + transactionLedgers + utxos, etc.
         console.log({message: "Here we go", address})
-        // FIXME: JSON circular structure error on transactions service. Move back to this
         try {
-          const transactions = await createAddressTransactions(address) // await promise.all
+          const transactions = await createAddressTransactions(address, accountId) // await promise.all
           console.log(transactions)
         } catch (e) {
           console.error(e)

@@ -268,7 +268,12 @@ const createTransaction = async (transaction) => {
 
   for(let i = 0; i < ledgers.length; i += 1) {
     const rawLedger = ledgers[i]
-    const accountId = rawLedger.name ? await checkAndCreateAccount(rawLedger.name) : null
+    let accountId
+    if (rawLedger.accountId) {
+      accountId = rawLedger.accountId
+    } else if (rawLedger.name) {
+      accountId = await checkAndCreateAccount(rawLedger.name)
+    }
     const ledger = {
       amount: rawLedger.amount,
       accountId,
@@ -335,7 +340,7 @@ const createTransaction = async (transaction) => {
   return newTransaction
 }
 
-const createAddressTransactions = async (address) => {
+const createAddressTransactions = async (address, accountId) => {
   console.log(address)
   console.log("We are in createTransactionsForAddress")
   const transactionsArray = []
@@ -353,6 +358,7 @@ const createAddressTransactions = async (address) => {
     transaction.ledgers = []
     for (let j = 0; j < transactions[i].vinArray.length; j += 1) {
       const ledger = {
+        accountId: transactions[i].vinArray[j].scriptPubKey.address === address ? accountId : null, // TODO: lazy, check db
         transactiontypeId: 1,
         amount: transactions[i].vinArray[j].value * 100000000,
         utxo: `${transactions[i].txid}, ${transactions[i].vinArray[j].n}`,
@@ -362,6 +368,7 @@ const createAddressTransactions = async (address) => {
     }
     for (let k = 0; k < transactions[i].vout.length; k += 1) {
       const ledger = {
+        accountId: transactions[i].vout[k].scriptPubKey.address === address ? accountId : null, // TODO: lazy, check db
         transactiontypeId: 2,
         amount: transactions[i].vout[k].value * 100000000,
         utxo: `${transactions[i].txid}, ${transactions[i].vout[k].n}`,

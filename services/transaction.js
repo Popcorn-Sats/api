@@ -81,9 +81,8 @@ const transactionByUUID = async (id) => {
   return transaction
 }
 
-const listTransactionsByAccountId = async (accountId) => {
+const getTransactionLedgersByAccountID = async (accountId) => {
   const errors = []
-  const transactions = []
   const ledgers = await db.transactionledger.findAll({
     where: {
       accountId
@@ -93,6 +92,12 @@ const listTransactionsByAccountId = async (accountId) => {
     errors.push(err)
     return errors
   })
+  return ledgers
+}
+
+const listTransactionsByAccountId = async (accountId) => {
+  const transactions = []
+  const ledgers = await getTransactionLedgersByAccountID(accountId)
   ledgers.forEach(ledger => {
     transactions.push(ledger.transactionId)
   });
@@ -386,6 +391,7 @@ const createAddressTransactions = async (address, accountId) => {
 
 module.exports = {
   getAllTransactions,
+  getTransactionLedgersByAccountID,
   getTransactionsByAccountID,
   getTransactionByID,
   editFullTransaction,

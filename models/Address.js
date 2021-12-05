@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Address.belongsTo(models.account)
       Address.hasMany(models.utxo)
+      Address.hasMany(models.transactionledger)
     }
   }
   Address.init({

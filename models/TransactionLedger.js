@@ -5,9 +5,6 @@ module.exports = (sequelize, DataTypes) => {
           autoIncrement: true,
           primaryKey: true,
         },
-        address: {
-            type: DataTypes.STRING
-        },
         amount: {
           type: DataTypes.INTEGER
         }
@@ -19,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
         TransactionLedger.belongsTo(models.transaction)
         TransactionLedger.belongsTo(models.transactiontype)
         TransactionLedger.belongsTo(models.account)
+        TransactionLedger.belongsTo(models.address)
         TransactionLedger.belongsTo(models.utxo)
     }
 

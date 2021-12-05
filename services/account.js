@@ -2,22 +2,46 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-console */
 const Sequelize = require('sequelize')
+const _ = require('lodash')
 const db = require('../models')
 const config = require('../config/config.json')
 const {getAddressFromXpub} = require('./bitcoin')
 const {getAddress} = require('./electrum')
 const {checkAndCreateAddress} = require('./address')
-const {createAddressTransactions} = require('./transaction')
+const {createAddressTransactions, getTransactionLedgersByAccountID} = require('./transaction')
 
 const {Op} = Sequelize
 
+const getAccountBalance = async (accountId) => {
+  const ledgers = await getTransactionLedgersByAccountID(accountId)
+  const credits = []
+  const debits = []
+  ledgers.forEach(ledger => {
+    if (!ledger.transactiontypeId) {
+      console.log({failed: true, message: `Ledger ID ${ledger.id} does not have a transaction type`})
+      return({failed: true, message: `Ledger ID ${ledger.id} does not have a transaction type`})
+    }
+    if (ledger.transactiontypeId === 2) {
+      credits.push(ledger.amount)
+    }
+    else if (ledger.transactiontypeId === 1) {
+      debits.push(ledger.amount)
+    }
+  });
+  const balance = _.sum(credits) - _.sum(debits)
+  return balance
+}
+
 const getAllAccounts = async () => {
   const errors = []
+  const accountsArray = []
   const accounts = await db.account.findAll({
     order: [
         ['id', 'ASC'],
     ],
-    include: [db.xpub, db.accounttype]
+    include: [db.xpub, db.accounttype],
+    raw : true,
+    nest : true
   })
   .catch(err => {
     errors.push(err)
@@ -26,7 +50,20 @@ const getAllAccounts = async () => {
   if (!accounts) {
     return { failed: true, message: "No accounts were found" }
   }
-  return accounts
+
+  const {length} = accounts
+  for (let i = 0; i < length; i += 1) {
+    const account = {}
+    account.id = accounts[i].id
+    account.name = accounts[i].name
+    account.notes = accounts[i].notes
+    account.active = accounts[i].active
+    account.owned = accounts[i].owned
+    account.accounttype = accounts[i].accounttype
+    account.balance = await getAccountBalance(accounts[i].id)
+    accountsArray.push(account)
+  }
+  return accountsArray
 }
 
 const getAccountById = async (id) => {

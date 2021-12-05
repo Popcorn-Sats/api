@@ -9,9 +9,6 @@ module.exports = (sequelize, DataTypes) => {
     txid: {
       type: DataTypes.STRING,
     },
-    balance_change: {
-      type: DataTypes.INTEGER,
-    },
     address: {
       type: DataTypes.STRING,
     },

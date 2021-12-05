@@ -5,6 +5,7 @@
 const Sequelize = require('sequelize')
 const _ = require('lodash')
 const db = require('../models')
+const { checkAndCreateAddress } = require('./address')
 const { checkAndCreateBlock } = require('./block')
 const { checkAndCreateCategory } = require('./category')
 const { checkAndCreateUtxo } = require('./utxo')
@@ -187,7 +188,6 @@ const editFullTransaction = async (transaction) => {
     payee,
     block_height,
     txid,
-    balance_change,
     account,
     address,
     fee,
@@ -203,7 +203,6 @@ const editFullTransaction = async (transaction) => {
         payee, 
         block_height, 
         txid, 
-        balance_change, 
         account, 
         address, 
         fee, 
@@ -250,7 +249,7 @@ const balanceLedgers = async (ledgers) => {
 }
 
 const createTransaction = async (transaction) => {
-  const { blockHeight, txid, balance_change, address, network_fee, size, description, sender, category, recipient, ledgers } = transaction
+  const { blockHeight, txid, address, network_fee, size, description, sender, category, recipient, ledgers } = transaction
   const errors = []
   let categoryid
   let blockId
@@ -258,7 +257,7 @@ const createTransaction = async (transaction) => {
   let recipientId
 
   // Validate required fields
-  if( !ledgers || !balance_change || !sender || !recipient) {
+  if( !ledgers || !sender || !recipient) {
     return { failed: true, message: "Missing required field(s)" }
   } // TODO: balance change should be on a per-account basis by the front end, checking which ledger applies. Same w/ senders/recipients
 
@@ -283,7 +282,8 @@ const createTransaction = async (transaction) => {
       amount: rawLedger.amount,
       accountId,
       transactiontypeId: rawLedger.transactiontypeId,
-      utxoId: await checkAndCreateUtxo(rawLedger.utxo, rawLedger.address, accountId)
+      utxoId: await checkAndCreateUtxo(rawLedger.utxo, rawLedger.address, accountId),
+      addressId: await checkAndCreateAddress(rawLedger.address)
     }
     transactionledgers.push(ledger)
   }
@@ -318,7 +318,6 @@ const createTransaction = async (transaction) => {
   // Check for  errors
   if (errors.length > 0) {
       return ('add', {
-        balance_change, 
         sender, 
         recipient
     })
@@ -327,7 +326,6 @@ const createTransaction = async (transaction) => {
   let newTransaction = await db.transaction.create({
       blockId, 
       txid, 
-      balance_change, 
       address, 
       network_fee, 
       size, 
@@ -359,16 +357,16 @@ const createAddressTransactions = async (address, accountId) => {
     transaction.size = transactions[i].size
     transaction.sender = "Redundant"
     transaction.recipient = "Redundant"
-    transaction.balance_change = 1
     transaction.ledgers = []
     for (let j = 0; j < transactions[i].vinArray.length; j += 1) {
       const ledger = {
         accountId: transactions[i].vinArray[j].scriptPubKey.address === address ? accountId : null, // TODO: lazy, check db
         transactiontypeId: 1,
         amount: transactions[i].vinArray[j].value * 100000000,
-        utxo: `${transactions[i].txid}, ${transactions[i].vinArray[j].n}`,
+        utxo: `${transactions[i].vin[j].txid}[${transactions[i].vinArray[j].n}]`,
         address: transactions[i].vinArray[j].scriptPubKey.address
       }
+      console.log({ledger})
       transaction.ledgers.push(ledger)
     }
     for (let k = 0; k < transactions[i].vout.length; k += 1) {
@@ -376,13 +374,15 @@ const createAddressTransactions = async (address, accountId) => {
         accountId: transactions[i].vout[k].scriptPubKey.address === address ? accountId : null, // TODO: lazy, check db
         transactiontypeId: 2,
         amount: transactions[i].vout[k].value * 100000000,
-        utxo: `${transactions[i].txid}, ${transactions[i].vout[k].n}`,
+        utxo: `${transactions[i].txid}[${transactions[i].vout[k].n}]`,
         address: transactions[i].vout[k].scriptPubKey.address
       }
+      console.log({ledger})
       transaction.ledgers.push(ledger)
     }
     transactionsArray.push(transaction)
-    console.log(transaction)
+    console.log({transaction})
+    console.log('createTransaction beginning …')
     const result = await createTransaction(transaction)
     console.log(result)
   }

@@ -109,6 +109,9 @@ const listTransactionsByAccountId = async (accountId) => {
 const getAllTransactions = async () => {
   const errors = []
   const transactions = await db.transaction.findAll({
+    order: [
+      ['id', 'DESC'],
+    ],
     include: [
         {
             model: db.category,
@@ -132,10 +135,11 @@ const getAllTransactions = async () => {
   if (!transactions) {
     return { failed: true, message: "No transactions were found" }
   }
+  // TODO: Check which ledgers are for owned addresses, pass through transactiontype as result
   return transactions
 }
 
-const getTransactionsByAccountID = async (accountId) => {
+const rawTransactionsByAccountID = async (accountId) => {
   const errors = []
   const transactionList = await listTransactionsByAccountId(accountId)
   .catch(err => {
@@ -148,6 +152,9 @@ const getTransactionsByAccountID = async (accountId) => {
         [Op.in]: transactionList
       }
     },
+    order: [
+      ['id', 'DESC'],
+    ],
     include: [
         {
             model: db.category,
@@ -168,8 +175,42 @@ const getTransactionsByAccountID = async (accountId) => {
     errors.push(err)
     return errors
   })
-  if (!transactions) {
+  return transactions
+}
+
+const getTransactionsByAccountID = async (accountId) => {
+  const rawTransactions = await rawTransactionsByAccountID(accountId)
+  const transactions = []
+  if (!rawTransactions) {
     return { failed: true, message: "Transactions for account not found" }
+  }
+  const {length} = rawTransactions
+  let runningBalance = 0
+  for (let i = 0; i < length; i += 1) {
+    const transaction = {}
+    const ledgers = []
+    rawTransactions[i].transactionledgers.forEach(ledger => {
+      const thisLedger = {}
+      thisLedger.accountId = ledger.accountId
+      thisLedger.amount = ledger.amount
+      thisLedger.transactiontypeId = ledger.transactiontypeId
+      ledgers.push(thisLedger)
+    })
+    const accountInteger = parseInt(accountId, 10)
+    const debits = _.sum(_.map(_.filter(_.filter(ledgers, {accountId: accountInteger}), {transactiontypeId: 1}), 'amount'))
+    const credits = _.sum(_.map(_.filter(_.filter(ledgers, {accountId: accountInteger}), {transactiontypeId: 2}), 'amount'))
+    transaction.id = rawTransactions[i].id
+    transaction.txid = rawTransactions[i].txid
+    transaction.network_fee = rawTransactions[i].network_fee
+    transaction.size = rawTransactions[i].size
+    transaction.description = rawTransactions[i].description
+    transaction.block = rawTransactions[i].block
+    transaction.transactiontype = rawTransactions[i].transactiontype
+    transaction.transactionledgers = rawTransactions[i].transactionledgers
+    transaction.balance_change = credits - debits
+    transaction.runningBalance = runningBalance + transaction.balance_change
+    runningBalance = transaction.runningBalance
+    transactions.push(transaction)
   }
   return transactions
 }

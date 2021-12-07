@@ -217,7 +217,18 @@ const getTransactionsByAccountID = async (accountId) => {
 
 const getTransactionByID = async (id) => {
   const transaction = await transactionByUUID(id)
-  return transaction
+  const returnTransaction = {}
+  returnTransaction.id = transaction.id
+  returnTransaction.txid = transaction.txid
+  returnTransaction.network_fee = transaction.network_fee
+  returnTransaction.size = transaction.size
+  returnTransaction.description = transaction.description
+  returnTransaction.category = transaction.category
+  returnTransaction.block = transaction.block
+  returnTransaction.transactiontype = transaction.transactiontype
+  returnTransaction.debitsLedger = _.filter(transaction.transactionledgers, {transactiontypeId: 1})
+  returnTransaction.creditsLedger = _.filter(transaction.transactionledgers, {transactiontypeId: 2})
+  return returnTransaction
 }
 
 const editFullTransaction = async (transaction) => {

@@ -147,14 +147,14 @@ const rawTransactionsByAccountID = async (accountId) => {
     return errors
   })
   const transactions = await db.transaction.findAll({
+    order: [
+      ['id', 'ASC'],
+    ],
     where: {
       id: {
         [Op.in]: transactionList
       }
     },
-    order: [
-      ['id', 'DESC'],
-    ],
     include: [
         {
             model: db.category,
@@ -212,7 +212,7 @@ const getTransactionsByAccountID = async (accountId) => {
     runningBalance = transaction.runningBalance
     transactions.push(transaction)
   }
-  return transactions
+  return transactions.reverse()
 }
 
 const getTransactionByID = async (id) => {

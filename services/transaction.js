@@ -215,6 +215,20 @@ const getTransactionsByAccountID = async (accountId) => {
   return transactions.reverse()
 }
 
+const getTransactionsByCategoryID = async (categoryId) => {
+  const errors = []
+  const transactions = await db.transaction.findAll({
+    where: {
+      categoryid: categoryId
+    }
+  })
+  .catch(err => {
+    errors.push(err)
+    return errors
+  })
+  return transactions
+}
+
 const getTransactionByID = async (id) => {
   const transaction = await transactionByUUID(id)
   const returnTransaction = {}
@@ -445,6 +459,7 @@ module.exports = {
   getAllTransactions,
   getTransactionLedgersByAccountID,
   getTransactionsByAccountID,
+  getTransactionsByCategoryID,
   getTransactionByID,
   editFullTransaction,
   searchAllTransactions,

@@ -8,6 +8,7 @@ router
   .get('/', ctrl.getTransactions)
   .get('/search', ctrl.searchTransactions)
   .get('/account/:accountId', ctrl.getTransactionsForAccount)
+  .get('/category/:categoryId', ctrl.getTransactionsForCategory)
   .get('/transaction/:transactionId', ctrl.getTransactionByTransactionID)
   .put('/', ctrl.editTransaction)
   .post('/add', ctrl.addTransaction)

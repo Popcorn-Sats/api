@@ -81,7 +81,17 @@ const getAccountById = async (id) => {
   if (!account) {
     return { failed: true, message: "No accounts were found" }
   }
-  return account
+  const returnAccount = {}
+  returnAccount.id = account.id
+  returnAccount.name = account.name
+  returnAccount.notes = account.notes
+  returnAccount.birthday = account.birthday
+  returnAccount.active = account.active
+  returnAccount.owned = account.owned
+  returnAccount.xpub = account.xpub
+  returnAccount.accounttype = account.accounttype
+  returnAccount.balance = await getAccountBalance(account.id)
+  return returnAccount
 }
 
 const editAccountById = async (account) => {

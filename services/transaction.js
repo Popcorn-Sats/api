@@ -205,6 +205,7 @@ const getTransactionsByAccountID = async (accountId) => {
     transaction.size = rawTransactions[i].size
     transaction.description = rawTransactions[i].description
     transaction.block = rawTransactions[i].block
+    transaction.category = rawTransactions[i].category
     transaction.transactiontype = rawTransactions[i].transactiontype
     transaction.transactionledgers = rawTransactions[i].transactionledgers
     transaction.balance_change = credits - debits

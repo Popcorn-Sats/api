@@ -62,6 +62,24 @@ module.exports.editCategoryById = async (category) => {
   return editedCategory
 }
 
+module.exports.getCategoryById = async (id) => {
+  const errors = []
+  const category = await db.category.findOne({
+    where: {
+      id
+    },
+  })
+  .catch(err => {
+    errors.push(err)
+    return errors
+  })
+  if (!category) {
+    return { failed: true, message: "No category was found" }
+  }
+
+  return category
+}
+
 module.exports.createCategory = async (category) => {
   const { name } = category
   const errors = []

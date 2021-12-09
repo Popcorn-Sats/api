@@ -10,5 +10,6 @@ router
   .put('/', ctrl.editCategory)
   .post('/add', ctrl.addCategory)
   .get('/search', ctrl.searchCategories)
+  .get('/:categoryId', ctrl.getSingleCategory)
 
 module.exports = router;

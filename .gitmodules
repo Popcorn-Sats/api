@@ -1,3 +1,6 @@
 [submodule "electrum-client"]
 	path = electrum-client
 	url = https://github.com/Popcorn-Sats/electrum-client
+[submodule "xpub-tool"]
+	path = xpub-tool
+	url = https://github.com/Popcorn-Sats/xpub-tool.git

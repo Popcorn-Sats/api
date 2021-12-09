@@ -2,6 +2,8 @@
 const Bitcoin = require('bitcoinjs-lib')
 const { addressFromExtPubKey, addressesFromExtPubKey } = require('@swan-bitcoin/xpub-lib')
 const { Purpose } = require('@swan-bitcoin/xpub-lib/lib/purpose')
+/* const { addressFromExtPubKey, addressesFromExtPubKey } = require('../xpub-tool/packages/xpub-lib/src')
+const { Purpose } = require('../xpub-tool/packages/xpub-lib/src/purpose') */
 
 module.exports.getScriptHash = (address) => {
   const script = Bitcoin.address.toOutputScript(address)
@@ -12,7 +14,7 @@ module.exports.getScriptHash = (address) => {
   return reversedHash
 }
 
-module.exports.getAddressFromXpub = (extPubKey, keyIndex, purpose, accountNumber) => {
+module.exports.getAddressFromXpub = (extPubKey, keyIndex, purpose, accountNumber, change) => {
 
   // FIXME: Need to define receive/change chain. Defaults to Receive
   // Purpose can be: `P2PKH` (m / 44' /), `P2SH` (m / 49' /), `P2WPKH` (m / 84' /)
@@ -20,6 +22,7 @@ module.exports.getAddressFromXpub = (extPubKey, keyIndex, purpose, accountNumber
   const address = addressFromExtPubKey({
     extPubKey,
     accountNumber: accountNumber || 0,
+    change: change || 0,
     keyIndex,
     purpose: Purpose[purpose],
     network: "mainnet",
@@ -28,12 +31,13 @@ module.exports.getAddressFromXpub = (extPubKey, keyIndex, purpose, accountNumber
   return address
 }
 
-module.exports.getAddressesFromXpub = (extPubKey, addressCount, purpose, keyIndex, accountNumber) => {
+module.exports.getAddressesFromXpub = (extPubKey, addressCount, purpose, keyIndex, accountNumber, change) => {
   
   const address = addressesFromExtPubKey({
-    addressCount,
     extPubKey,
+    addressCount,
     accountNumber: accountNumber || 0,
+    change: change || 0,
     keyIndex,
     purpose: Purpose[purpose],
     network: "mainnet",

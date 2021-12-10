@@ -41,6 +41,20 @@ const initiate = () => {
 const getScriptHashBalance = (scripthash) => electrumClient.blockchainScripthash_getBalance(scripthash)
 const getScriptHashHistory = (scripthash) => electrumClient.blockchainScripthash_getHistory(scripthash) // TODO: cache this
 const getRawTransaction = (txHash, verbosity) => electrumClient.blockchainTransaction_get(txHash, verbosity)
+const getRawBlockHeader = (blockHeight) => electrumClient.blockchainBlock_getHeader(blockHeight)
+
+const getBlockHeader = async (blockHeight) => {
+  initiate()
+  try {
+    const height = blockHeight
+    const blockHeader = await getRawBlockHeader(parseInt(height, 10))
+    console.log(blockHeader)
+    return blockHeader
+  } catch (e) {
+    console.error(e)
+    return({"Error": e})
+  }
+}
 
 const getAddress = async (address) => {
   initiate()
@@ -136,6 +150,7 @@ const getTransaction = async (txHash, verbosity) => {
 }
 
 module.exports = {
+  getBlockHeader,
   getAddress,
   getAddressTransactions,
   getTransaction

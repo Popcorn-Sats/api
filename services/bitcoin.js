@@ -14,6 +14,11 @@ module.exports.getScriptHash = (address) => {
   return reversedHash
 }
 
+module.exports.getBlockTimestamp = (blockhex) => {
+  const block = Bitcoin.Block.fromHex(blockhex)
+  return block.timestamp
+}
+
 module.exports.getAddressFromXpub = (extPubKey, keyIndex, purpose, accountNumber, change) => {
 
   // FIXME: Need to define receive/change chain. Defaults to Receive

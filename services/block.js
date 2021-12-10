@@ -1,4 +1,6 @@
 const db = require('../models')
+const {getBlockTimestamp} = require('./bitcoin')
+const {getBlockHeader} = require('./electrum')
 
 module.exports.checkAndCreateBlock = async (blockHeight) => {
   let blockId
@@ -11,8 +13,10 @@ module.exports.checkAndCreateBlock = async (blockHeight) => {
   if (blockObj) {
     blockId = blockObj.dataValues.id
   } else {
+    const blockhex = await getBlockHeader(blockHeight)
     const newBlock = await db.block.create({
-      height: blockHeight
+      height: blockHeight,
+      timestamp: getBlockTimestamp(blockhex)
     })
     .catch(err => {
       errors.push(err)

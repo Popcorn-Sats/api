@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 const Bitcoin = require('bitcoinjs-lib')
-const { addressFromExtPubKey, addressesFromExtPubKey } = require('@swan-bitcoin/xpub-lib')
-const { Purpose } = require('@swan-bitcoin/xpub-lib/lib/purpose')
-/* const { addressFromExtPubKey, addressesFromExtPubKey } = require('../xpub-tool/packages/xpub-lib/src')
-const { Purpose } = require('../xpub-tool/packages/xpub-lib/src/purpose') */
+/* const { addressFromExtPubKey, addressesFromExtPubKey } = require('@swan-bitcoin/xpub-lib')
+const { Purpose } = require('@swan-bitcoin/xpub-lib/lib/purpose') */
+const { addressFromExtPubKey, addressesFromExtPubKey } = require('../xpub-tool/packages/xpub-lib/src/derivation')
+const { Purpose } = require('../xpub-tool/packages/xpub-lib/src/purpose')
 
 module.exports.getScriptHash = (address) => {
   const script = Bitcoin.address.toOutputScript(address)
@@ -19,9 +19,8 @@ module.exports.getBlockTimestamp = (blockhex) => {
   return block.timestamp
 }
 
-module.exports.getAddressFromXpub = (extPubKey, keyIndex, purpose, accountNumber, change) => {
+module.exports.getAddressFromXpub = (extPubKey, keyIndex, purpose, change, accountNumber) => {
 
-  // FIXME: Need to define receive/change chain. Defaults to Receive
   // Purpose can be: `P2PKH` (m / 44' /), `P2SH` (m / 49' /), `P2WPKH` (m / 84' /)
 
   const address = addressFromExtPubKey({

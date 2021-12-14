@@ -122,20 +122,31 @@ const syncAccount = async (accountId, startingIndex, publicKey, purpose) => {
   let i = startingIndex
   let j = startingIndex
   let addressIndex = startingIndex
+  const changeAddresses = []
+  let k = 0
+  let changeAddressIndex = 0 // TODO: get from change addresses in DB
 
   console.log({i, j, addressIndex, gap: config.BITCOIN.GAPLIMIT})
 
   const syncNewAddresses = async () => {
     console.log("syncing addresses")
     const batch = addressIndex + config.BITCOIN.GAPLIMIT
-    console.log({batch})
+    const changeBatch = changeAddressIndex + config.BITCOIN.GAPLIMIT
+    console.log({batch, changeBatch})
 
     console.log({accountId})
 
     for(i; i < batch; i += 1) {
-      const rawAddress = await getAddressFromXpub(publicKey, i, purpose)
+      const rawAddress = await getAddressFromXpub(publicKey, i, purpose, 0)
       await checkAndCreateAddress(rawAddress.address, accountId, i, 0)
       addresses.push(rawAddress.address)
+    }
+
+    for(k; k < batch; k += 1) {
+      const rawAddress = await getAddressFromXpub(publicKey, k, purpose, 1)
+      await checkAndCreateAddress(rawAddress.address, accountId, k, 1)
+      addresses.push(rawAddress.address)
+      changeAddresses.push(rawAddress.address)
     }
 
     for(j; j < addresses.length; j += 1) {
@@ -156,23 +167,29 @@ const syncAccount = async (accountId, startingIndex, publicKey, purpose) => {
           console.error(e)
           return({"Error": e})
         }
-        addressIndex = j
-        await db.xpub.update({
-          addressIndex
-        }, {
-          where: {
-            accountId
-          }
-        })
+        if (changeAddresses.indexOf(address)) {
+          changeAddressIndex = changeAddresses.indexOf(address)
+        } else {
+          addressIndex = j
+          await db.xpub.update({
+            addressIndex
+          }, {
+            where: {
+              accountId
+            }
+          })
+        }
       }
       console.log({address: addresses[j], tx_count: transactionsObj.chain_stats.tx_count})
     }
     return addresses
   }
 
-  while (i - addressIndex < config.BITCOIN.GAPLIMIT) {
+  while (i - addressIndex < config.BITCOIN.GAPLIMIT || k - changeAddressIndex < config.BITCOIN.GAPLIMIT) {
+    // FIXME: syncs `addressIndex` many change addresses
     await syncNewAddresses()
   }
+  return({failed: false, message: "Account synced!"})
 }
 
 const createAccount = async (account) => {
@@ -180,6 +197,7 @@ const createAccount = async (account) => {
   const accounttypeId = parseInt(account.accounttypeId, 10)
   const errors = []
 
+  // TODO: take address param for single-address accounts
   // Validate required fields
   if(!name || !accounttypeId) {
     return { failed: true, message: "Missing required field(s)" }
@@ -237,6 +255,38 @@ const createAccount = async (account) => {
   return newAccount
 }
 
+const scanAccount = async (id) => {
+  const accountExists = await db.account.findOne({
+    where: {
+      id
+    }
+  })
+
+  if (!accountExists) {
+    console.log({failed: true, message: "That account does not exist"})
+    return({failed: true, message: "That account does not exist"})
+  }
+
+  const xpubExists = await db.xpub.findOne({
+    where: {
+      accountId: id
+    }
+  })
+
+  if(!xpubExists) {
+    console.log({failed: true, message: "This account does not have an associated public key"})
+    return({failed: true, message: "This account does not have an associated public key"})
+  }
+
+  const {addressIndex, name, purpose} = xpubExists
+
+  console.log({addressIndex, name, purpose})
+
+  const result = await syncAccount(id, addressIndex, name, purpose)
+
+  return result
+}
+
 const searchAllAccounts = async (term) => {
   const errors = []
   const result = await db.account.findAll({ where: {[Op.or]: [
@@ -288,5 +338,6 @@ module.exports = {
   syncAccount,
   createAccount,
   checkAndCreateAccount,
+  scanAccount,
   searchAllAccounts
 }

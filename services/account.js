@@ -284,6 +284,8 @@ const scanAccount = async (id) => {
 
   const result = await syncAccount(id, addressIndex, name, purpose)
 
+  // TODO: check for new transactions on all existing addresses
+
   return result
 }
 

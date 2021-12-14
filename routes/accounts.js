@@ -9,6 +9,7 @@ router
   .put('/', ctrl.editAccount)
   .post('/add', ctrl.addAccount)
   .get('/search', ctrl.searchAccounts)
+  .get('/scan/:accountId', ctrl.scanOldAccount)
   .get('/:accountId', ctrl.getSingleAccount)
 
 module.exports = router

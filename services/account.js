@@ -117,14 +117,14 @@ const editAccountById = async (account) => {
   return editedAccount
 }
 
-const syncAccount = async (accountId, startingIndex, publicKey, purpose) => {
+const syncAccount = async (accountId, startingIndex, changeIndex, publicKey, purpose) => {
   const addresses = []
   let i = startingIndex
-  let j = startingIndex
+  let j = 0
   let addressIndex = startingIndex
   const changeAddresses = []
-  let k = 0
-  let changeAddressIndex = 0 // TODO: get from change addresses in DB
+  let k = changeIndex
+  let changeAddressIndex = changeIndex
 
   console.log({i, j, addressIndex, gap: config.BITCOIN.GAPLIMIT})
 
@@ -134,30 +134,30 @@ const syncAccount = async (accountId, startingIndex, publicKey, purpose) => {
     const changeBatch = changeAddressIndex + config.BITCOIN.GAPLIMIT
     console.log({batch, changeBatch})
 
-    console.log({accountId})
-
     for(i; i < batch; i += 1) {
       const rawAddress = await getAddressFromXpub(publicKey, i, purpose, 0)
       await checkAndCreateAddress(rawAddress.address, accountId, i, 0)
       addresses.push(rawAddress.address)
     }
 
-    for(k; k < batch; k += 1) {
+    for(k; k < changeBatch; k += 1) {
       const rawAddress = await getAddressFromXpub(publicKey, k, purpose, 1)
       await checkAndCreateAddress(rawAddress.address, accountId, k, 1)
       addresses.push(rawAddress.address)
       changeAddresses.push(rawAddress.address)
     }
 
+    console.log({addresses})
+
     for(j; j < addresses.length; j += 1) {
       // FIXME: this should be asynchronous / promise.all in the background after finding addressfromxpub
       // FIXME: should batch calls to electrum on initial sync
       // TODO: take optional address count flag for initial sync
-      console.log("Here we are")
+      /* console.log("Here we are") */
       const address = addresses[j]
       console.log({address})
       const transactionsObj = await getAddress(address)
-      console.log({transactionsObj})
+      /* console.log({transactionsObj}) */
       if (transactionsObj.chain_stats.tx_count > 0 || transactionsObj.mempool_stats.tx_count > 0) {
         console.log({message: "Here we go", address})
         try {
@@ -167,10 +167,20 @@ const syncAccount = async (accountId, startingIndex, publicKey, purpose) => {
           console.error(e)
           return({"Error": e})
         }
-        if (changeAddresses.indexOf(address)) {
-          changeAddressIndex = changeAddresses.indexOf(address)
+        if (changeAddresses.indexOf(address) !== -1) {
+          const test = changeAddresses.indexOf(address)
+          console.log({test})
+          changeAddressIndex += changeAddresses.indexOf(address)
+          console.log({changeAddressIndex})
+          await db.xpub.update({
+            changeIndex: changeAddressIndex
+          }, {
+            where: {
+              accountId
+            }
+          })
         } else {
-          addressIndex = j
+          addressIndex += j // FIXME: includes change and off-by-1
           await db.xpub.update({
             addressIndex
           }, {
@@ -186,7 +196,6 @@ const syncAccount = async (accountId, startingIndex, publicKey, purpose) => {
   }
 
   while (i - addressIndex < config.BITCOIN.GAPLIMIT || k - changeAddressIndex < config.BITCOIN.GAPLIMIT) {
-    // FIXME: syncs `addressIndex` many change addresses
     await syncNewAddresses()
   }
   return({failed: false, message: "Account synced!"})
@@ -250,7 +259,7 @@ const createAccount = async (account) => {
 
   console.log("Created new account")
 
-  await syncAccount(newAccount.dataValues.id, newAccount.xpub.dataValues.addressIndex, publicKey, purpose)
+  await syncAccount(newAccount.dataValues.id, newAccount.xpub.dataValues.addressIndex, newAccount.xpub.dataValues.changeIndex, publicKey, purpose)
 
   return newAccount
 }
@@ -278,11 +287,11 @@ const scanAccount = async (id) => {
     return({failed: true, message: "This account does not have an associated public key"})
   }
 
-  const {addressIndex, name, purpose} = xpubExists
+  const {addressIndex, changeIndex, name, purpose} = xpubExists
 
   console.log({addressIndex, name, purpose})
 
-  const result = await syncAccount(id, addressIndex, name, purpose)
+  const result = await syncAccount(id, addressIndex, changeIndex, name, purpose)
 
   // TODO: check for new transactions on all existing addresses
 

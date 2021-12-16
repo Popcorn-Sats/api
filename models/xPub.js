@@ -11,6 +11,10 @@ module.exports = (sequelize, DataTypes) => {
         addressIndex: {
             type: DataTypes.INTEGER,
             defaultValue: 0
+        },
+        changeIndex: {
+          type: DataTypes.INTEGER,
+          defaultValue: 0
         }
     });
 

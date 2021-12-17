@@ -180,7 +180,12 @@ const syncAccount = async (accountId, startingIndex, changeIndex, publicKey, pur
             }
           })
         } else {
-          addressIndex += j // FIXME: includes change and off-by-1
+          const savedAddress = await db.address.findOne({
+            where: {
+              address
+            }
+          })
+          addressIndex = savedAddress.txIndex + 1
           await db.xpub.update({
             addressIndex
           }, {

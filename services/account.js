@@ -117,21 +117,21 @@ const editAccountById = async (account) => {
   return editedAccount
 }
 
-const syncAccount = async (accountId, startingIndex, changeIndex, publicKey, purpose) => {
+const syncAccount = async (accountId, startingIndex, startingChangeIndex, publicKey, purpose) => {
   const addresses = []
   let i = startingIndex
   let j = 0
   let addressIndex = startingIndex
   const changeAddresses = []
-  let k = changeIndex
-  let changeAddressIndex = changeIndex
+  let k = startingChangeIndex
+  let changeIndex = startingChangeIndex
 
   console.log({i, j, addressIndex, gap: config.BITCOIN.GAPLIMIT})
 
   const syncNewAddresses = async () => {
     console.log("syncing addresses")
     const batch = addressIndex + config.BITCOIN.GAPLIMIT
-    const changeBatch = changeAddressIndex + config.BITCOIN.GAPLIMIT
+    const changeBatch = changeIndex + config.BITCOIN.GAPLIMIT
     console.log({batch, changeBatch})
 
     for(i; i < batch; i += 1) {
@@ -153,13 +153,17 @@ const syncAccount = async (accountId, startingIndex, changeIndex, publicKey, pur
       // FIXME: this should be asynchronous / promise.all in the background after finding addressfromxpub
       // FIXME: should batch calls to electrum on initial sync
       // TODO: take optional address count flag for initial sync
-      /* console.log("Here we are") */
       const address = addresses[j]
       console.log({address})
       const transactionsObj = await getAddress(address)
       /* console.log({transactionsObj}) */
       if (transactionsObj.chain_stats.tx_count > 0 || transactionsObj.mempool_stats.tx_count > 0) {
         console.log({message: "Here we go", address})
+        const savedAddress = await db.address.findOne({
+          where: {
+            address
+          }
+        })
         try {
           const transactions = await createAddressTransactions(address, accountId) // await promise.all
           console.log(transactions)
@@ -168,23 +172,15 @@ const syncAccount = async (accountId, startingIndex, changeIndex, publicKey, pur
           return({"Error": e})
         }
         if (changeAddresses.indexOf(address) !== -1) {
-          const test = changeAddresses.indexOf(address)
-          console.log({test})
-          changeAddressIndex += changeAddresses.indexOf(address)
-          console.log({changeAddressIndex})
+          changeIndex = savedAddress.txIndex + 1
           await db.xpub.update({
-            changeIndex: changeAddressIndex
+            changeIndex
           }, {
             where: {
               accountId
             }
           })
         } else {
-          const savedAddress = await db.address.findOne({
-            where: {
-              address
-            }
-          })
           addressIndex = savedAddress.txIndex + 1
           await db.xpub.update({
             addressIndex
@@ -200,7 +196,7 @@ const syncAccount = async (accountId, startingIndex, changeIndex, publicKey, pur
     return addresses
   }
 
-  while (i - addressIndex < config.BITCOIN.GAPLIMIT || k - changeAddressIndex < config.BITCOIN.GAPLIMIT) {
+  while (i - addressIndex < config.BITCOIN.GAPLIMIT || k - changeIndex < config.BITCOIN.GAPLIMIT) {
     await syncNewAddresses()
   }
   return({failed: false, message: "Account synced!"})

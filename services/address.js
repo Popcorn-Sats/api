@@ -9,17 +9,19 @@ const checkAndCreateAddress = async (address, accountId, txIndex, chain) => {
     }
   })
   if (addressObj) {
-    await db.address.update( // FIXME: will this override existing addresses with empty data on subsequent account add
-      {
-        accountId,
-        txIndex,
-        chain
-      }, {
-        where: {
-          address
+    if (address && accountId && txIndex && chain) {
+      await db.address.update(
+        {
+          accountId,
+          txIndex,
+          chain
+        }, {
+          where: {
+            address
+          }
         }
-      }
-    )
+      )
+    }
     addressId = addressObj.dataValues.id
   } else {
     const newAddress = await db.address.create({

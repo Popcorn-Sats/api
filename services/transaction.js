@@ -410,10 +410,23 @@ const createAddressTransactions = async (address, accountId) => {
     transaction.network_fee = transactions[i].fee
     transaction.size = transactions[i].size
     transaction.ledgers = []
+    const ledgerAccountID = async (scriptAddress) => {
+      if (scriptAddress === address) {
+        return accountId
+      }
+      const accountCheck = await db.address.findOne({
+        where: {
+          address
+        }
+      })
+      if (accountCheck) {
+        return accountCheck.id
+      }
+      return null
+    }
     for (let j = 0; j < transactions[i].vinArray.length; j += 1) {
       const ledger = {
-        accountId: transactions[i].vinArray[j].scriptPubKey.address === address ? accountId : null, // TODO: lazy, check db
-        /* accountId = await checkAndCreateAccount(address) */
+        accountId: await ledgerAccountID(transactions[i].vinArray[j].scriptPubKey.address),
         transactiontypeId: 1,
         amount: transactions[i].vinArray[j].value * 100000000, // Note: sats the standard, but also fixes JS floating point fuckery
         utxo: `${transactions[i].vin[j].txid}[${transactions[i].vinArray[j].n}]`,
@@ -424,7 +437,7 @@ const createAddressTransactions = async (address, accountId) => {
     }
     for (let k = 0; k < transactions[i].vout.length; k += 1) {
       const ledger = {
-        accountId: transactions[i].vout[k].scriptPubKey.address === address ? accountId : null, // TODO: lazy, check db
+        accountId: await ledgerAccountID(transactions[i].vout[k].scriptPubKey.address),
         transactiontypeId: 2,
         amount: transactions[i].vout[k].value * 100000000,
         utxo: `${transactions[i].txid}[${transactions[i].vout[k].n}]`,

@@ -314,17 +314,15 @@ const balanceLedgers = async (ledgers) => {
 }
 
 const createTransaction = async (transaction) => {
-  const { blockHeight, txid, network_fee, size, description, sender, category, recipient, ledgers } = transaction
+  const { blockHeight, txid, network_fee, size, description, category, ledgers } = transaction
   const errors = []
   let categoryid
   let blockId
-  let senderId
-  let recipientId
 
   // Validate required fields
-  if( !ledgers || !sender || !recipient) {
+  if( !ledgers ) {
     return { failed: true, message: "Missing required field(s)" }
-  } // TODO: balance change should be on a per-account basis by the front end, checking which ledger applies. Same w/ senders/recipients
+  }
 
   const transactionledgers = []
 
@@ -363,16 +361,6 @@ const createTransaction = async (transaction) => {
   if (category) {
     categoryid = await checkAndCreateCategory(category)
     if (categoryid.errors) {return { failed: true, message: categoryid.errors }}
-  }
-
-  if (sender) {
-    senderId = await checkAndCreateAccount(sender)
-    if (senderId.errors) {return { failed: true, message: senderId.errors }}
-  }
-
-  if (recipient) {
-    recipientId = await checkAndCreateAccount(recipient)
-    if (recipientId.errors) {return { failed: true, message: recipientId.errors }}
   }
 
   if (blockHeight) {
@@ -421,12 +409,11 @@ const createAddressTransactions = async (address, accountId) => {
     transaction.txid = transactions[i].txid
     transaction.network_fee = transactions[i].fee
     transaction.size = transactions[i].size
-    transaction.sender = "Redundant" // FIXME: GET RID OF THESE
-    transaction.recipient = "Redundant" // FIXME: GET RID OF THESE
     transaction.ledgers = []
     for (let j = 0; j < transactions[i].vinArray.length; j += 1) {
       const ledger = {
         accountId: transactions[i].vinArray[j].scriptPubKey.address === address ? accountId : null, // TODO: lazy, check db
+        /* accountId = await checkAndCreateAccount(address) */
         transactiontypeId: 1,
         amount: transactions[i].vinArray[j].value * 100000000, // Note: sats the standard, but also fixes JS floating point fuckery
         utxo: `${transactions[i].vin[j].txid}[${transactions[i].vinArray[j].n}]`,

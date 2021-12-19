@@ -119,12 +119,12 @@ const editAccountById = async (account) => {
 
 const syncAccount = async (accountId, startingIndex, startingChangeIndex, publicKey, purpose) => {
   const addresses = []
-  let i = startingIndex
-  let j = 0
-  let addressIndex = startingIndex
   const changeAddresses = []
+  let i = startingIndex
+  let addressIndex = startingIndex
   let k = startingChangeIndex
   let changeIndex = startingChangeIndex
+  let j = 0
 
   console.log({i, j, addressIndex, gap: config.BITCOIN.GAPLIMIT})
 
@@ -156,7 +156,6 @@ const syncAccount = async (accountId, startingIndex, startingChangeIndex, public
       const address = addresses[j]
       console.log({address})
       const transactionsObj = await getAddress(address)
-      /* console.log({transactionsObj}) */
       if (transactionsObj.chain_stats.tx_count > 0 || transactionsObj.mempool_stats.tx_count > 0) {
         console.log({message: "Here we go", address})
         const savedAddress = await db.address.findOne({

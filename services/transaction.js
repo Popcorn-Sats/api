@@ -256,7 +256,6 @@ const editFullTransaction = async (transaction) => {
     block_height,
     txid,
     account,
-    address,
     fee,
     size
   } = transaction
@@ -271,7 +270,6 @@ const editFullTransaction = async (transaction) => {
         block_height, 
         txid, 
         account, 
-        address, 
         fee, 
         size 
     }, {
@@ -316,7 +314,7 @@ const balanceLedgers = async (ledgers) => {
 }
 
 const createTransaction = async (transaction) => {
-  const { blockHeight, txid, address, network_fee, size, description, sender, category, recipient, ledgers } = transaction
+  const { blockHeight, txid, network_fee, size, description, sender, category, recipient, ledgers } = transaction
   const errors = []
   let categoryid
   let blockId
@@ -382,18 +380,10 @@ const createTransaction = async (transaction) => {
     if (blockId.errors) {return { failed: true, message: blockId.errors }}
   }
 
-  // Check for  errors
-  if (errors.length > 0) {
-      return ('add', {
-        sender, 
-        recipient
-    })
-  }
   // Insert into table
   let newTransaction = await db.transaction.create({
       blockId, 
       txid, 
-      address, 
       network_fee, 
       size, 
       description, 
@@ -417,19 +407,28 @@ const createAddressTransactions = async (address, accountId) => {
   const transactions = await getAddressTransactions(address)
   const {length} = transactions
   for (let i = 0; i < length; i += 1) {
+    const transactionExists = db.transaction.findOne({
+      where: {
+        txid: transactions[i].txid
+      }
+    })
+    if (transactionExists) {
+      const transaction = await editFullTransaction(transactions[i]) // TODO: Next task
+      return transaction
+    }
     const transaction = {}
     transaction.blockHeight = transactions[i].blockHeight
     transaction.txid = transactions[i].txid
     transaction.network_fee = transactions[i].fee
     transaction.size = transactions[i].size
-    transaction.sender = "Redundant"
-    transaction.recipient = "Redundant"
+    transaction.sender = "Redundant" // FIXME: GET RID OF THESE
+    transaction.recipient = "Redundant" // FIXME: GET RID OF THESE
     transaction.ledgers = []
     for (let j = 0; j < transactions[i].vinArray.length; j += 1) {
       const ledger = {
         accountId: transactions[i].vinArray[j].scriptPubKey.address === address ? accountId : null, // TODO: lazy, check db
         transactiontypeId: 1,
-        amount: transactions[i].vinArray[j].value * 100000000,
+        amount: transactions[i].vinArray[j].value * 100000000, // Note: sats the standard, but also fixes JS floating point fuckery
         utxo: `${transactions[i].vin[j].txid}[${transactions[i].vinArray[j].n}]`,
         address: transactions[i].vinArray[j].scriptPubKey.address
       }

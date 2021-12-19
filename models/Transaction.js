@@ -9,9 +9,6 @@ module.exports = (sequelize, DataTypes) => {
     txid: {
       type: DataTypes.STRING,
     },
-    address: {
-      type: DataTypes.STRING,
-    },
     network_fee: {
       type: DataTypes.INTEGER,
     },

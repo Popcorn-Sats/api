@@ -9,7 +9,7 @@ const checkAndCreateAddress = async (address, accountId, txIndex, chain) => {
     }
   })
   if (addressObj) {
-    if (address && accountId && txIndex && chain) {
+    if (address && accountId) {
       await db.address.update(
         {
           accountId,

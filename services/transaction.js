@@ -246,39 +246,100 @@ const getTransactionByID = async (id) => {
   return returnTransaction
 }
 
-const editFullTransaction = async (transaction) => {
-  const { 
-    id,
-    date,
-    description,
-    category,
-    payee,
-    block_height,
-    txid,
-    account,
-    fee,
-    size
-  } = transaction
-  const errors = []
+const balanceLedgers = async (ledgers) => {
+  const debits = _.sum(_.map(_.filter(ledgers, {transactiontypeId: 1}), 'amount'))
+  const credits = _.sum(_.map(_.filter(ledgers, {transactiontypeId: 2}), 'amount'))
+  console.log({credits, debits})
+  return credits === debits
+}
 
-  const editedTransaction = await db.transaction.update(
-    { 
-        date,
-        description, 
-        category, 
-        payee, 
-        block_height, 
-        txid, 
-        account, 
-        fee, 
-        size 
-    }, {
-        where: {
-            id
-        }
+const editFullTransaction = async (transaction) => {
+  const { id, blockHeight, blockId, txid, network_fee, size, description, category, categoryid, ledgers } = transaction
+  const errors = []
+  let checkCategoryId
+  let checkBlockId
+  
+  // Validate required fields
+  if( !ledgers ) {
+    return { failed: true, message: "Missing required field(s)" }
+  }
+
+  const transactionledgers = []
+
+  transactionledgers.push({
+    // Fee
+    accountId: 0,
+    transactiontypeId: 2,
+    amount: network_fee
+  })
+
+  for(let i = 0; i < ledgers.length; i += 1) {
+    const rawLedger = ledgers[i]
+    let accountId
+    if (rawLedger.accountId) {
+      accountId = rawLedger.accountId
+    } else if (rawLedger.name) {
+      accountId = await checkAndCreateAccount(rawLedger.name) // TODO: need to update foreign key on address & UTXO
     }
-  )
-// TODO: Add transaction ledger logic
+    if (rawLedger.id) {
+      await db.transactionledger.update({
+        amount: rawLedger.amount,
+        accountId,
+        transactiontypeId: rawLedger.transactiontypeId,
+        utxoId: rawLedger.utxoId || await checkAndCreateUtxo(rawLedger.utxo, rawLedger.address, accountId),
+        addressId: rawLedger.addressId || await checkAndCreateAddress(rawLedger.address, accountId)
+      }, {
+        where: {
+          id: rawLedger.id
+        }
+      })
+    }
+    const ledger = {
+      amount: rawLedger.amount,
+      accountId,
+      transactiontypeId: rawLedger.transactiontypeId,
+      utxoId: rawLedger.utxoId || await checkAndCreateUtxo(rawLedger.utxo, rawLedger.address, accountId),
+      addressId: rawLedger.addressId || await checkAndCreateAddress(rawLedger.address, accountId)
+    }
+    transactionledgers.push(ledger)
+  }
+
+  const ledgersBalanced = await balanceLedgers(transactionledgers)
+
+  if (!ledgersBalanced) {
+    errors.push("Ledgers don't balance")
+    return {failed: true, message: "Ledgers don't balance", errors}
+  }
+
+  if (category && !categoryid) {
+    checkCategoryId = await checkAndCreateCategory(category)
+    if (checkCategoryId.errors) {return { failed: true, message: checkCategoryId.errors }}
+  }
+
+  if (blockHeight && !blockId) {
+    checkBlockId = await checkAndCreateBlock(blockHeight)
+    if (checkBlockId.errors) {return { failed: true, message: checkBlockId.errors }}
+  }
+
+  const editedTransaction = await db.transaction.update({
+      blockId: blockId || checkBlockId, 
+      txid, 
+      network_fee, 
+      size, 
+      description, 
+      categoryid: categoryid || checkCategoryId, 
+      transactionledgers
+  }, {
+      where: {
+        id
+      }
+  }, {
+      include: [
+          {
+              model: db.transactionledger
+          }
+      ]
+  })
   .catch(err => {
     errors.push(err)
     return errors
@@ -287,30 +348,6 @@ const editFullTransaction = async (transaction) => {
     return { failed: true, message: "Transaction to edit not found" }
   }
   return editedTransaction
-}
-
-const searchAllTransactions = async (term) => {
-  const errors = []
-  const result = await db.transaction.findAll({ where: {[Op.or]: [
-      { '$category.name$': { [Op.iLike]: `%${  term  }%` } },
-      { description: { [Op.iLike]: `%${  term  }%` } },
-      // { '$block.height$': { [Op.iLike]: `%${  parseInt(term, 10)  }%` } },
-      { txid: { [Op.iLike]: `%${  term  }%` } }
-  ]},
-  include: [
-    { model: db.category },
-    // { model: db.block },
-  ]})
-  .catch(err => {
-    errors.push(err)
-  })
-  return(result)
-}
-
-const balanceLedgers = async (ledgers) => {
-  const debits = _.sum(_.map(_.filter(ledgers, {transactiontypeId: 1}), 'amount'))
-  const credits = _.sum(_.map(_.filter(ledgers, {transactiontypeId: 2}), 'amount'))
-  return credits === debits
 }
 
 const createTransaction = async (transaction) => {
@@ -395,15 +432,6 @@ const createAddressTransactions = async (address, accountId) => {
   const transactions = await getAddressTransactions(address)
   const {length} = transactions
   for (let i = 0; i < length; i += 1) {
-    const transactionExists = db.transaction.findOne({
-      where: {
-        txid: transactions[i].txid
-      }
-    })
-    if (transactionExists) {
-      const transaction = await editFullTransaction(transactions[i]) // TODO: Next task
-      return transaction
-    }
     const transaction = {}
     transaction.blockHeight = transactions[i].blockHeight
     transaction.txid = transactions[i].txid
@@ -448,11 +476,39 @@ const createAddressTransactions = async (address, accountId) => {
     }
     transactionsArray.push(transaction)
     console.log({transaction})
+    const transactionExists = db.transaction.findOne({
+      where: {
+        txid: transactions[i].txid
+      }
+    })
+    if (transactionExists) {
+      console.log('editFullTransaction beginning …')
+      const editedTransaction = await editFullTransaction(transaction) // TODO: Next task
+      return editedTransaction
+    }
     console.log('createTransaction beginning …')
     const result = await createTransaction(transaction)
     console.log(result)
   }
   return transactionsArray
+}
+
+const searchAllTransactions = async (term) => {
+  const errors = []
+  const result = await db.transaction.findAll({ where: {[Op.or]: [
+      { '$category.name$': { [Op.iLike]: `%${  term  }%` } },
+      { description: { [Op.iLike]: `%${  term  }%` } },
+      // { '$block.height$': { [Op.iLike]: `%${  parseInt(term, 10)  }%` } },
+      { txid: { [Op.iLike]: `%${  term  }%` } }
+  ]},
+  include: [
+    { model: db.category },
+    // { model: db.block },
+  ]})
+  .catch(err => {
+    errors.push(err)
+  })
+  return(result)
 }
 
 module.exports = {
@@ -462,7 +518,7 @@ module.exports = {
   getTransactionsByCategoryID,
   getTransactionByID,
   editFullTransaction,
-  searchAllTransactions,
   createTransaction,
   createAddressTransactions,
+  searchAllTransactions,
 }

@@ -321,7 +321,7 @@ const editFullTransaction = async (transaction) => {
     if (checkBlockId.errors) {return { failed: true, message: checkBlockId.errors }}
   }
 
-  const editedTransaction = await db.transaction.update({
+  let editedTransaction = await db.transaction.update({
       blockId: blockId || checkBlockId, 
       txid, 
       network_fee, 
@@ -347,6 +347,7 @@ const editFullTransaction = async (transaction) => {
   if (!editedTransaction) {
     return { failed: true, message: "Transaction to edit not found" }
   }
+  editedTransaction = await transactionByUUID(id)
   return editedTransaction
 }
 

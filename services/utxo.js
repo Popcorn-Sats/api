@@ -1,7 +1,6 @@
 const db = require('../models')
-const { checkAndCreateAddress } = require('./address')
 
-module.exports.checkAndCreateUtxo = async (utxo, address, accountId) => {
+module.exports.checkAndCreateUtxo = async (utxo, addressId) => {
   let utxoId
   const errors = []
   const utxoObj = await db.utxo.findOne({
@@ -12,7 +11,6 @@ module.exports.checkAndCreateUtxo = async (utxo, address, accountId) => {
   if (utxoObj) {
     utxoId = utxoObj.dataValues.id
   } else {
-    const addressId = await checkAndCreateAddress(address, accountId)
     const newUtxo = await db.utxo.create({
       utxo,
       addressId

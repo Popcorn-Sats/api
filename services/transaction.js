@@ -289,24 +289,26 @@ const editFullTransaction = async (transaction) => {
       })
     }
     if (rawLedger.id) {
+      const addressId = rawLedger.addressId || await checkAndCreateAddress(rawLedger.address, accountId)
       await db.transactionledger.update({
         amount: rawLedger.amount,
         accountId,
         transactiontypeId: rawLedger.transactiontypeId,
-        utxoId: rawLedger.utxoId || await checkAndCreateUtxo(rawLedger.utxo, rawLedger.address, accountId),
-        addressId: rawLedger.addressId || await checkAndCreateAddress(rawLedger.address, accountId)
+        utxoId: rawLedger.utxoId || await checkAndCreateUtxo(rawLedger.utxo, addressId),
+        addressId
       }, {
         where: {
           id: rawLedger.id
         }
       })
     }
+    const addressId = rawLedger.addressId || await checkAndCreateAddress(rawLedger.address, accountId)
     const ledger = {
       amount: rawLedger.amount,
       accountId,
       transactiontypeId: rawLedger.transactiontypeId,
-      utxoId: rawLedger.utxoId || await checkAndCreateUtxo(rawLedger.utxo, rawLedger.address, accountId),
-      addressId: rawLedger.addressId || await checkAndCreateAddress(rawLedger.address, accountId)
+      utxoId: rawLedger.utxoId || await checkAndCreateUtxo(rawLedger.utxo, addressId),
+      addressId
     }
     transactionledgers.push(ledger)
   }
@@ -386,12 +388,13 @@ const createTransaction = async (transaction) => {
     } else if (rawLedger.name) {
       accountId = await checkAndCreateAccount(rawLedger.name)
     }
+    const addressId = await checkAndCreateAddress(rawLedger.address)
     const ledger = {
       amount: rawLedger.amount,
       accountId,
       transactiontypeId: rawLedger.transactiontypeId,
-      utxoId: await checkAndCreateUtxo(rawLedger.utxo, rawLedger.address, accountId),
-      addressId: await checkAndCreateAddress(rawLedger.address)
+      utxoId: await checkAndCreateUtxo(rawLedger.utxo, addressId),
+      addressId
     }
     transactionledgers.push(ledger)
   }
@@ -484,14 +487,14 @@ const createAddressTransactions = async (address, accountId) => {
     }
     transactionsArray.push(transaction)
     console.log({transaction})
-    const transactionExists = db.transaction.findOne({
+    const transactionExists = await db.transaction.findOne({
       where: {
         txid: transactions[i].txid
       }
     })
     if (transactionExists) {
       console.log('editFullTransaction beginning …')
-      const editedTransaction = await editFullTransaction(transaction) // TODO: Next task
+      const editedTransaction = await editFullTransaction(transaction)
       return editedTransaction
     }
     console.log('createTransaction beginning …')

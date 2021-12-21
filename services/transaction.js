@@ -279,7 +279,14 @@ const editFullTransaction = async (transaction) => {
     if (rawLedger.accountId) {
       accountId = rawLedger.accountId
     } else if (rawLedger.name) {
-      accountId = await checkAndCreateAccount(rawLedger.name) // TODO: need to update foreign key on address & UTXO
+      accountId = await checkAndCreateAccount(rawLedger.name)
+      await db.address.update({
+        accountId
+      }, {
+        where: {
+          id: rawLedger.addressId
+        }
+      })
     }
     if (rawLedger.id) {
       await db.transactionledger.update({

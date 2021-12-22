@@ -459,7 +459,7 @@ const createAddressTransactions = async (address, accountId) => {
         }
       })
       if (accountCheck) {
-        return accountCheck.id
+        return accountCheck.accountId
       }
       return null
     }

@@ -258,7 +258,7 @@ const editFullTransaction = async (transaction) => {
   const errors = []
   let checkCategoryId
   let checkBlockId
-  
+
   // Validate required fields
   if( !ledgers ) {
     return { failed: true, message: "Missing required field(s)" }
@@ -446,7 +446,7 @@ const createAddressTransactions = async (address, accountId) => {
     const transaction = {}
     transaction.blockHeight = transactions[i].blockHeight
     transaction.txid = transactions[i].txid
-    transaction.network_fee = transactions[i].fee
+    transaction.network_fee = Math.round(transactions[i].fee)
     transaction.size = transactions[i].size
     transaction.ledgers = []
     const ledgerAccountID = async (scriptAddress) => {
@@ -467,7 +467,7 @@ const createAddressTransactions = async (address, accountId) => {
       const ledger = {
         accountId: await ledgerAccountID(transactions[i].vinArray[j].scriptPubKey.address),
         transactiontypeId: 1,
-        amount: transactions[i].vinArray[j].value * 100000000, // Note: sats the standard, but also fixes JS floating point fuckery
+        amount: Math.round(transactions[i].vinArray[j].value * 100000000), // Note: sats the standard, but also fixes JS floating point fuckery
         utxo: `${transactions[i].vin[j].txid}[${transactions[i].vinArray[j].n}]`,
         address: transactions[i].vinArray[j].scriptPubKey.address
       }
@@ -478,7 +478,7 @@ const createAddressTransactions = async (address, accountId) => {
       const ledger = {
         accountId: await ledgerAccountID(transactions[i].vout[k].scriptPubKey.address),
         transactiontypeId: 2,
-        amount: transactions[i].vout[k].value * 100000000,
+        amount: Math.round(transactions[i].vout[k].value * 100000000),
         utxo: `${transactions[i].txid}[${transactions[i].vout[k].n}]`,
         address: transactions[i].vout[k].scriptPubKey.address
       }

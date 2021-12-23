@@ -259,6 +259,8 @@ const editFullTransaction = async (transaction) => {
   let checkCategoryId
   let checkBlockId
 
+  console.log({id})
+  
   // Validate required fields
   if( !ledgers ) {
     return { failed: true, message: "Missing required field(s)" }
@@ -340,7 +342,7 @@ const editFullTransaction = async (transaction) => {
       transactionledgers
   }, {
       where: {
-        id
+        id // FIXME: WHERE parameter "id" has invalid "undefined" value on initial account sync. Why not just use txid?
       }
   }, {
       include: [
@@ -437,7 +439,8 @@ const createTransaction = async (transaction) => {
 }
 
 const createAddressTransactions = async (address, accountId) => {
-  console.log(address)
+  // FIXME: somewhere we are reassigning ownership of addresses to new acounts
+  console.log({address})
   console.log("We are in createTransactionsForAddress")
   const transactionsArray = []
   const transactions = await getAddressTransactions(address)
@@ -455,7 +458,7 @@ const createAddressTransactions = async (address, accountId) => {
       }
       const accountCheck = await db.address.findOne({
         where: {
-          address
+          address: scriptAddress
         }
       })
       if (accountCheck) {
@@ -471,7 +474,6 @@ const createAddressTransactions = async (address, accountId) => {
         utxo: `${transactions[i].vin[j].txid}[${transactions[i].vinArray[j].n}]`,
         address: transactions[i].vinArray[j].scriptPubKey.address
       }
-      console.log({ledger})
       transaction.ledgers.push(ledger)
     }
     for (let k = 0; k < transactions[i].vout.length; k += 1) {
@@ -482,11 +484,9 @@ const createAddressTransactions = async (address, accountId) => {
         utxo: `${transactions[i].txid}[${transactions[i].vout[k].n}]`,
         address: transactions[i].vout[k].scriptPubKey.address
       }
-      console.log({ledger})
       transaction.ledgers.push(ledger)
     }
     transactionsArray.push(transaction)
-    console.log({transaction})
     const transactionExists = await db.transaction.findOne({
       where: {
         txid: transactions[i].txid

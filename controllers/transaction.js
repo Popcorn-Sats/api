@@ -34,7 +34,8 @@ const getTransactionByTransactionID = async (req, res) => {
 
 const editTransaction = async (req, res) => {
   const transaction = req.body
-  const editedTransaction = await editFullTransaction(transaction)
+  const { id } = transaction
+  const editedTransaction = await editFullTransaction(transaction, id)
   .catch(err => res.status(500).send(err))
   const status = editedTransaction.failed ? 400 : 200
   return res.status(status).json(editedTransaction)

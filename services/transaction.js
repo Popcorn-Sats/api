@@ -253,8 +253,8 @@ const balanceLedgers = async (ledgers) => {
   return credits === debits
 }
 
-const editFullTransaction = async (transaction) => {
-  const { id, blockHeight, blockId, txid, network_fee, size, description, category, categoryid, ledgers } = transaction
+const editFullTransaction = async (transaction, id) => {
+  const { blockHeight, blockId, txid, network_fee, size, description, category, categoryid, ledgers } = transaction
   const errors = []
   let checkCategoryId
   let checkBlockId
@@ -342,7 +342,7 @@ const editFullTransaction = async (transaction) => {
       transactionledgers
   }, {
       where: {
-        id // FIXME: WHERE parameter "id" has invalid "undefined" value on initial account sync. Why not just use txid?
+        id
       }
   }, {
       include: [
@@ -494,7 +494,7 @@ const createAddressTransactions = async (address, accountId) => {
     })
     if (transactionExists) {
       console.log('editFullTransaction beginning …')
-      const editedTransaction = await editFullTransaction(transaction)
+      const editedTransaction = await editFullTransaction(transaction, transactionExists.id)
       return editedTransaction
     }
     console.log('createTransaction beginning …')

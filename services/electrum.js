@@ -12,7 +12,7 @@ const electrumCallbacks = {
   onLog: (str) => { console.debug(str); },
 };
 
-const electrumConfig = { client: 'mempool-v2', version: '1.4' };
+const electrumConfig = { client: 'popcorn-testing', version: '0.1' };
 const electrumPersistencePolicy = { retryPeriod: 10000, maxRetry: 1000, callback: null };
 
 const electrumClient = new ElectrumClient(
@@ -118,13 +118,13 @@ const getAddressTransactions = async (address, lastSeenTxId) => {
       const tx = await getRawTransaction(history[i].tx_hash, true)
       tx.vinArray = []
       for (let j = 0; j < tx.vin.length; j += 1) {
-        const vin = await getRawTransaction(tx.vin[j].txid, true)
-        console.log(vin.vout[tx.vin[j].vout])
+        const vin = await getRawTransaction(tx.vin[j].txid, true) // FIXME: Batch these
+        // console.log(vin.vout[tx.vin[j].vout])
         tx.vinArray.push(vin.vout[tx.vin[j].vout])
       }
       const debits = _.sum(_.map(_.filter(tx.vinArray), 'value')) * 100000000
       const credits = _.sum(_.map(_.filter(tx.vout), 'value')) * 100000000
-      console.log({credits, debits})
+      // console.log({credits, debits})
       tx.fee = debits - credits
       tx.blockHeight = history[i].height
       transactions.push(tx)

@@ -118,6 +118,7 @@ const editAccountById = async (account) => {
 }
 
 const syncAccount = async (accountId, startingIndex, startingChangeIndex, publicKey, purpose) => {
+  // TODO: take optional address count flag for initial sync
   const addresses = []
   const changeAddresses = []
   let i = startingIndex
@@ -149,10 +150,54 @@ const syncAccount = async (accountId, startingIndex, startingChangeIndex, public
 
     console.log({addresses})
 
+    const checkForTransactions = async transactionsObj => {
+      if (transactionsObj.chain_stats.tx_count > 0 || transactionsObj.mempool_stats.tx_count > 0) {
+        console.log({message: "Here we go", address})
+        const savedAddress = await db.address.findOne({
+          where: {
+            address
+          }
+        })
+        try {
+          const transactions = await createAddressTransactions(address, accountId) // await promise.all
+          console.log(transactions)
+        } catch (e) {
+          console.error(e)
+          return({"Error": e})
+        }
+        if (changeAddresses.indexOf(address) !== -1) {
+          changeIndex = savedAddress.txIndex + 1
+          await db.xpub.update({
+            changeIndex
+          }, {
+            where: {
+              accountId
+            }
+          })
+        } else {
+          addressIndex = savedAddress.txIndex + 1
+          await db.xpub.update({
+            addressIndex
+          }, {
+            where: {
+              accountId
+            }
+          })
+        }
+      }
+    }
+
+    Promise.all(addresses.map(address => getAddress(address)))
+      .then(values => {
+        values.forEach(checkForTransactions) // or better with values.map??
+      })
+      .catch(err => {  
+        console.log({err})
+      });
+
     for(j; j < addresses.length; j += 1) {
       // FIXME: this should be asynchronous / promise.all in the background after finding addressfromxpub
       // FIXME: should batch calls to electrum on initial sync
-      // TODO: take optional address count flag for initial sync
       const address = addresses[j]
       console.log({address})
       const transactionsObj = await getAddress(address)

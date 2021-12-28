@@ -56,7 +56,7 @@ module.exports = {
       },
       amount: {
         allowNull: false,
-        type: Sequelize.INTEGER
+        type: Sequelize.BIGINT
       },
       // TODO: move address to its own table/model. Belongs to an account, hasmany UTXOs
       createdAt: {

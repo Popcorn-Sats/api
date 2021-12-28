@@ -12,7 +12,7 @@ const electrumCallbacks = {
   onLog: (str) => { console.debug(str); },
 };
 
-const electrumConfig = { client: 'popcorn-testing', version: '0.1' };
+const electrumConfig = { client: 'popcorn-testing', version: '1.4' };
 const electrumPersistencePolicy = { retryPeriod: 10000, maxRetry: 1000, callback: null };
 
 const electrumClient = new ElectrumClient(

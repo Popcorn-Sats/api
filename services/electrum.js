@@ -44,7 +44,7 @@ const getRawTransaction = (txHash, verbosity) => electrumClient.blockchainTransa
 const getRawBlockHeader = (blockHeight) => electrumClient.blockchainBlock_getHeader(blockHeight)
 
 const getBlockHeader = async (blockHeight) => {
-  initiate()
+  // initiate()
   try {
     const height = blockHeight
     const blockHeader = await getRawBlockHeader(parseInt(height, 10))
@@ -57,7 +57,7 @@ const getBlockHeader = async (blockHeight) => {
 }
 
 const getAddress = async (address) => {
-  initiate()
+  // initiate()
   try {
     const script = Bitcoin.address.toOutputScript(address)
     const hash = Bitcoin.crypto.sha256(script)
@@ -94,7 +94,7 @@ const getAddress = async (address) => {
 }
 
 const getAddressTransactions = async (address, lastSeenTxId) => {
-  initiate()
+  // initiate()
   try {
     // TODO: pull from Bitcoin service
     const script = Bitcoin.address.toOutputScript(address)
@@ -139,7 +139,7 @@ const getAddressTransactions = async (address, lastSeenTxId) => {
 }
 
 const getTransaction = async (txHash, verbosity) => {
-  initiate()
+  // initiate()
   try {
     const tx = await getRawTransaction(txHash, verbosity)
     return tx
@@ -153,5 +153,6 @@ module.exports = {
   getBlockHeader,
   getAddress,
   getAddressTransactions,
-  getTransaction
+  getTransaction,
+  initiate
 }

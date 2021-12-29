@@ -102,7 +102,7 @@ const listTransactionsByAccountId = async (accountId) => {
   ledgers.forEach(ledger => {
     transactions.push(ledger.transactionId)
   });
-  console.log(transactions)
+  // console.log(transactions)
   return transactions
 }
 
@@ -213,7 +213,7 @@ const getTransactionsByAccountID = async (accountId) => {
     runningBalance = transaction.runningBalance
     transactions.push(transaction)
   }
-  return transactions.reverse()
+  return transactions.reverse() // FIXME: Return in order of block height
 }
 
 const getTransactionsByCategoryID = async (categoryId) => {
@@ -246,10 +246,27 @@ const getTransactionByID = async (id) => {
   return returnTransaction
 }
 
+const syncLedgerAccountId = async (accountId) => {
+  const addresses = await db.address.findAll({
+    where: {
+      accountId
+    }
+  })
+  console.log(addresses)
+  for (let j = 0; j < addresses.length; j += 1) {
+    const ledgers = await db.transactionledger.update({
+      accountId
+    }, {
+      where: {
+        addressId: addresses[j].id
+      }
+    })
+  }
+}
+
 const balanceLedgers = async (ledgers) => {
   const debits = _.sum(_.map(_.filter(ledgers, {transactiontypeId: 1}), 'amount'))
   const credits = _.sum(_.map(_.filter(ledgers, {transactiontypeId: 2}), 'amount'))
-  console.log({credits, debits})
   return credits === debits
 }
 
@@ -258,8 +275,6 @@ const editFullTransaction = async (transaction, id) => {
   const errors = []
   let checkCategoryId
   let checkBlockId
-
-  console.log({id})
   
   // Validate required fields
   if( !ledgers ) {
@@ -440,8 +455,7 @@ const createTransaction = async (transaction) => {
 
 const createAddressTransactions = async (address, accountId) => {
   // FIXME: somewhere we are reassigning ownership of addresses to new acounts
-  console.log({address})
-  console.log("We are in createTransactionsForAddress")
+  console.log({message: "We are in createTransactionsForAddress", address})
   const transactionsArray = []
   const transactions = await getAddressTransactions(address)
   const {length} = transactions
@@ -495,11 +509,13 @@ const createAddressTransactions = async (address, accountId) => {
     if (transactionExists) {
       console.log('editFullTransaction beginning …')
       const editedTransaction = await editFullTransaction(transaction, transactionExists.id)
+      // FIXME: doesn't update accountID on pre-existing ledger
       return editedTransaction
     }
     console.log('createTransaction beginning …')
     const result = await createTransaction(transaction)
-    console.log(result)
+    // FIXME: doesn't add accountID to ledger if address already exists
+    // console.log(result)
   }
   return transactionsArray
 }
@@ -528,6 +544,7 @@ module.exports = {
   getTransactionsByAccountID,
   getTransactionsByCategoryID,
   getTransactionByID,
+  syncLedgerAccountId,
   editFullTransaction,
   createTransaction,
   createAddressTransactions,

@@ -185,11 +185,12 @@ const getTransactionsByAccountID = async (accountId) => {
     return { failed: true, message: "Transactions for account not found" }
   }
   const {length} = rawTransactions
+  const orderedTransactions = _.orderBy(rawTransactions, 'block.height', 'asc')
   let runningBalance = 0
   for (let i = 0; i < length; i += 1) {
     const transaction = {}
     const ledgers = []
-    rawTransactions[i].transactionledgers.forEach(ledger => {
+    orderedTransactions[i].transactionledgers.forEach(ledger => {
       const thisLedger = {}
       thisLedger.accountId = ledger.accountId
       thisLedger.amount = ledger.amount
@@ -199,21 +200,21 @@ const getTransactionsByAccountID = async (accountId) => {
     const accountInteger = parseInt(accountId, 10)
     const debits = _.sum(_.map(_.map(_.filter(_.filter(ledgers, {accountId: accountInteger}), {transactiontypeId: 1}), 'amount'), _.parseInt))
     const credits = _.sum(_.map(_.map(_.filter(_.filter(ledgers, {accountId: accountInteger}), {transactiontypeId: 2}), 'amount'), _.parseInt))
-    transaction.id = rawTransactions[i].id
-    transaction.txid = rawTransactions[i].txid
-    transaction.network_fee = rawTransactions[i].network_fee
-    transaction.size = rawTransactions[i].size
-    transaction.description = rawTransactions[i].description
-    transaction.block = rawTransactions[i].block
-    transaction.category = rawTransactions[i].category
-    transaction.transactiontype = rawTransactions[i].transactiontype
-    transaction.transactionledgers = rawTransactions[i].transactionledgers
+    transaction.id = orderedTransactions[i].id
+    transaction.txid = orderedTransactions[i].txid
+    transaction.network_fee = orderedTransactions[i].network_fee
+    transaction.size = orderedTransactions[i].size
+    transaction.description = orderedTransactions[i].description
+    transaction.block = orderedTransactions[i].block
+    transaction.category = orderedTransactions[i].category
+    transaction.transactiontype = orderedTransactions[i].transactiontype
+    transaction.transactionledgers = orderedTransactions[i].transactionledgers
     transaction.balance_change = credits - debits
     transaction.runningBalance = runningBalance + transaction.balance_change
     runningBalance = transaction.runningBalance
     transactions.push(transaction)
   }
-  return _.orderBy(transactions, 'block.height', 'desc')
+  return transactions.reverse()
 }
 
 const getTransactionsByCategoryID = async (categoryId) => {

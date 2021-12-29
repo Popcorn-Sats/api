@@ -213,7 +213,7 @@ const getTransactionsByAccountID = async (accountId) => {
     runningBalance = transaction.runningBalance
     transactions.push(transaction)
   }
-  return transactions.reverse() // FIXME: Return in order of block height
+  return _.orderBy(transactions, 'block.height', 'desc')
 }
 
 const getTransactionsByCategoryID = async (categoryId) => {

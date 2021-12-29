@@ -197,8 +197,8 @@ const getTransactionsByAccountID = async (accountId) => {
       ledgers.push(thisLedger)
     })
     const accountInteger = parseInt(accountId, 10)
-    const debits = _.sum(_.map(_.filter(_.filter(ledgers, {accountId: accountInteger}), {transactiontypeId: 1}), 'amount'))
-    const credits = _.sum(_.map(_.filter(_.filter(ledgers, {accountId: accountInteger}), {transactiontypeId: 2}), 'amount'))
+    const debits = _.sum(_.map(_.map(_.filter(_.filter(ledgers, {accountId: accountInteger}), {transactiontypeId: 1}), 'amount'), _.parseInt))
+    const credits = _.sum(_.map(_.map(_.filter(_.filter(ledgers, {accountId: accountInteger}), {transactiontypeId: 2}), 'amount'), _.parseInt))
     transaction.id = rawTransactions[i].id
     transaction.txid = rawTransactions[i].txid
     transaction.network_fee = rawTransactions[i].network_fee

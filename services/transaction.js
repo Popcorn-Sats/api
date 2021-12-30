@@ -262,6 +262,8 @@ const syncLedgerAccountId = async (accountId) => {
         addressId: addresses[j].id
       }
     })
+    // eslint-disable-next-line no-unused-expressions
+    ledgers ? console.log({message: `Synced ledgers`, accountId, addressId: addresses[j].id}) : console.error({message: `Failed to sync ledgers`, accountId, addressId: addresses[j].id})
   }
 }
 
@@ -455,12 +457,12 @@ const createTransaction = async (transaction) => {
 }
 
 const createAddressTransactions = async (address, accountId) => {
-  // FIXME: somewhere we are reassigning ownership of addresses to new acounts
-  console.log({message: "We are in createTransactionsForAddress", address})
+  console.log({message: "createAddressTransactions", address})
   const transactionsArray = []
   const transactions = await getAddressTransactions(address)
   const {length} = transactions
   for (let i = 0; i < length; i += 1) {
+    console.log({message: `making transaction ${i}`})
     const transaction = {}
     transaction.blockHeight = transactions[i].blockHeight
     transaction.txid = transactions[i].txid
@@ -508,15 +510,18 @@ const createAddressTransactions = async (address, accountId) => {
       }
     })
     if (transactionExists) {
-      console.log('editFullTransaction beginning …')
+      console.log({message: 'editFullTransaction beginning …'})
       const editedTransaction = await editFullTransaction(transaction, transactionExists.id)
+      // eslint-disable-next-line no-unused-expressions
+      editedTransaction ? console.log({message: `Transaction ${transactionExists.id} edited`}) : console.error({message: `Failed to edit Transaction ${transactionExists.id}`})
       // FIXME: doesn't update accountID on pre-existing ledger
-      return editedTransaction
+    } else {
+      console.log({message: 'createTransaction beginning …'})
+      const result = await createTransaction(transaction)
+      // eslint-disable-next-line no-unused-expressions
+      result ? console.log({message: `Transaction ${result.id} created`}) : console.error({message: `Failed to create new Transaction`})
+      // FIXME: doesn't add accountID to ledger if address already exists
     }
-    console.log('createTransaction beginning …')
-    const result = await createTransaction(transaction)
-    // FIXME: doesn't add accountID to ledger if address already exists
-    // console.log(result)
   }
   return transactionsArray
 }

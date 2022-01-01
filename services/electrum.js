@@ -44,7 +44,7 @@ const getRawTransaction = (txHash, verbosity) => electrumClient.blockchainTransa
 const getRawBlockHeader = (blockHeight) => electrumClient.blockchainBlock_getHeader(blockHeight)
 
 const getBlockHeader = async (blockHeight) => {
-  initiate()
+  // initiate()
   try {
     const height = blockHeight
     const blockHeader = await getRawBlockHeader(parseInt(height, 10))
@@ -57,7 +57,7 @@ const getBlockHeader = async (blockHeight) => {
 }
 
 const getAddress = async (address) => {
-  initiate()
+  // initiate()
   try {
     const script = Bitcoin.address.toOutputScript(address)
     const hash = Bitcoin.crypto.sha256(script)
@@ -94,7 +94,7 @@ const getAddress = async (address) => {
 }
 
 const getAddressTransactions = async (address, lastSeenTxId) => {
-  initiate()
+  // initiate()
   try {
     // TODO: pull from Bitcoin service
     const script = Bitcoin.address.toOutputScript(address)
@@ -118,13 +118,15 @@ const getAddressTransactions = async (address, lastSeenTxId) => {
       const tx = await getRawTransaction(history[i].tx_hash, true)
       tx.vinArray = []
       for (let j = 0; j < tx.vin.length; j += 1) {
-        const vin = await getRawTransaction(tx.vin[j].txid, true) // FIXME: Batch these
+        const vin = await getRawTransaction(tx.vin[j].txid, true)
+        // FIXME: This is ridiculous for Wasabi mixes. Instead, save txid + vin[j] to UTXO table and reference that
+        // Maybe if vin.length < 20
+        // Otherwise, should still be Promise.all for this
         // console.log(vin.vout[tx.vin[j].vout])
         tx.vinArray.push(vin.vout[tx.vin[j].vout])
       }
       const debits = _.sum(_.map(_.filter(tx.vinArray), 'value')) * 100000000
       const credits = _.sum(_.map(_.filter(tx.vout), 'value')) * 100000000
-      // console.log({credits, debits})
       tx.fee = debits - credits
       tx.blockHeight = history[i].height
       transactions.push(tx)
@@ -139,7 +141,7 @@ const getAddressTransactions = async (address, lastSeenTxId) => {
 }
 
 const getTransaction = async (txHash, verbosity) => {
-  initiate()
+  // initiate()
   try {
     const tx = await getRawTransaction(txHash, verbosity)
     return tx
@@ -153,5 +155,6 @@ module.exports = {
   getBlockHeader,
   getAddress,
   getAddressTransactions,
-  getTransaction
+  getTransaction,
+  initiate
 }

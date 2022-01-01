@@ -102,7 +102,7 @@ const listTransactionsByAccountId = async (accountId) => {
   ledgers.forEach(ledger => {
     transactions.push(ledger.transactionId)
   });
-  console.log(transactions)
+  // console.log(transactions)
   return transactions
 }
 
@@ -185,11 +185,12 @@ const getTransactionsByAccountID = async (accountId) => {
     return { failed: true, message: "Transactions for account not found" }
   }
   const {length} = rawTransactions
+  const orderedTransactions = _.orderBy(rawTransactions, 'block.height', 'asc')
   let runningBalance = 0
   for (let i = 0; i < length; i += 1) {
     const transaction = {}
     const ledgers = []
-    rawTransactions[i].transactionledgers.forEach(ledger => {
+    orderedTransactions[i].transactionledgers.forEach(ledger => {
       const thisLedger = {}
       thisLedger.accountId = ledger.accountId
       thisLedger.amount = ledger.amount
@@ -197,17 +198,17 @@ const getTransactionsByAccountID = async (accountId) => {
       ledgers.push(thisLedger)
     })
     const accountInteger = parseInt(accountId, 10)
-    const debits = _.sum(_.map(_.filter(_.filter(ledgers, {accountId: accountInteger}), {transactiontypeId: 1}), 'amount'))
-    const credits = _.sum(_.map(_.filter(_.filter(ledgers, {accountId: accountInteger}), {transactiontypeId: 2}), 'amount'))
-    transaction.id = rawTransactions[i].id
-    transaction.txid = rawTransactions[i].txid
-    transaction.network_fee = rawTransactions[i].network_fee
-    transaction.size = rawTransactions[i].size
-    transaction.description = rawTransactions[i].description
-    transaction.block = rawTransactions[i].block
-    transaction.category = rawTransactions[i].category
-    transaction.transactiontype = rawTransactions[i].transactiontype
-    transaction.transactionledgers = rawTransactions[i].transactionledgers
+    const debits = _.sum(_.map(_.map(_.filter(_.filter(ledgers, {accountId: accountInteger}), {transactiontypeId: 1}), 'amount'), _.parseInt))
+    const credits = _.sum(_.map(_.map(_.filter(_.filter(ledgers, {accountId: accountInteger}), {transactiontypeId: 2}), 'amount'), _.parseInt))
+    transaction.id = orderedTransactions[i].id
+    transaction.txid = orderedTransactions[i].txid
+    transaction.network_fee = orderedTransactions[i].network_fee
+    transaction.size = orderedTransactions[i].size
+    transaction.description = orderedTransactions[i].description
+    transaction.block = orderedTransactions[i].block
+    transaction.category = orderedTransactions[i].category
+    transaction.transactiontype = orderedTransactions[i].transactiontype
+    transaction.transactionledgers = orderedTransactions[i].transactionledgers
     transaction.balance_change = credits - debits
     transaction.runningBalance = runningBalance + transaction.balance_change
     runningBalance = transaction.runningBalance
@@ -246,10 +247,29 @@ const getTransactionByID = async (id) => {
   return returnTransaction
 }
 
+const syncLedgerAccountId = async (accountId) => {
+  const addresses = await db.address.findAll({
+    where: {
+      accountId
+    }
+  })
+  console.log(addresses)
+  for (let j = 0; j < addresses.length; j += 1) {
+    const ledgers = await db.transactionledger.update({
+      accountId
+    }, {
+      where: {
+        addressId: addresses[j].id
+      }
+    })
+    // eslint-disable-next-line no-unused-expressions
+    ledgers ? console.log({message: `Synced ledgers`, accountId, addressId: addresses[j].id}) : console.error({message: `Failed to sync ledgers`, accountId, addressId: addresses[j].id})
+  }
+}
+
 const balanceLedgers = async (ledgers) => {
   const debits = _.sum(_.map(_.filter(ledgers, {transactiontypeId: 1}), 'amount'))
   const credits = _.sum(_.map(_.filter(ledgers, {transactiontypeId: 2}), 'amount'))
-  console.log({credits, debits})
   return credits === debits
 }
 
@@ -258,8 +278,6 @@ const editFullTransaction = async (transaction, id) => {
   const errors = []
   let checkCategoryId
   let checkBlockId
-
-  console.log({id})
   
   // Validate required fields
   if( !ledgers ) {
@@ -439,13 +457,12 @@ const createTransaction = async (transaction) => {
 }
 
 const createAddressTransactions = async (address, accountId) => {
-  // FIXME: somewhere we are reassigning ownership of addresses to new acounts
-  console.log({address})
-  console.log("We are in createTransactionsForAddress")
+  console.log({message: "createAddressTransactions", address})
   const transactionsArray = []
   const transactions = await getAddressTransactions(address)
   const {length} = transactions
   for (let i = 0; i < length; i += 1) {
+    console.log({message: `making transaction ${i}`})
     const transaction = {}
     transaction.blockHeight = transactions[i].blockHeight
     transaction.txid = transactions[i].txid
@@ -493,13 +510,18 @@ const createAddressTransactions = async (address, accountId) => {
       }
     })
     if (transactionExists) {
-      console.log('editFullTransaction beginning …')
+      console.log({message: 'editFullTransaction beginning …'})
       const editedTransaction = await editFullTransaction(transaction, transactionExists.id)
-      return editedTransaction
+      // eslint-disable-next-line no-unused-expressions
+      editedTransaction ? console.log({message: `Transaction ${transactionExists.id} edited`}) : console.error({message: `Failed to edit Transaction ${transactionExists.id}`})
+      // FIXME: doesn't update accountID on pre-existing ledger
+    } else {
+      console.log({message: 'createTransaction beginning …'})
+      const result = await createTransaction(transaction)
+      // eslint-disable-next-line no-unused-expressions
+      result ? console.log({message: `Transaction ${result.id} created`}) : console.error({message: `Failed to create new Transaction`})
+      // FIXME: doesn't add accountID to ledger if address already exists
     }
-    console.log('createTransaction beginning …')
-    const result = await createTransaction(transaction)
-    console.log(result)
   }
   return transactionsArray
 }
@@ -528,6 +550,7 @@ module.exports = {
   getTransactionsByAccountID,
   getTransactionsByCategoryID,
   getTransactionByID,
+  syncLedgerAccountId,
   editFullTransaction,
   createTransaction,
   createAddressTransactions,

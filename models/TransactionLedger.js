@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
           primaryKey: true,
         },
         amount: {
-          type: DataTypes.INTEGER
+          type: DataTypes.BIGINT
         }
 
 

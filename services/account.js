@@ -6,7 +6,7 @@ const _ = require('lodash')
 const db = require('../models')
 const config = require('../config/config.json')
 const {getAddressFromXpub} = require('./bitcoin')
-const {getAddress} = require('./electrum')
+const {getAddress, initiate} = require('./electrum')
 const {checkAndCreateAddress} = require('./address')
 const {createAddressTransactions, getTransactionLedgersByAccountID} = require('./transaction')
 
@@ -119,15 +119,15 @@ const editAccountById = async (account) => {
 
 const syncAccount = async (accountId, startingIndex, startingChangeIndex, publicKey, purpose) => {
   // TODO: take optional address count flag for initial sync
+  initiate()
   const addresses = []
   const changeAddresses = []
   let i = startingIndex
   let addressIndex = startingIndex
   let k = startingChangeIndex
   let changeIndex = startingChangeIndex
-  let j = 0
 
-  console.log({i, j, addressIndex, gap: config.BITCOIN.GAPLIMIT})
+  console.log({i, addressIndex, gap: config.BITCOIN.GAPLIMIT})
 
   const syncNewAddresses = async () => {
     console.log("syncing addresses")
@@ -151,8 +151,9 @@ const syncAccount = async (accountId, startingIndex, startingChangeIndex, public
     console.log({addresses})
 
     const checkForTransactions = async transactionsObj => {
+      const { address } = transactionsObj
       if (transactionsObj.chain_stats.tx_count > 0 || transactionsObj.mempool_stats.tx_count > 0) {
-        console.log({message: "Here we go", address})
+        console.log({message: "Checking transactions for address", address})
         const savedAddress = await db.address.findOne({
           where: {
             address
@@ -160,12 +161,13 @@ const syncAccount = async (accountId, startingIndex, startingChangeIndex, public
         })
         try {
           const transactions = await createAddressTransactions(address, accountId) // await promise.all
-          console.log(transactions)
+          // eslint-disable-next-line no-unused-expressions
+          transactions ? console.log({message: `Created address transactions`, accountId, address}) : null
         } catch (e) {
           console.error(e)
           return({"Error": e})
         }
-        if (changeAddresses.indexOf(address) !== -1) {
+        if (changeAddresses.indexOf(address) !== -1 && savedAddress.txIndex + 1 > changeIndex) {
           changeIndex = savedAddress.txIndex + 1
           await db.xpub.update({
             changeIndex
@@ -174,7 +176,7 @@ const syncAccount = async (accountId, startingIndex, startingChangeIndex, public
               accountId
             }
           })
-        } else {
+        } else if (savedAddress.txIndex + 1 > addressIndex) {
           addressIndex = savedAddress.txIndex + 1
           await db.xpub.update({
             addressIndex
@@ -184,59 +186,22 @@ const syncAccount = async (accountId, startingIndex, startingChangeIndex, public
             }
           })
         }
+        console.log({message: "Created transactions for address"})
+        console.log({address, tx_count: transactionsObj.chain_stats.tx_count})
+        return "Success"
       }
+      console.log({message: "No transactions for address"})
+      return "No transactions"
     }
 
-    Promise.all(addresses.map(address => getAddress(address)))
-      .then(values => {
-        values.forEach(checkForTransactions) // or better with values.map??
-      })
-      .catch(err => {  
-        console.log({err})
-      });
+    const transactionsObjList = await Promise.all(addresses.map(address => getAddress(address)))
 
-    for(j; j < addresses.length; j += 1) {
-      // FIXME: this should be asynchronous / promise.all in the background after finding addressfromxpub
-      // FIXME: should batch calls to electrum on initial sync
-      const address = addresses[j]
-      console.log({address})
-      const transactionsObj = await getAddress(address)
-      if (transactionsObj.chain_stats.tx_count > 0 || transactionsObj.mempool_stats.tx_count > 0) {
-        console.log({message: "Here we go", address})
-        const savedAddress = await db.address.findOne({
-          where: {
-            address
-          }
-        })
-        try {
-          const transactions = await createAddressTransactions(address, accountId) // await promise.all
-          console.log(transactions)
-        } catch (e) {
-          console.error(e)
-          return({"Error": e})
-        }
-        if (changeAddresses.indexOf(address) !== -1) {
-          changeIndex = savedAddress.txIndex + 1
-          await db.xpub.update({
-            changeIndex
-          }, {
-            where: {
-              accountId
-            }
-          })
-        } else {
-          addressIndex = savedAddress.txIndex + 1
-          await db.xpub.update({
-            addressIndex
-          }, {
-            where: {
-              accountId
-            }
-          })
-        }
-      }
-      console.log({address: addresses[j], tx_count: transactionsObj.chain_stats.tx_count})
+    console.log({message: `Found ${transactionsObjList.length} transactions for this address batch`})
+
+    for(let j = 0; j < transactionsObjList.length; j += 1) {
+      await checkForTransactions(transactionsObjList[j])
     }
+
     return addresses
   }
 
@@ -251,7 +216,6 @@ const createAccount = async (account) => {
   const accounttypeId = parseInt(account.accounttypeId, 10)
   const errors = []
 
-  // TODO: take address param for single-address accounts
   // Validate required fields
   if(!name || !accounttypeId) {
     return { failed: true, message: "Missing required field(s)" }

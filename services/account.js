@@ -307,6 +307,41 @@ const scanAccount = async (id) => {
   return result
 }
 
+const scanAddress = async (addressId) => {
+  initiate()
+  const savedAddress = await db.address.findOne({
+    where: {
+      id: addressId
+    }
+  })
+
+  if (!savedAddress) {
+    return {failed: true, message: "This address does not exist"}
+  }
+
+  const transactionsObj = await getAddress(savedAddress.address)
+
+  const { address, accountId } = savedAddress
+
+  if (transactionsObj.chain_stats.tx_count > 0 || transactionsObj.mempool_stats.tx_count > 0) {
+    console.log({message: "Checking transactions for address", address})
+    try {
+      const transactions = await createAddressTransactions(address, accountId)
+      // eslint-disable-next-line no-unused-expressions
+      transactions ? console.log({message: `Created address transactions`, accountId, address}) : null
+      // console.log(transactions)
+    } catch (e) {
+      console.error(e)
+      return({"Error": e})
+    }
+    console.log({message: "Created transactions for address"})
+    console.log({address, tx_count: transactionsObj.chain_stats.tx_count})
+    return "Success"
+  }
+  console.log({message: "No transactions for address"})
+  return "No transactions"
+}
+
 const searchAllAccounts = async (term) => {
   const errors = []
   const result = await db.account.findAll({ where: {[Op.or]: [
@@ -359,5 +394,6 @@ module.exports = {
   createAccount,
   checkAndCreateAccount,
   scanAccount,
+  scanAddress,
   searchAllAccounts
 }

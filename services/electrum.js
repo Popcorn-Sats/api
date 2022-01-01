@@ -118,13 +118,15 @@ const getAddressTransactions = async (address, lastSeenTxId) => {
       const tx = await getRawTransaction(history[i].tx_hash, true)
       tx.vinArray = []
       for (let j = 0; j < tx.vin.length; j += 1) {
-        const vin = await getRawTransaction(tx.vin[j].txid, true) // FIXME: Batch these
+        const vin = await getRawTransaction(tx.vin[j].txid, true)
+        // FIXME: This is ridiculous for Wasabi mixes. Instead, save txid + vin[j] to UTXO table and reference that
+        // Maybe if vin.length < 20
+        // Otherwise, should still be Promise.all for this
         // console.log(vin.vout[tx.vin[j].vout])
         tx.vinArray.push(vin.vout[tx.vin[j].vout])
       }
       const debits = _.sum(_.map(_.filter(tx.vinArray), 'value')) * 100000000
       const credits = _.sum(_.map(_.filter(tx.vout), 'value')) * 100000000
-      // console.log({credits, debits})
       tx.fee = debits - credits
       tx.blockHeight = history[i].height
       transactions.push(tx)

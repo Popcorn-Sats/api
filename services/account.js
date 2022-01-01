@@ -22,10 +22,10 @@ const getAccountBalance = async (accountId) => {
       return({failed: true, message: `Ledger ID ${ledger.id} does not have a transaction type`})
     }
     if (ledger.transactiontypeId === 2) {
-      credits.push(ledger.amount)
+      credits.push(parseInt(ledger.amount, 10))
     }
     else if (ledger.transactiontypeId === 1) {
-      debits.push(ledger.amount)
+      debits.push(parseInt(ledger.amount, 10))
     }
   });
   const balance = _.sum(credits) - _.sum(debits)

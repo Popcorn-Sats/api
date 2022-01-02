@@ -253,7 +253,7 @@ const syncLedgerAccountId = async (accountId) => {
       accountId
     }
   })
-  console.log(addresses)
+  // console.log(addresses)
   for (let j = 0; j < addresses.length; j += 1) {
     const ledgers = await db.transactionledger.update({
       accountId
@@ -330,6 +330,7 @@ const editFullTransaction = async (transaction, id) => {
       utxoId: rawLedger.utxoId || await checkAndCreateUtxo(rawLedger.utxo, addressId),
       addressId
     }
+    console.log({"Edit TX ledger account ID": ledger.accountId})
     transactionledgers.push(ledger)
   }
 
@@ -365,7 +366,7 @@ const editFullTransaction = async (transaction, id) => {
   }, {
       include: [
           {
-              model: db.transactionledger
+              model: db.transactionledger // FIXME: This does not appear to actually update the ledger
           }
       ]
   })
@@ -416,6 +417,7 @@ const createTransaction = async (transaction) => {
       utxoId: await checkAndCreateUtxo(rawLedger.utxo, addressId),
       addressId
     }
+    console.log({"Create TX ledger account ID": ledger.accountId})
     transactionledgers.push(ledger)
   }
 
@@ -448,7 +450,7 @@ const createTransaction = async (transaction) => {
   }, {
       include: [
           {
-              model: db.transactionledger
+              model: db.transactionledger // FIXME: This does not appear to actually update the ledger
           }
       ]
   })
@@ -470,7 +472,9 @@ const createAddressTransactions = async (address, accountId) => {
     transaction.size = transactions[i].size
     transaction.ledgers = []
     const ledgerAccountID = async (scriptAddress) => {
+      console.log({message: `finding accountID for ${scriptAddress}`})
       if (scriptAddress === address) {
+        console.log({message: `scriptAddress === address gives account ID ${accountId}`})
         return accountId
       }
       const accountCheck = await db.address.findOne({
@@ -479,8 +483,10 @@ const createAddressTransactions = async (address, accountId) => {
         }
       })
       if (accountCheck) {
+        console.log({message: `accountCheck gives account ID ${accountCheck.accountId}`})
         return accountCheck.accountId
       }
+      console.log({message: `no account found for address`})
       return null
     }
     for (let j = 0; j < transactions[i].vinArray.length; j += 1) {
@@ -491,6 +497,7 @@ const createAddressTransactions = async (address, accountId) => {
         utxo: `${transactions[i].vin[j].txid}[${transactions[i].vinArray[j].n}]`,
         address: transactions[i].vinArray[j].scriptPubKey.address
       }
+      console.log({"ledger account ID": ledger.accountId})
       transaction.ledgers.push(ledger)
     }
     for (let k = 0; k < transactions[i].vout.length; k += 1) {
@@ -501,6 +508,7 @@ const createAddressTransactions = async (address, accountId) => {
         utxo: `${transactions[i].txid}[${transactions[i].vout[k].n}]`,
         address: transactions[i].vout[k].scriptPubKey.address
       }
+      console.log({"ledger account ID": ledger.accountId})
       transaction.ledgers.push(ledger)
     }
     transactionsArray.push(transaction)
@@ -514,13 +522,15 @@ const createAddressTransactions = async (address, accountId) => {
       const editedTransaction = await editFullTransaction(transaction, transactionExists.id)
       // eslint-disable-next-line no-unused-expressions
       editedTransaction ? console.log({message: `Transaction ${transactionExists.id} edited`}) : console.error({message: `Failed to edit Transaction ${transactionExists.id}`})
-      // FIXME: doesn't update accountID on pre-existing ledger
+      // FIXME: doesn't update accountID on pre-existing ledger. Temporary fix below
+      await syncLedgerAccountId(accountId)
     } else {
       console.log({message: 'createTransaction beginning …'})
       const result = await createTransaction(transaction)
       // eslint-disable-next-line no-unused-expressions
       result ? console.log({message: `Transaction ${result.id} created`}) : console.error({message: `Failed to create new Transaction`})
-      // FIXME: doesn't add accountID to ledger if address already exists
+      // FIXME: doesn't add accountID to ledger if address already exists. Temporary fix below
+      await syncLedgerAccountId(accountId)
     }
   }
   return transactionsArray

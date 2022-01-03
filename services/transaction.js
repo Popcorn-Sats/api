@@ -178,6 +178,45 @@ const rawTransactionsByAccountID = async (accountId) => {
   return transactions
 }
 
+const getTransactionType = async (ledgers) => {
+  const creditsOwned = []
+  const debitsOwned = []
+  for (let i = 0; i < ledgers.length; i += 1) {
+    const account = await db.account.findOne({
+      where: {
+        id: ledgers[i].accountId
+      }
+    })
+    if (!account && ledgers[i].transactiontypeId === 1) {
+      debitsOwned.push(false)
+    }
+    else if (account && ledgers[i].transactiontypeId === 1 && account?.id !== 0) {
+      debitsOwned.push(account?.owned)
+    } else if (!account && ledgers[i].transactiontypeId === 2) {
+      creditsOwned.push(false)
+    } else if (account && ledgers[i].transactiontypeId === 2 && account?.id !== 0) {
+      creditsOwned.push(account?.owned)
+    }
+  }
+  if (!_.includes(creditsOwned, false) && !_.includes(debitsOwned, false)) {
+    /* creditsOwned does not contain false && debitsOwned does not contain false */
+    return "transfer"
+  }
+  if (_.includes(creditsOwned, true) && !_.includes(debitsOwned, true)) {
+    /* "creditsOwned contains true" && "debitsOwned does not contain true" */
+    return "deposit"
+  }
+  if (_.includes(creditsOwned, true) && _.includes(creditsOwned, false) && _.includes(debitsOwned, true) && _.includes(debitsOwned, false)) {
+    /* "creditsOwned contains true && false" && "debitsOwned contains true && false" */
+    return "coinjoin"
+  }
+  if (_.includes(creditsOwned, false) && !_.includes(debitsOwned, false)) {
+    /* "creditsOwned contains false" && "debitsOwned does not contain false" */
+    return "withdrawal"
+  }
+  return null
+}
+
 const getTransactionsByAccountID = async (accountId) => {
   const rawTransactions = await rawTransactionsByAccountID(accountId)
   const transactions = []
@@ -207,7 +246,8 @@ const getTransactionsByAccountID = async (accountId) => {
     transaction.description = orderedTransactions[i].description
     transaction.block = orderedTransactions[i].block
     transaction.category = orderedTransactions[i].category
-    transaction.transactiontype = orderedTransactions[i].transactiontype
+    // transaction.transactiontype = orderedTransactions[i].transactiontype
+    transaction.transactiontype = await getTransactionType(ledgers)
     transaction.transactionledgers = orderedTransactions[i].transactionledgers
     transaction.balance_change = credits - debits
     transaction.runningBalance = runningBalance + transaction.balance_change

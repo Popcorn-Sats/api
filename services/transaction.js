@@ -199,19 +199,15 @@ const getTransactionType = async (ledgers) => {
     }
   }
   if (!_.includes(creditsOwned, false) && !_.includes(debitsOwned, false)) {
-    /* creditsOwned does not contain false && debitsOwned does not contain false */
     return "transfer"
   }
   if (_.includes(creditsOwned, true) && !_.includes(debitsOwned, true)) {
-    /* "creditsOwned contains true" && "debitsOwned does not contain true" */
     return "deposit"
   }
   if (_.includes(creditsOwned, true) && _.includes(creditsOwned, false) && _.includes(debitsOwned, true) && _.includes(debitsOwned, false)) {
-    /* "creditsOwned contains true && false" && "debitsOwned contains true && false" */
     return "coinjoin"
   }
   if (_.includes(creditsOwned, false) && !_.includes(debitsOwned, false)) {
-    /* "creditsOwned contains false" && "debitsOwned does not contain false" */
     return "withdrawal"
   }
   return null

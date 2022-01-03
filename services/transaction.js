@@ -267,6 +267,21 @@ const syncLedgerAccountId = async (accountId) => {
   }
 }
 
+const syncLedgers = async (transactionledgers) => {
+  for (let j = 0; j < transactionledgers.length; j += 1) {
+    const {addressId, accountId} = transactionledgers[j]
+    const ledgers = await db.transactionledger.update({
+      accountId
+    }, {
+      where: {
+        addressId
+      }
+    })
+    // eslint-disable-next-line no-unused-expressions
+    ledgers ? console.log({message: `Synced ledgers`, accountId, addressId}) : console.error({message: `Failed to sync ledgers`, accountId, addressId})
+  }
+}
+
 const balanceLedgers = async (ledgers) => {
   const debits = _.sum(_.map(_.filter(ledgers, {transactiontypeId: 1}), 'amount'))
   const credits = _.sum(_.map(_.filter(ledgers, {transactiontypeId: 2}), 'amount'))
@@ -366,7 +381,7 @@ const editFullTransaction = async (transaction, id) => {
   }, {
       include: [
           {
-              model: db.transactionledger // FIXME: This does not appear to actually update the ledger
+              model: db.transactionledger
           }
       ]
   })
@@ -377,6 +392,12 @@ const editFullTransaction = async (transaction, id) => {
   if (!editedTransaction) {
     return { failed: true, message: "Transaction to edit not found" }
   }
+
+  const syncedLedgers = await syncLedgers(transactionledgers)
+  if (!syncedLedgers) {
+    console.log({message: "No transactions ledgers to sync"})
+  }
+
   editedTransaction = await transactionByUUID(id)
   return editedTransaction
 }
@@ -450,10 +471,16 @@ const createTransaction = async (transaction) => {
   }, {
       include: [
           {
-              model: db.transactionledger // FIXME: This does not appear to actually update the ledger
+              model: db.transactionledger
           }
       ]
   })
+
+  const syncedLedgers = await syncLedgers(transactionledgers)
+  if (!syncedLedgers) {
+    console.log({message: "No transactions ledgers to sync"})
+  }
+
   newTransaction = await transactionByUUID(newTransaction.id)
   return newTransaction
 }
@@ -522,15 +549,11 @@ const createAddressTransactions = async (address, accountId) => {
       const editedTransaction = await editFullTransaction(transaction, transactionExists.id)
       // eslint-disable-next-line no-unused-expressions
       editedTransaction ? console.log({message: `Transaction ${transactionExists.id} edited`}) : console.error({message: `Failed to edit Transaction ${transactionExists.id}`})
-      // FIXME: doesn't update accountID on pre-existing ledger. Temporary fix below
-      await syncLedgerAccountId(accountId)
     } else {
       console.log({message: 'createTransaction beginning …'})
       const result = await createTransaction(transaction)
       // eslint-disable-next-line no-unused-expressions
       result ? console.log({message: `Transaction ${result.id} created`}) : console.error({message: `Failed to create new Transaction`})
-      // FIXME: doesn't add accountID to ledger if address already exists. Temporary fix below
-      await syncLedgerAccountId(accountId)
     }
   }
   return transactionsArray

@@ -257,7 +257,25 @@ const getTransactionsByCategoryID = async (categoryId) => {
   const transactions = await db.transaction.findAll({
     where: {
       categoryid: categoryId
-    }
+    },
+    order: [
+      ['id', 'DESC'],
+    ],
+    include: [
+        {
+            model: db.category,
+        },
+        {
+            model: db.block,
+        },
+        {
+            model: db.transactiontype,
+        },
+        {
+            model: db.transactionledger,
+            include: [db.account, db.utxo]
+        }
+    ]
   })
   .catch(err => {
     errors.push(err)

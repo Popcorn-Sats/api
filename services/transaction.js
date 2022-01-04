@@ -41,6 +41,41 @@ const checkAndCreateAccount = async (name) => {
   return accountId
 }
 
+const getTransactionType = async (ledgers) => {
+  const creditsOwned = []
+  const debitsOwned = []
+  for (let i = 0; i < ledgers.length; i += 1) {
+    const account = await db.account.findOne({
+      where: {
+        id: ledgers[i].accountId
+      }
+    })
+    if (!account && ledgers[i].transactiontypeId === 1) {
+      debitsOwned.push(false)
+    }
+    else if (account && ledgers[i].transactiontypeId === 1 && account?.id !== 0) {
+      debitsOwned.push(account?.owned)
+    } else if (!account && ledgers[i].transactiontypeId === 2) {
+      creditsOwned.push(false)
+    } else if (account && ledgers[i].transactiontypeId === 2 && account?.id !== 0) {
+      creditsOwned.push(account?.owned)
+    }
+  }
+  if (!_.includes(creditsOwned, false) && !_.includes(debitsOwned, false)) {
+    return "transfer"
+  }
+  if (_.includes(creditsOwned, true) && !_.includes(debitsOwned, true)) {
+    return "deposit"
+  }
+  if (_.includes(creditsOwned, true) && _.includes(creditsOwned, false) && _.includes(debitsOwned, true) && _.includes(debitsOwned, false)) {
+    return "coinjoin"
+  }
+  if (_.includes(creditsOwned, false) && !_.includes(debitsOwned, false)) {
+    return "withdrawal"
+  }
+  return null
+}
+
 const transactionByUUID = async (id) => {
   const errors = []
   const transaction = await db.transaction.findOne({
@@ -178,41 +213,6 @@ const rawTransactionsByAccountID = async (accountId) => {
   return transactions
 }
 
-const getTransactionType = async (ledgers) => {
-  const creditsOwned = []
-  const debitsOwned = []
-  for (let i = 0; i < ledgers.length; i += 1) {
-    const account = await db.account.findOne({
-      where: {
-        id: ledgers[i].accountId
-      }
-    })
-    if (!account && ledgers[i].transactiontypeId === 1) {
-      debitsOwned.push(false)
-    }
-    else if (account && ledgers[i].transactiontypeId === 1 && account?.id !== 0) {
-      debitsOwned.push(account?.owned)
-    } else if (!account && ledgers[i].transactiontypeId === 2) {
-      creditsOwned.push(false)
-    } else if (account && ledgers[i].transactiontypeId === 2 && account?.id !== 0) {
-      creditsOwned.push(account?.owned)
-    }
-  }
-  if (!_.includes(creditsOwned, false) && !_.includes(debitsOwned, false)) {
-    return "transfer"
-  }
-  if (_.includes(creditsOwned, true) && !_.includes(debitsOwned, true)) {
-    return "deposit"
-  }
-  if (_.includes(creditsOwned, true) && _.includes(creditsOwned, false) && _.includes(debitsOwned, true) && _.includes(debitsOwned, false)) {
-    return "coinjoin"
-  }
-  if (_.includes(creditsOwned, false) && !_.includes(debitsOwned, false)) {
-    return "withdrawal"
-  }
-  return null
-}
-
 const getTransactionsByAccountID = async (accountId) => {
   const rawTransactions = await rawTransactionsByAccountID(accountId)
   const transactions = []
@@ -242,7 +242,6 @@ const getTransactionsByAccountID = async (accountId) => {
     transaction.description = orderedTransactions[i].description
     transaction.block = orderedTransactions[i].block
     transaction.category = orderedTransactions[i].category
-    // transaction.transactiontype = orderedTransactions[i].transactiontype
     transaction.transactiontype = await getTransactionType(ledgers)
     transaction.transactionledgers = orderedTransactions[i].transactionledgers
     transaction.balance_change = credits - debits
@@ -277,7 +276,7 @@ const getTransactionByID = async (id) => {
   returnTransaction.description = transaction.description
   returnTransaction.category = transaction.category
   returnTransaction.block = transaction.block
-  returnTransaction.transactiontype = transaction.transactiontype
+  returnTransaction.transactiontype = await getTransactionType(transaction.transactionledgers)
   returnTransaction.debitsLedger = _.filter(transaction.transactionledgers, {transactiontypeId: 1})
   returnTransaction.creditsLedger = _.filter(transaction.transactionledgers, {transactiontypeId: 2})
   return returnTransaction

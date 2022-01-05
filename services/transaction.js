@@ -172,9 +172,6 @@ const getAllTransactions = async () => {
   }
   // FIXME: Below logic 95% duplicated from getTransactionsByAccountId
   const transactions = []
-  if (!rawTransactions) {
-    return { failed: true, message: "Transactions for account not found" }
-  }
   const {length} = rawTransactions
   const orderedTransactions = _.orderBy(rawTransactions, 'block.height', 'asc')
   let runningBalance = 0

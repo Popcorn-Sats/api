@@ -66,6 +66,32 @@ const getAllAccounts = async () => {
   return accountsArray
 }
 
+const getNetPosition = async () => {
+  const errors = []
+  const accountsArray = []
+  const accounts = await db.account.findAll({
+    where: {
+      owned: true
+    }
+  })
+  .catch(err => {
+    errors.push(err)
+    return errors
+  })
+  if (!accounts) {
+    return { failed: true, message: "No accounts were found" }
+  }
+
+  const {length} = accounts
+  for (let i = 0; i < length; i += 1) {
+    const account = {}
+    account.balance = await getAccountBalance(accounts[i].id)
+    accountsArray.push(account)
+  }
+  const balance = _.sum(_.map(accountsArray, 'balance'))
+  return balance
+}
+
 const getAccountById = async (id) => {
   const errors = []
   const account = await db.account.findOne({
@@ -388,6 +414,7 @@ const checkAndCreateAccount = async (name) => {
 
 module.exports = {
   getAllAccounts,
+  getNetPosition,
   getAccountById,
   editAccountById,
   syncAccount,

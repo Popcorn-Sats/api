@@ -627,6 +627,19 @@ const createAddressTransactions = async (address, accountId) => {
   return transactionsArray
 }
 
+const changeTransactionCategory = async (id, categoryid) => {
+  console.log({id, categoryid})
+  const editedTransaction = await db.transaction.update({
+    categoryid
+  }, {
+    where: {
+      id
+    }
+  })
+  console.log({editedTransaction})
+  return editedTransaction
+}
+
 const searchAllTransactions = async (term) => {
   const errors = []
   const result = await db.transaction.findAll({ where: {[Op.or]: [
@@ -655,5 +668,6 @@ module.exports = {
   editFullTransaction,
   createTransaction,
   createAddressTransactions,
+  changeTransactionCategory,
   searchAllTransactions,
 }

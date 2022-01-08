@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-const { getTransactionsByAccountID, getTransactionsByCategoryID, getTransactionByID, getAllTransactions, syncLedgerAccountId, editFullTransaction, createTransaction, searchAllTransactions } = require('../services/transaction')
+const { getTransactionsByAccountID, getTransactionsByCategoryID, getTransactionByID, getAllTransactions, syncLedgerAccountId, editFullTransaction, createTransaction, changeTransactionCategory, searchAllTransactions } = require('../services/transaction')
 
 const getTransactions = async (req, res) => {
   const transactions = await getAllTransactions()
@@ -49,6 +49,15 @@ const editTransaction = async (req, res) => {
   return res.status(status).json(editedTransaction)
 }
 
+const editTransactionCategory = async (req, res) => {
+  const { id, categoryid} = req.body
+  console.log({id, categoryid})
+  const editedTransaction = await changeTransactionCategory(id, categoryid)
+  .catch(err => res.status(500).send(err))
+  const status = editedTransaction.failed ? 400 : 200
+  return res.status(status).json(editedTransaction)
+}
+
 const addTransaction = async (req, res) => {
   const transaction = req.body
   const newTransaction = await createTransaction(transaction)
@@ -73,5 +82,6 @@ module.exports = {
   addAccountToLedgers,
   editTransaction,
   addTransaction,
+  editTransactionCategory,
   searchTransactions
 }

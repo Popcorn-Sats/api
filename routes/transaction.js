@@ -11,6 +11,7 @@ router
   .get('/category/:categoryId', ctrl.getTransactionsForCategory)
   .get('/transaction/:transactionId', ctrl.getTransactionByTransactionID)
   .put('/', ctrl.editTransaction)
+  .put('/category', ctrl.editTransactionCategory)
   .post('/add', ctrl.addTransaction)
 
 module.exports = router;

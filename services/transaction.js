@@ -358,70 +358,75 @@ const balanceLedgers = async (ledgers) => {
 
 const editFullTransaction = async (transaction, id) => {
   const { blockHeight, blockId, txid, network_fee, size, description, category, categoryid, ledgers } = transaction
+  console.log({message: "editing transaction"})
+  console.log({transaction})
   const errors = []
   let checkCategoryId
   let checkBlockId
   
   // Validate required fields
-  if( !ledgers ) {
+  if( !id ) {
     return { failed: true, message: "Missing required field(s)" }
   }
 
   const transactionledgers = []
 
-  transactionledgers.push({
-    // Fee
-    accountId: 0,
-    transactiontypeId: 2,
-    amount: network_fee
-  })
+  // TODO: When receiving from webapp we have pre-configured debitsLedger and creditsLedger. concatenate these into `ledgers` in the controller
+  if (ledgers) {
+    transactionledgers.push({
+      // Fee
+      accountId: 0,
+      transactiontypeId: 2,
+      amount: network_fee
+    })
 
-  for(let i = 0; i < ledgers.length; i += 1) {
-    const rawLedger = ledgers[i]
-    let accountId
-    if (rawLedger.accountId) {
-      accountId = rawLedger.accountId
-    } else if (rawLedger.name) {
-      accountId = await checkAndCreateAccount(rawLedger.name)
-      await db.address.update({
-        accountId
-      }, {
-        where: {
-          id: rawLedger.addressId
-        }
-      })
-    }
-    if (rawLedger.id) {
+    for(let i = 0; i < ledgers.length; i += 1) {
+      const rawLedger = ledgers[i]
+      let accountId
+      if (rawLedger.accountId) {
+        accountId = rawLedger.accountId
+      } else if (rawLedger.name) {
+        accountId = await checkAndCreateAccount(rawLedger.name)
+        await db.address.update({
+          accountId
+        }, {
+          where: {
+            id: rawLedger.addressId
+          }
+        })
+      }
+      if (rawLedger.id) {
+        const addressId = rawLedger.addressId || await checkAndCreateAddress(rawLedger.address, accountId)
+        await db.transactionledger.update({
+          amount: rawLedger.amount,
+          accountId,
+          transactiontypeId: rawLedger.transactiontypeId,
+          utxoId: rawLedger.utxoId || await checkAndCreateUtxo(rawLedger.utxo, addressId),
+          addressId
+        }, {
+          where: {
+            id: rawLedger.id
+          }
+        })
+      }
       const addressId = rawLedger.addressId || await checkAndCreateAddress(rawLedger.address, accountId)
-      await db.transactionledger.update({
+      const ledger = {
         amount: rawLedger.amount,
         accountId,
         transactiontypeId: rawLedger.transactiontypeId,
         utxoId: rawLedger.utxoId || await checkAndCreateUtxo(rawLedger.utxo, addressId),
         addressId
-      }, {
-        where: {
-          id: rawLedger.id
-        }
-      })
+      }
+      console.log({"Edit TX ledger account ID": ledger.accountId})
+      transactionledgers.push(ledger)
     }
-    const addressId = rawLedger.addressId || await checkAndCreateAddress(rawLedger.address, accountId)
-    const ledger = {
-      amount: rawLedger.amount,
-      accountId,
-      transactiontypeId: rawLedger.transactiontypeId,
-      utxoId: rawLedger.utxoId || await checkAndCreateUtxo(rawLedger.utxo, addressId),
-      addressId
+
+    const ledgersBalanced = await balanceLedgers(transactionledgers)
+
+    if (!ledgersBalanced) {
+      errors.push("Ledgers don't balance")
+      return {failed: true, message: "Ledgers don't balance", errors}
     }
-    console.log({"Edit TX ledger account ID": ledger.accountId})
-    transactionledgers.push(ledger)
-  }
-
-  const ledgersBalanced = await balanceLedgers(transactionledgers)
-
-  if (!ledgersBalanced) {
-    errors.push("Ledgers don't balance")
-    return {failed: true, message: "Ledgers don't balance", errors}
   }
 
   if (category && !categoryid) {

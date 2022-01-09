@@ -430,7 +430,8 @@ const editFullTransaction = async (transaction, id) => {
   }
 
   if (category && !categoryid) {
-    checkCategoryId = await checkAndCreateCategory(category)
+    const categoryName = category.name ? category.name : category
+    checkCategoryId = await checkAndCreateCategory(categoryName)
     if (checkCategoryId.errors) {return { failed: true, message: checkCategoryId.errors }}
   }
 

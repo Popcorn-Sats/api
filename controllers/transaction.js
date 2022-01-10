@@ -43,6 +43,7 @@ const addAccountToLedgers = async (req, res) => {
 const editTransaction = async (req, res) => {
   const {id} = req.params
   const transaction = req.body
+  transaction.categoryid = transaction.category.id ? transaction.category.id : null
   const editedTransaction = await editFullTransaction(transaction, id)
   .catch(err => res.status(500).send(err))
   const status = editedTransaction.failed ? 400 : 200

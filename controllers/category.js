@@ -18,8 +18,9 @@ const getSingleCategory = async (req, res) => {
 }
 
 const editCategory = async (req, res) => {
+  const {id} = req.params
   const category = req.body
-  const editedCategory = await editCategoryById(category)
+  const editedCategory = await editCategoryById(category, id)
   .catch(err => res.status(500).send(err))
   return res.json(editedCategory)
 }

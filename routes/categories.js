@@ -7,7 +7,7 @@ const router = express.Router()
 
 router
   .get('/', ctrl.getCategories)
-  .put('/', ctrl.editCategory)
+  .put('/:id', ctrl.editCategory)
   .post('/add', ctrl.addCategory)
   .get('/search', ctrl.searchCategories)
   .get('/:categoryId', ctrl.getSingleCategory)

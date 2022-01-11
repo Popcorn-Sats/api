@@ -31,8 +31,8 @@ module.exports.getAllCategories = async () => {
   return categories
 }
 
-module.exports.editCategoryById = async (category) => {
-  const { id, name } = category 
+module.exports.editCategoryById = async (category, id) => {
+  const { name } = category 
   const errors = []
 
   // Validate required fields
@@ -40,7 +40,7 @@ module.exports.editCategoryById = async (category) => {
     return { failed: true, message: "Missing required field(s)" }
   }
 
-  const editedCategory = await db.category.update(
+  let editedCategory = await db.category.update(
     { 
         name
     }, {
@@ -58,6 +58,17 @@ module.exports.editCategoryById = async (category) => {
   if(!editedCategory) {
     return { failed: true, message: "Something went wrong—category wasn't edited", errors }
   }
+
+  // FIXME: Refactor this file then call getCategoryById here
+  editedCategory = await db.category.findOne({
+    where: {
+      id
+    },
+  })
+  .catch(err => {
+    errors.push(err)
+    return errors
+  })
 
   return editedCategory
 }

@@ -22,7 +22,8 @@ module.exports = (sequelize, DataTypes) => {
 
   Transaction.associate = (models) => {
       Transaction.belongsTo(models.category, {
-          foreignKey: 'categoryid'
+          foreignKey: 'categoryid',
+          onDelete: 'set null',
         });
       // Note: had to change transactions.categoryId column to all lower case due to sequelize.literal bug
 

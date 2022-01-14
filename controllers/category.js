@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-const { getAllCategories, getCategoryById, editCategoryById, createCategory, searchAllCategories } = require('../services/category')
+const { getAllCategories, getCategoryById, editCategoryById, deleteCategoryById, createCategory, searchAllCategories } = require('../services/category')
 
 // TODO: Error handling
 
@@ -25,6 +25,13 @@ const editCategory = async (req, res) => {
   return res.json(editedCategory)
 }
 
+const deleteCategory = async (req, res) => {
+  const {id} = req.params
+  const deletedCategory = await deleteCategoryById(id)
+  .catch(err => res.status(500).send(err))
+  return res.json(deletedCategory)
+}
+
 const addCategory = async (req, res) => {
   const category = req.body
   const newCategory = await createCategory(category)
@@ -45,6 +52,7 @@ module.exports = {
   getCategories,
   getSingleCategory,
   editCategory,
+  deleteCategory,
   addCategory,
   searchCategories
 }

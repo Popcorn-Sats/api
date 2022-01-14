@@ -73,6 +73,23 @@ module.exports.editCategoryById = async (category, id) => {
   return editedCategory
 }
 
+module.exports.deleteCategoryById = async (id) => {
+  const errors = []
+  const deletedCategory = await db.category.destroy({
+    where: {
+      id
+    },
+  })
+  .catch(err => {
+    errors.push(err)
+    return errors
+  })
+  if (!deletedCategory) {
+    return { failed: true, message: "No category was found" }
+  }
+  return deletedCategory
+}
+
 module.exports.getCategoryById = async (id) => {
   const errors = []
   const category = await db.category.findOne({

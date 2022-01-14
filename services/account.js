@@ -120,16 +120,19 @@ const getAccountById = async (id) => {
   return returnAccount
 }
 
-const editAccountById = async (account) => {
-  const { id, name, notes, birthday } = account
-  const accounttype = parseInt(account.accounttype, 10)
+const editAccountById = async (account, id) => {
+  console.log({account, id})
+  const { name, notes, birthday, active, owned } = account
+  const accounttypeId = parseInt(account.accounttype.id, 10)
   const errors = []
-  const editedAccount = await db.account.update(
+  let editedAccount = await db.account.update(
     { 
         name, 
         notes, 
         birthday, 
-        accounttype
+        active, 
+        owned, 
+        accounttypeId
     }, {
         where: {
             id
@@ -140,6 +143,13 @@ const editAccountById = async (account) => {
     errors.push(err)
     return errors
   })
+
+  if(!editedAccount) {
+    return { failed: true, message: "Something went wrong—category wasn't edited", errors }
+  }
+
+  editedAccount = await getAccountById(id)
+
   return editedAccount
 }
 

@@ -23,8 +23,9 @@ const getSingleAccount = async (req, res) => {
 }
 
 const editAccount = async (req, res) => {
+  const { id } = req.params
   const account = req.body
-  const editedAccount = await editAccountById(account)
+  const editedAccount = await editAccountById(account, id)
   .catch(err => res.status(500).send(err))
   return res.json(editedAccount)
 }

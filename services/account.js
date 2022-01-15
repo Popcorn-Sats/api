@@ -268,18 +268,20 @@ const createAccount = async (account) => {
     return({failed: true, message: "An account with this name already exists"})
   }
 
-  const xpubExists = await db.xpub.findOne({
-    where: {
-      name: publicKey
+  if (publicKey) {
+    const xpubExists = await db.xpub.findOne({
+      where: {
+        name: publicKey
+      }
+    })
+  
+    if(xpubExists) {
+      console.log({failed: true, message: "Public key already associated with another account"})
+      return({failed: true, message: "Public key already associated with another account"})
     }
-  })
-
-  if(xpubExists) {
-    console.log({failed: true, message: "Public key already associated with another account"})
-    return({failed: true, message: "Public key already associated with another account"})
+  
+    console.log("New public key, proceeding …")
   }
-
-  console.log("New pubkey, proceeding …")
 
   const newAccount = await db.account.create({
     name, 
@@ -304,7 +306,10 @@ const createAccount = async (account) => {
 
   console.log("Created new account")
 
-  await syncAccount(newAccount.dataValues.id, newAccount.xpub.dataValues.addressIndex, newAccount.xpub.dataValues.changeIndex, publicKey, purpose)
+  if (publicKey) {
+    console.log("Syncing new account from public key")
+    await syncAccount(newAccount.dataValues.id, newAccount.xpub.dataValues.addressIndex, newAccount.xpub.dataValues.changeIndex, publicKey, purpose)
+  }
 
   return newAccount
 }

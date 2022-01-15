@@ -7,7 +7,7 @@ const router = express.Router();
 router
   .get('/', ctrl.getAccounts)
   .put('/:id', ctrl.editAccount)
-  .post('/add', ctrl.addAccount)
+  .post('/', ctrl.addAccount)
   .get('/position', ctrl.getPosition)
   .get('/search', ctrl.searchAccounts)
   .get('/scan/:accountId', ctrl.scanOldAccount)

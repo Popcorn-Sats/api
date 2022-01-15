@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-const { getAllAccounts, getNetPosition, editAccountById, createAccount, searchAllAccounts, getAccountById, scanAccount } = require('../services/account')
+const { getAllAccounts, getNetPosition, editAccountById, deleteAccountById, createAccount, searchAllAccounts, getAccountById, scanAccount } = require('../services/account')
 
 // TODO: Error handling
 
@@ -30,6 +30,13 @@ const editAccount = async (req, res) => {
   return res.json(editedAccount)
 }
 
+const deleteAccount = async (req, res) => {
+  const {id} = req.params
+  const deletedAccount = await deleteAccountById(id)
+  .catch(err => res.status(500).send(err))
+  return res.json(deletedAccount)
+}
+
 const addAccount = async (req, res) => {
   const account = req.body
   const newAccount = await createAccount(account)
@@ -56,6 +63,7 @@ module.exports = {
   getPosition,
   getSingleAccount,
   editAccount,
+  deleteAccount,
   addAccount,
   scanOldAccount,
   searchAccounts

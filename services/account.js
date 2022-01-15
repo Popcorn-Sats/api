@@ -153,6 +153,25 @@ const editAccountById = async (account, id) => {
   return editedAccount
 }
 
+const deleteAccountById = async (id) => {
+  // TODO: decide on data cascade / nulling
+  const errors = []
+  const deletedAccount = await db.account.destroy({
+    where: {
+      id
+    },
+  })
+  .catch(err => {
+    errors.push(err)
+    return errors
+  })
+  if (!deletedAccount) {
+    return { failed: true, message: "No account was found" }
+  }
+  console.log("Account deleted!")
+  return deletedAccount
+}
+
 const syncAccount = async (accountId, startingIndex, startingChangeIndex, publicKey, purpose) => {
   // TODO: take optional address count flag for initial sync
   initiate()
@@ -432,6 +451,7 @@ module.exports = {
   getNetPosition,
   getAccountById,
   editAccountById,
+  deleteAccountById,
   syncAccount,
   createAccount,
   checkAndCreateAccount,

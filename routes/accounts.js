@@ -7,6 +7,7 @@ const router = express.Router();
 router
   .get('/', ctrl.getAccounts)
   .put('/:id', ctrl.editAccount)
+  .delete('/:id', ctrl.deleteAccount)
   .post('/', ctrl.addAccount)
   .get('/position', ctrl.getPosition)
   .get('/search', ctrl.searchAccounts)

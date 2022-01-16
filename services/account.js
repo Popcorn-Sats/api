@@ -267,7 +267,7 @@ const syncAccount = async (accountId, startingIndex, startingChangeIndex, public
 }
 
 const createAccount = async (account) => {
-  const { name, notes, birthday, active, owned, publicKey, purpose } = account
+  const { name, notes, birthday, active, owned, publicKey, purpose, address } = account
   const accounttypeId = parseInt(account.accounttypeId, 10)
   const errors = []
 
@@ -324,6 +324,31 @@ const createAccount = async (account) => {
   })
 
   console.log("Created new account")
+
+  if (address) {
+    const addressExists = await db.address.findOne({
+      where: {
+        address
+      }
+    })
+
+    if (addressExists) {
+      await db.address.update(
+        {
+          accountId: newAccount.dataValues.id
+        }, {
+          where: {
+            address
+          }
+        }
+      )
+    } else {
+      await db.address.create({
+        address,
+        accountId: newAccount.dataValues.id
+      })
+    }
+  }
 
   if (publicKey) {
     console.log("Syncing new account from public key")

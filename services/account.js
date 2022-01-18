@@ -325,7 +325,7 @@ const createAccount = async (account) => {
 
   console.log("Created new account")
 
-  if (address) {
+  if (address) { // FIXME: should call checkAndCreateAddress? Check if it updates accountId
     const addressExists = await db.address.findOne({
       where: {
         address
@@ -348,6 +348,7 @@ const createAccount = async (account) => {
         accountId: newAccount.dataValues.id
       })
     }
+    await createAddressTransactions(address, newAccount.dataValues.id)
   }
 
   if (publicKey) {

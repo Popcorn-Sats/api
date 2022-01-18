@@ -563,7 +563,7 @@ const createAddressTransactions = async (address, accountId) => {
   console.log({message: "createAddressTransactions", address})
   const transactionsArray = []
   const transactions = await getAddressTransactions(address)
-  const {length} = transactions
+  const {length} = transactions // FIXME: handle empty wallets
   for (let i = 0; i < length; i += 1) {
     console.log({message: `making transaction ${i}`})
     const transaction = {}

@@ -99,6 +99,16 @@ const formatTransactionsObject = async (rawTransactions, accountId) => {
       const debits = _.sum(_.map(_.map(_.filter(_.filter(ledgers, {accountId: accountInteger}), {transactiontypeId: 1}), 'amount'), _.parseInt))
       const credits = _.sum(_.map(_.map(_.filter(_.filter(ledgers, {accountId: accountInteger}), {transactiontypeId: 2}), 'amount'), _.parseInt))
       transaction.balance_change = credits - debits
+    } else  {
+      const accounts = await db.account.findAll({
+        where: {
+          owned: true
+        }
+      })
+      const ownedAccounts = _.map(accounts, 'id')
+      const debits = _.sum(_.map(_.map(_.filter(_.filter(ledgers, (v) => _.includes(ownedAccounts, v.accountId)), {transactiontypeId: 1}), 'amount'), _.parseInt))
+      const credits = _.sum(_.map(_.map(_.filter(_.filter(ledgers, (v) => _.includes(ownedAccounts, v.accountId)), {transactiontypeId: 2}), 'amount'), _.parseInt))
+      transaction.balance_change = credits - debits
     }
     
     transaction.id = orderedTransactions[i].id

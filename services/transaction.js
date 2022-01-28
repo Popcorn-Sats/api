@@ -319,6 +319,7 @@ const getTransactionByID = async (id) => {
   returnTransaction.description = transaction.description
   returnTransaction.category = transaction.category
   returnTransaction.block = transaction.block
+  returnTransaction.timestamp = parseInt(transaction.block.timestamp, 10) * 1000
   returnTransaction.transactiontype = await getTransactionType(transaction.transactionledgers)
   returnTransaction.debitsLedger = _.filter(transaction.transactionledgers, {transactiontypeId: 1})
   returnTransaction.creditsLedger = _.filter(transaction.transactionledgers, {transactiontypeId: 2})

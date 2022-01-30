@@ -1,7 +1,6 @@
 /* eslint-disable no-await-in-loop */
-import { getTransactionType } from './getTransactionType'
-
 const _ = require('lodash')
+const { getTransactionType } = require('./getTransactionType')
 const db = require('../../models')
 
 const formatTransactionsObject = async (rawTransactions, accountId) => {

@@ -1,4 +1,4 @@
-import { formatTransactionsObject } from './formatTransactionsObject'
+const { formatTransactionsObject } = require('./formatTransactionsObject')
 
 const db = require('../../models')
 

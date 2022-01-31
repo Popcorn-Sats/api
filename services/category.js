@@ -1,11 +1,13 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-console */
 const Sequelize = require('sequelize')
+const _ = require('lodash')
+const { getTransactionsByCategory } = require('./transactions/getTransactionsByCategoryID')
 const db = require('../models')
 
 const {Op} = Sequelize
 
-module.exports.getAllCategories = async () => {
+const getAllCategories = async () => {
   const categories = await db.category.findAll({
     attributes: {
         include: [
@@ -15,7 +17,7 @@ module.exports.getAllCategories = async () => {
                     SELECT SUM(balance_change)
                     FROM transactions AS transaction
                     WHERE
-                        transaction.categoryId = category.id
+                        transaction.categoryid = category.id
                 )`),
                 'balance'
             ]
@@ -28,6 +30,22 @@ module.exports.getAllCategories = async () => {
   if (!categories) {
     return { failed: true, message: "No categories were found" }
   }
+
+  console.log(categories)
+
+  const balancedCategories = _.cloneDeep(categories)
+  /* await balancedCategories.forEach(async category => {
+    const transactions = await getTransactionsByCategory(category.id) // TODO: change back to getTransactionsByCategoryId once fully refactored
+    if (transactions) {
+      category.balance = transactions[transactions.length-1].balance_change
+    }
+  }) */
+  console.log({balancedCategories})
+  /* const balancedCategories = categories.map((category) => {
+    const transactions = getTransactionsByCategoryId(category.id)
+    category.balance = transactions[transactions.length-1].balance_change
+  }) */
+
   return categories
 }
 
@@ -180,4 +198,8 @@ module.exports.checkAndCreateCategory = async (category) => {
     categoryid = newCategory.dataValues.id
   }
   return categoryid
+}
+
+module.exports = {
+  getAllCategories
 }

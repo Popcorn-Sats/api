@@ -1,7 +1,6 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-console */
 const Sequelize = require('sequelize')
-const _ = require('lodash')
 const { getTransactionsByCategory } = require('./transactions/getTransactionsByCategoryID')
 const db = require('../models')
 
@@ -31,20 +30,12 @@ const getAllCategories = async () => {
     return { failed: true, message: "No categories were found" }
   }
 
-  console.log(categories)
-
-  const balancedCategories = _.cloneDeep(categories)
-  /* await balancedCategories.forEach(async category => {
-    const transactions = await getTransactionsByCategory(category.id) // TODO: change back to getTransactionsByCategoryId once fully refactored
-    if (transactions) {
-      category.balance = transactions[transactions.length-1].balance_change
+  for (let j = 0; j < categories.length; j += 1) {
+    const transactions = await getTransactionsByCategory(categories[j].id) // TODO: change back to getTransactionsByCategoryId once fully refactored
+    if (transactions.length !== 0) {
+      categories[j].dataValues.balance = transactions[0].runningBalance
     }
-  }) */
-  console.log({balancedCategories})
-  /* const balancedCategories = categories.map((category) => {
-    const transactions = getTransactionsByCategoryId(category.id)
-    category.balance = transactions[transactions.length-1].balance_change
-  }) */
+  }
 
   return categories
 }

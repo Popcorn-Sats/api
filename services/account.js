@@ -445,33 +445,6 @@ include: [
   return(result)
 }
 
-const checkAndCreateAccount = async (name) => {
-  let accountId
-  const errors = []
-  const accountObj = await db.account.findOne({
-    where: {
-      name
-    }
-  })
-  if (accountObj) {
-    accountId = accountObj.dataValues.id
-  } else {
-    const newAccount = await db.account.create({
-      name,
-      birthday: new Date(), 
-      accounttypeId: 3,
-      active: true,
-      owned: false
-    })
-    .catch(err => {
-      errors.push(err)
-      return errors
-    })
-    accountId = newAccount.dataValues.id
-  }
-  return accountId
-}
-
 module.exports = {
   getAllAccounts,
   getNetPosition,
@@ -480,7 +453,6 @@ module.exports = {
   deleteAccountById,
   syncAccount,
   createAccount,
-  checkAndCreateAccount,
   scanAccount,
   scanAddress,
   searchAllAccounts

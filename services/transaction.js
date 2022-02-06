@@ -12,36 +12,9 @@ const { checkAndCreateUtxo } = require('./utxo')
 const { getAddressTransactions } = require('./electrum')
 const { formatTransactionsObject } = require('./transactions/formatTransactionsObject')
 const { getTransactionType } = require('./transactions/getTransactionType')
+const { checkAndCreateAccount } = require('./accounts/checkAndCreateAccount')
 
 const {Op} = Sequelize
-
-// FIXME: copied here due to circular dependency with services/account calling services/transaction on initial sync
-const checkAndCreateAccount = async (name) => {
-  let accountId
-  const errors = []
-  const accountObj = await db.account.findOne({
-    where: {
-      name
-    }
-  })
-  if (accountObj) {
-    accountId = accountObj.dataValues.id
-  } else {
-    const newAccount = await db.account.create({
-      name,
-      birthday: new Date(), 
-      accounttypeId: 3,
-      active: true,
-      owned: false
-    })
-    .catch(err => {
-      errors.push(err)
-      return errors
-    })
-    accountId = newAccount.dataValues.id
-  }
-  return accountId
-}
 
 const transactionByUUID = async (id) => {
   const errors = []

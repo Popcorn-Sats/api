@@ -2,8 +2,7 @@ const { formatTransactionsObject } = require('./formatTransactionsObject')
 
 const db = require('../../models')
 
-const getTransactionsByCategory = async (categoryId) => {
-  console.log({"message": "working"})
+const getTransactionsByCategoryId = async (categoryId) => {
   const errors = []
   const rawTransactions = await db.transaction.findAll({
     where: {
@@ -40,5 +39,5 @@ const getTransactionsByCategory = async (categoryId) => {
 }
 
 module.exports = {
-  getTransactionsByCategory
+  getTransactionsByCategoryId
 }

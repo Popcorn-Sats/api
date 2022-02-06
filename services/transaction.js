@@ -273,42 +273,6 @@ const getTransactionsByAccountID = async (accountId) => {
   return transactions
 }
 
-const getTransactionsByCategoryID = async (categoryId) => {
-  const errors = []
-  const rawTransactions = await db.transaction.findAll({
-    where: {
-      categoryid: categoryId
-    },
-    order: [
-      ['id', 'DESC'],
-    ],
-    include: [
-        {
-            model: db.category,
-        },
-        {
-            model: db.block,
-        },
-        {
-            model: db.transactiontype,
-        },
-        {
-            model: db.transactionledger,
-            include: [db.account, db.utxo]
-        }
-    ]
-  })
-  .catch(err => {
-    errors.push(err)
-    return errors
-  })
-  if (!rawTransactions) {
-    return { failed: true, message: "Transactions for category not found" }
-  }
-  const transactions = await formatTransactionsObject(rawTransactions)
-  return transactions
-}
-
 const getTransactionByID = async (id) => {
   const transaction = await transactionByUUID(id)
   const returnTransaction = {}
@@ -679,7 +643,6 @@ module.exports = {
   getAllTransactions,
   getTransactionLedgersByAccountID,
   getTransactionsByAccountID,
-  getTransactionsByCategoryID,
   getTransactionByID,
   syncLedgerAccountId,
   editFullTransaction,

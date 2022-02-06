@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-console */
 const Sequelize = require('sequelize')
-const { getTransactionsByCategory } = require('./transactions/getTransactionsByCategoryID')
+const { getTransactionsByCategoryId } = require('./transactions/getTransactionsByCategoryID')
 const db = require('../models')
 
 const {Op} = Sequelize
@@ -31,7 +31,7 @@ const getAllCategories = async () => {
   }
 
   for (let j = 0; j < categories.length; j += 1) {
-    const transactions = await getTransactionsByCategory(categories[j].id) // TODO: change back to getTransactionsByCategoryId once fully refactored
+    const transactions = await getTransactionsByCategoryId(categories[j].id)
     if (transactions.length !== 0) {
       categories[j].dataValues.balance = transactions[0].runningBalance
     }

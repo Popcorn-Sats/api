@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
-const { getTransactionsByAccountID, getTransactionsByCategoryID, getTransactionByID, getAllTransactions, syncLedgerAccountId, editFullTransaction, createTransaction, changeTransactionCategory, searchAllTransactions } = require('../services/transaction')
+const { getTransactionsByAccountID, getTransactionByID, getAllTransactions, syncLedgerAccountId, editFullTransaction, createTransaction, changeTransactionCategory, searchAllTransactions } = require('../services/transaction')
+const { getTransactionsByCategoryId } = require('../services/transactions/getTransactionsByCategoryID')
 
 const getTransactions = async (req, res) => {
   const transactions = await getAllTransactions()
@@ -18,7 +19,7 @@ const getTransactionsForAccount = async (req, res) => {
 
 const getTransactionsForCategory = async (req, res) => {
   const {categoryId} = req.params
-  const transactions = await getTransactionsByCategoryID(categoryId)
+  const transactions = await getTransactionsByCategoryId(categoryId)
   .catch(err => res.status(500).send(err))
   const status = transactions.failed ? 400 : 200
   return res.status(status).json(transactions)

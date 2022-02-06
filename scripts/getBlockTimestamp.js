@@ -1,11 +1,12 @@
 /* eslint-disable no-console */
 const db = require('../models')
-const {getBlockHeader} = require('../services/electrum')
+const {getBlockHeader, initiate} = require('../services/electrum')
 const {getBlockTimestamp} = require('../services/bitcoin')
 
 const blockHeight = process.argv[2];
 
 (async() => {
+  initiate()
   console.log({blockHeight});
   const blockhex = await getBlockHeader(blockHeight)
   console.log({blockhex});

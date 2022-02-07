@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const {getScriptHash} = require('../services/bitcoin')
 
 const address = process.argv[2];

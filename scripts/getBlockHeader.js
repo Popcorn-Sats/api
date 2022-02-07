@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const {getBlockHeader, initiate} = require('../services/electrum')
 
 const blockHeight = process.argv[2];

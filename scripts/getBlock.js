@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const {getBlockTimestamp} = require('../services/bitcoin')
 
 const blockhex = process.argv[2];

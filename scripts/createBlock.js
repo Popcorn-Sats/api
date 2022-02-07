@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const {checkAndCreateBlock} = require('../services/block')
 
 const blockHeight = process.argv[2];

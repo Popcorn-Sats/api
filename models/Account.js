@@ -1,33 +1,41 @@
-module.exports = (sequelize, DataTypes) => {
+const Sequelize = require('sequelize')
+const { Model } = require('sequelize')
 
-    const Account = sequelize.define('account', {
-        
-        name: {
-            type: DataTypes.STRING,
-            unique: true
-        },
-        notes: {
-            type: DataTypes.STRING
-        },
-        birthday: {
-            type: DataTypes.DATE
-        },
-        active: {
-            type: DataTypes.BOOLEAN
-        },
-        owned: {
-            type: DataTypes.BOOLEAN
-        },
-    });
-    Account.associate = (models) => {
-        Account.hasOne(models.xpub, {
-            onDelete: "cascade"
-        }) // Should account just have an optional unique XPub field?
-        Account.belongsTo(models.accounttype, {
-            
-        })
-        Account.hasMany(models.transactionledger)
-        Account.hasMany(models.address)
+module.exports = (sequelize) => {
+  class Account extends Model {
+    static associate(models) {
+      Account.hasOne(models.xpub, {
+        onDelete: "cascade"
+      }) // Should account just have an optional unique XPub field?
+      Account.belongsTo(models.accounttype, {
+      })
+      Account.hasMany(models.transactionledger)
+      Account.hasMany(models.address)
     }
-    return Account
+  }
+
+  Account.init({
+    name: {
+      type: Sequelize.STRING,
+      unique: true
+    },
+    notes: {
+        type: Sequelize.STRING
+    },
+    birthday: {
+        type: Sequelize.DATE
+    },
+    active: {
+        type: Sequelize.BOOLEAN
+    },
+    owned: {
+        type: Sequelize.BOOLEAN
+    },
+  }, {
+    sequelize,
+    modelName: 'account',
+  })
+
+  return Account
+
 }

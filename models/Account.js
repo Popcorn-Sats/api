@@ -3,6 +3,18 @@ const { Model } = require('sequelize')
 
 module.exports = (sequelize) => {
   class Account extends Model {
+
+    static findAllAccounts() {
+      return this.findAll({
+        order: [
+            ['id', 'ASC'],
+        ],
+        include: ['xpub', 'accounttype'],
+        raw : true,
+        nest : true
+      })
+    }
+    
     static associate(models) {
       Account.hasOne(models.xpub, {
         onDelete: "cascade"

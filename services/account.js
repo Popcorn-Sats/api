@@ -35,14 +35,7 @@ const getAccountBalance = async (accountId) => {
 const getAllAccounts = async () => {
   const errors = []
   const accountsArray = []
-  const accounts = await db.account.findAll({
-    order: [
-        ['id', 'ASC'],
-    ],
-    include: [db.xpub, db.accounttype],
-    raw : true,
-    nest : true
-  })
+  const accounts = await db.account.findAllAccounts()
   .catch(err => {
     errors.push(err)
     return errors

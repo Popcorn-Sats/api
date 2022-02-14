@@ -269,11 +269,7 @@ const createAccount = async (account) => {
     return { failed: true, message: "Missing required field(s)" }
   }
 
-  const accountExists = await db.account.findOne({
-    where: {
-      name
-    }
-  })
+  const accountExists = await db.account.findAccountByName(name)
 
   if (accountExists) {
     console.log({failed: true, message: "An account with this name already exists"})
@@ -353,11 +349,7 @@ const createAccount = async (account) => {
 }
 
 const scanAccount = async (id) => {
-  const accountExists = await db.account.findOne({
-    where: {
-      id
-    }
-  })
+  const accountExists = await db.account.findAccountById(id)
 
   if (!accountExists) {
     console.log({failed: true, message: "That account does not exist"})

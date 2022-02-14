@@ -14,6 +14,22 @@ module.exports = (sequelize) => {
         nest : true
       })
     }
+
+    static findAccountByName(name){
+      return this.findOne({
+        where: {
+          name
+        }
+      })
+    }
+
+    static findAccountById(id){
+      return this.findOne({
+        where: {
+          id
+        }
+      })
+    }
     
     static associate(models) {
       Account.hasOne(models.xpub, {

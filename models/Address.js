@@ -1,14 +1,9 @@
-const {
-  Model
-} = require('sequelize')
+const Sequelize = require('sequelize')
+const { Model } = require('sequelize')
 
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize) => {
   class Address extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
+
     static associate(models) {
       Address.belongsTo(models.account)
       Address.hasMany(models.utxo)
@@ -16,9 +11,9 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Address.init({
-    address: DataTypes.STRING,
-    txIndex: DataTypes.INTEGER,
-    chain: DataTypes.INTEGER
+    address: Sequelize.STRING,
+    txIndex: Sequelize.INTEGER,
+    chain: Sequelize.INTEGER
   }, {
     sequelize,
     modelName: 'address',

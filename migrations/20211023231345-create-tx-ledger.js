@@ -50,9 +50,15 @@ module.exports = {
         },
         allowNull: true
       },
-      address: {
-        allowNull: true,
-        type: Sequelize.STRING
+      addressId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: {
+            tableName: 'addresses',
+          },
+          key: 'id'
+        },
+        allowNull: true
       },
       amount: {
         allowNull: false,
@@ -70,7 +76,6 @@ module.exports = {
         allowNull: true,
         type: Sequelize.STRING
       },
-      // TODO: move address to its own table/model. Belongs to an account, hasmany UTXOs
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

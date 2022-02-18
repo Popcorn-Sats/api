@@ -58,6 +58,18 @@ module.exports = {
         allowNull: false,
         type: Sequelize.BIGINT
       },
+      currency: {
+        allowNull: true,
+        type: Sequelize.STRING
+      },
+      fiatAmount: {
+        allowNull: false,
+        type: Sequelize.BIGINT
+      },
+      fiatCurrency: {
+        allowNull: true,
+        type: Sequelize.STRING
+      },
       // TODO: move address to its own table/model. Belongs to an account, hasmany UTXOs
       createdAt: {
         allowNull: false,

@@ -7,9 +7,16 @@ module.exports = (sequelize, DataTypes) => {
         },
         amount: {
           type: DataTypes.BIGINT
+        },
+        currency: {
+          type: DataTypes.STRING
+        },
+        fiatAmount: {
+          type: DataTypes.BIGINT
+        },
+        fiatCurrency: {
+          type: DataTypes.STRING
         }
-
-
     })
 
     TransactionLedger.associate = (models) => {

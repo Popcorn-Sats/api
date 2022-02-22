@@ -26,7 +26,7 @@
     "TLS_ENABLED": false
   },
   "BITCOIN": {
-    "GAPLIMIT": 100,
+    "GAPLIMIT": 20,
     "NETWORK": "mainnet"
   }
 }

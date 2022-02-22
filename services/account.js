@@ -3,6 +3,7 @@
 /* eslint-disable no-console */
 const Sequelize = require('sequelize')
 const _ = require('lodash')
+const { generateMultisigFromPublicKeys, MAINNET, P2SH, multisigAddress } = require('unchained-bitcoin')
 const db = require('../models')
 const config = require('../config/config.json')
 const {getAddressFromXpub} = require('./bitcoin')
@@ -348,6 +349,26 @@ const createAccount = async (account) => {
   return newAccount
 }
 
+const createMultiSig = async ({ name, notes, birthday, active, owned, publicKeys, purpose, accounttypeId }) => {
+  const accounttypeIdInt = parseInt(accounttypeId, 10)
+  const errors = []
+
+  // Validate required fields
+  if(!name || !publicKeys || !accounttypeId) {
+    return { failed: true, message: "Missing required field(s)" }
+  }
+
+  const accountExists = await db.account.findAccountByName(name)
+
+  if (accountExists) {
+    console.log({failed: true, message: "An account with this name already exists"})
+    return({failed: true, message: "An account with this name already exists"})
+  }
+
+  const multisigObj = generateMultisigFromPublicKeys(MAINNET, P2SH, 2, ...publicKeys)
+  const address1 = multisigAddress(multisigObj)
+}
+
 const scanAccount = async (id) => {
   const accountExists = await db.account.findAccountById(id)
 
@@ -438,6 +459,7 @@ module.exports = {
   deleteAccountById,
   syncAccount,
   createAccount,
+  createMultiSig,
   scanAccount,
   scanAddress,
   searchAllAccounts

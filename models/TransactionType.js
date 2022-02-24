@@ -1,7 +1,9 @@
 module.exports = (sequelize, DataTypes) => {
 
     const TransactionType = sequelize.define('transactiontype', {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: false
     })
 
     TransactionType.associate = models => {

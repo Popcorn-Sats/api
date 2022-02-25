@@ -69,7 +69,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       fiatAmount: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.BIGINT
       },
       fiatCurrency: {

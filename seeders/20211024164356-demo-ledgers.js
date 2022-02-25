@@ -68,7 +68,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        accountId: null,
+        accountId: 0,
         transactionId: 5,
         transactiontypeId: 2,
         amount: 920,

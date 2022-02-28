@@ -1,33 +1,35 @@
+const { accountTypes } = require('../constants/account/index')
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
       await queryInterface.bulkInsert('accounttypes', [
       {
-        id: 0,
-        name: "Fees",
+        id: accountTypes.FEES.key,
+        name: accountTypes.FEES.name,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
-        id: 1,
-        name: "Wallet",
+        id: accountTypes.WALLET.key,
+        name: accountTypes.WALLET.name,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
-        id: 2,
-        name: "Vault",
+        id: accountTypes.VAULT.key,
+        name: accountTypes.VAULT.name,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
-        id: 3,
-        name: "Expense",
+        id: accountTypes.EXPENSE.key,
+        name: accountTypes.EXPENSE.name,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
-        id: 4,
-        name: "Income",
+        id: accountTypes.INCOME.key,
+        name: accountTypes.INCOME.name,
         createdAt: new Date(),
         updatedAt: new Date()
       }

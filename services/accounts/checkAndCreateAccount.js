@@ -1,4 +1,5 @@
 const db = require('../../models')
+const { accountTypes } = require('../../constants/account/index')
 
 const checkAndCreateAccount = async (name) => {
   let accountId
@@ -14,7 +15,7 @@ const checkAndCreateAccount = async (name) => {
     const newAccount = await db.account.create({
       name,
       birthday: new Date(), 
-      accounttypeId: 3,
+      accounttypeId: accountTypes.EXPENSE.key,
       active: true,
       owned: false
     })

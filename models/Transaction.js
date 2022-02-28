@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
       Transaction.TransactionLedgers = Transaction.hasMany(models.transactionledger)
   }
 
-  Transaction.findByTransactionId = (txid) => this.findOne({ where: { txid } })
+  Transaction.findByTransactionId = (txid) => Transaction.findOne({ where: { txid } })
 
   return Transaction
 }

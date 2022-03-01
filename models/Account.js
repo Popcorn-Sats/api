@@ -45,7 +45,8 @@ module.exports = (sequelize) => {
   Account.init({
     name: {
       type: Sequelize.STRING,
-      unique: true
+      unique: true,
+      allowNull: false
     },
     notes: {
         type: Sequelize.STRING
@@ -54,10 +55,12 @@ module.exports = (sequelize) => {
         type: Sequelize.DATE
     },
     active: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
     },
     owned: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
     },
   }, {
     sequelize,

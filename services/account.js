@@ -350,6 +350,7 @@ const createAccount = async (account) => {
 }
 
 const createMultiSig = async ({ name, notes, birthday, active, owned, publicKeys, purpose, accounttypeId }) => {
+  // TODO: Stub method, implement
   const accounttypeIdInt = parseInt(accounttypeId, 10)
   const errors = []
 

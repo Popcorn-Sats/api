@@ -6,8 +6,8 @@ const { getAllCategories, getCategoryById, editCategoryById, deleteCategoryById,
 const getCategories = async (req, res) => {
   const categories = await getAllCategories()
   .catch(err => res.status(500).send(err))
+  res.header('Content-Range', 'bytes : 0-9/1971') // TODO: Get the actual range
   return res.json(categories)
-  // .catch(err => res(err))
 }
 
 const getSingleCategory = async (req, res) => {

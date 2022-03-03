@@ -6,6 +6,7 @@ const { getAllAccounts, getNetPosition, editAccountById, deleteAccountById, crea
 const getAccounts = async (req, res) => {
   const accounts = await getAllAccounts()
   .catch(err => res.status(500).send(err))
+  res.header('Content-Range', 'bytes : 0-9/1971') // TODO: Get the actual range
   return res.json(accounts)
 }
 

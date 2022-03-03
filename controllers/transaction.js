@@ -6,6 +6,7 @@ const getTransactions = async (req, res) => {
   const transactions = await getAllTransactions()
   .catch(err => res.status(500).send(err))
   const status = transactions.failed ? 400 : 200
+  res.header('Content-Range', 'bytes : 0-9/1971') // TODO: Get the actual range
   return res.status(status).json(transactions)
 }
 

@@ -99,7 +99,7 @@ module.exports.deleteCategoryById = async (id) => {
   return deletedCategory
 }
 
-module.exports.getCategoryById = async (id) => {
+const getCategoryById = async (id) => {
   const errors = []
   const category = await db.category.findOne({
     where: {
@@ -192,5 +192,6 @@ module.exports.checkAndCreateCategory = async (category) => {
 }
 
 module.exports = {
-  getAllCategories
+  getAllCategories,
+  getCategoryById,
 }

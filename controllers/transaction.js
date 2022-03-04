@@ -15,6 +15,7 @@ const getTransactionsForAccount = async (req, res) => {
   const transactions = await getTransactionsByAccountID(accountId)
   .catch(err => res.status(500).send(err))
   const status = transactions.failed ? 400 : 200
+  res.header('Content-Range', 'bytes : 0-9/10') // TODO: Get the actual range
   return res.status(status).json(transactions)
 }
 
@@ -23,6 +24,7 @@ const getTransactionsForCategory = async (req, res) => {
   const transactions = await getTransactionsByCategoryId(categoryId)
   .catch(err => res.status(500).send(err))
   const status = transactions.failed ? 400 : 200
+  res.header('Content-Range', 'bytes : 0-9/10') // TODO: Get the actual range
   return res.status(status).json(transactions)
 }
 

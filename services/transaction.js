@@ -16,6 +16,16 @@ const { checkAndCreateAccount } = require('./accounts/checkAndCreateAccount')
 
 const {Op} = Sequelize
 
+const paginate = ({ page, perPage }) => {
+  const offset = (page - 1) * perPage;
+  const limit = perPage;
+
+  return {
+    offset,
+    limit,
+  };
+};
+
 const transactionByUUID = async (id) => {
   const errors = []
   const transaction = await db.transaction.findOne({
@@ -112,6 +122,43 @@ const getAllTransactions = async () => {
   }
   const transactions = await formatTransactionsObject(rawTransactions)
   return transactions
+}
+
+const getAllTransactionsPaginated = async (page, perPage) => {
+  const errors = []
+  const rawTransactions = await db.transaction.findAndCountAll({
+    order: [
+      ['id', 'DESC'],
+    ],
+    include: [
+        {
+            model: db.category,
+        },
+        {
+            model: db.block,
+        },
+        {
+            model: db.transactiontype,
+        },
+        {
+            model: db.transactionledger,
+            include: [db.account, db.utxo]
+        }
+    ],
+    distinct: true, // Needed to get correct count
+    ...paginate({ page, perPage })
+  })
+  .catch(err => {
+    errors.push(err)
+    console.log({err})
+    return errors
+  })
+  if (!rawTransactions) {
+    return { failed: true, message: "No transactions were found" }
+  }
+  const transactions = await formatTransactionsObject(rawTransactions.rows)
+  // FIXME: formatTransactionsObject does not return the correct running total when paginating
+  return {transactions, count: rawTransactions.count}
 }
 
 const rawTransactionsByAccountID = async (accountId) => {
@@ -530,6 +577,7 @@ const searchAllTransactions = async (term) => {
 
 module.exports = {
   getAllTransactions,
+  getAllTransactionsPaginated,
   getTransactionLedgersByAccountID,
   getTransactionsByAccountID,
   getTransactionByID,

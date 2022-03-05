@@ -3,14 +3,14 @@ const _ = require('lodash')
 const { getTransactionType } = require('./getTransactionType')
 const db = require('../../models')
 
-const formatTransactionsObject = async (rawTransactions, accountId) => {
+const formatTransactionsObject = async ({ rawTransactions, accountId, initialBalance = 0 }) => {
   if (!rawTransactions) {
     return { failed: true, message: "No transactions were passed to format" }
   }
   const transactions = []
   const {length} = rawTransactions
   const orderedTransactions = _.orderBy(rawTransactions, 'block.height', 'asc')
-  let runningBalance = 0
+  let runningBalance = initialBalance
   for (let i = 0; i < length; i += 1) {
     const transaction = {}
     const ledgers = []

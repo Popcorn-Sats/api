@@ -111,7 +111,7 @@ const getAllTransactions = async () => {
   if (!rawTransactions) {
     return { failed: true, message: "No transactions were found" }
   }
-  const transactions = await formatTransactionsObject(rawTransactions)
+  const transactions = await formatTransactionsObject({ rawTransactions })
   return transactions
 }
 
@@ -147,7 +147,7 @@ const getAllTransactionsPaginated = async (page, perPage) => {
   if (!rawTransactions) {
     return { failed: true, message: "No transactions were found" }
   }
-  const transactions = await formatTransactionsObject(rawTransactions.rows)
+  const transactions = await formatTransactionsObject({ rawTransactions: rawTransactions.rows })
   // FIXME: formatTransactionsObject does not return the correct running total when paginating
   return {transactions, count: rawTransactions.count}
 }
@@ -196,7 +196,7 @@ const getTransactionsByAccountID = async (accountId) => {
   if (!rawTransactions) {
     return { failed: true, message: "Transactions for account not found" }
   }
-  const transactions = await formatTransactionsObject(rawTransactions, accountId)
+  const transactions = await formatTransactionsObject({ rawTransactions, accountId })
   return transactions
 }
 

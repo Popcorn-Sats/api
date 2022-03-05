@@ -34,7 +34,7 @@ const getTransactionsByCategoryId = async (categoryId) => {
   if (!rawTransactions) {
     return { failed: true, message: "Transactions for category not found" }
   }
-  const transactions = await formatTransactionsObject(rawTransactions)
+  const transactions = await formatTransactionsObject({ rawTransactions })
   return transactions
 }
 

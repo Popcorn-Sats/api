@@ -12,19 +12,10 @@ const { checkAndCreateUtxo } = require('./utxo')
 const { getAddressTransactions } = require('./electrum')
 const { formatTransactionsObject } = require('./transactions/formatTransactionsObject')
 const { getTransactionType } = require('./transactions/getTransactionType')
+const { paginate } = require('../utils/paginate')
 const { checkAndCreateAccount } = require('./accounts/checkAndCreateAccount')
 
 const {Op} = Sequelize
-
-const paginate = ({ page, perPage }) => {
-  const offset = (page - 1) * perPage;
-  const limit = perPage;
-
-  return {
-    offset,
-    limit,
-  };
-};
 
 const transactionByUUID = async (id) => {
   const errors = []

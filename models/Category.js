@@ -1,9 +1,19 @@
 const Sequelize = require('sequelize')
 const { Model } = require('sequelize')
+const { paginate } = require('../utils/paginate')
 
 module.exports = (sequelize) => {
 
   class Category extends Model {
+
+    static findAllCategoriesPaginated(page, perPage) {
+      return this.findAndCountAll({
+        order: [
+            ['name', 'ASC'],
+        ],
+        ...paginate({ page, perPage })
+      })
+    }
 
     static associate(models) {
       Category.hasMany(models.transaction,  {

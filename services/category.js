@@ -12,6 +12,7 @@ const getAllCategories = async () => {
         include: [
             [
                 // Something weird going on below where Sequelize makes transaction.categoryId all lowercase. Had to change the column name ...
+                // FIXME: Not using this anymore, can we fix the naming issue?
                 Sequelize.literal(`(
                     SELECT SUM(balance_change)
                     FROM transactions AS transaction
@@ -38,6 +39,22 @@ const getAllCategories = async () => {
   }
 
   return categories
+}
+
+const getAllCategoriesPaginated = async (page, perPage) => {
+  const categories = await db.category.findAllCategoriesPaginated(page, perPage)
+  if (!categories) {
+    return { failed: true, message: "No categories were found" }
+  }
+
+  for (let j = 0; j < categories.rows.length; j += 1) {
+    const transactions = await getTransactionsByCategoryId(categories.rows[j].id)
+    if (transactions.length !== 0) {
+      categories.rows[j].dataValues.balance = transactions[0].runningBalance
+    }
+  }
+
+  return {categories: categories.rows, count: categories.count}
 }
 
 module.exports.editCategoryById = async (category, id) => {
@@ -193,5 +210,6 @@ module.exports.checkAndCreateCategory = async (category) => {
 
 module.exports = {
   getAllCategories,
+  getAllCategoriesPaginated,
   getCategoryById,
 }

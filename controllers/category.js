@@ -1,14 +1,14 @@
 /* eslint-disable no-console */
-const { getAllCategories, getCategoryById, editCategoryById, deleteCategoryById, createCategory, searchAllCategories } = require('../services/category')
+const { getAllCategories, getAllCategoriesPaginated, getCategoryById, editCategoryById, deleteCategoryById, createCategory, searchAllCategories } = require('../services/category')
 
 // TODO: Error handling
 
 const getCategories = async (req, res) => {
   const { page, perPage } = req.query
-  const categories = await getAllCategories() // TODO: Add pagination
+  const categories = await getAllCategoriesPaginated(page, perPage)
   .catch(err => res.status(500).send(err))
-  res.header('Content-Range', `bytes : ${(page - 1) * perPage}-${page * perPage - 1}/${categories.count || 10}`)
-  return res.json(categories)
+  res.header('Content-Range', `bytes : ${(page - 1) * perPage}-${page * perPage - 1}/${categories.count}`)
+  return res.json(categories.categories)
 }
 
 const getSingleCategory = async (req, res) => {

@@ -4,9 +4,10 @@ const { getAllAccounts, getNetPosition, editAccountById, deleteAccountById, crea
 // TODO: Error handling
 
 const getAccounts = async (req, res) => {
-  const accounts = await getAllAccounts()
+  const { page, perPage } = req.query
+  const accounts = await getAllAccounts() // TODO: Add pagination
   .catch(err => res.status(500).send(err))
-  res.header('Content-Range', 'bytes : 0-9/1971') // TODO: Get the actual range
+  res.header('Content-Range', `bytes : ${(page - 1) * perPage}-${page * perPage - 1}/${accounts.count || 10}`)
   return res.json(accounts)
 }
 

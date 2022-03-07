@@ -13,19 +13,21 @@ const getTransactions = async (req, res) => {
 
 const getTransactionsForAccount = async (req, res) => {
   const {accountId} = req.params
-  const transactions = await getTransactionsByAccountID(accountId)
+  const { page, perPage } = req.query
+  const transactions = await getTransactionsByAccountID(accountId) // TODO: Add pagination
   .catch(err => res.status(500).send(err))
   const status = transactions.failed ? 400 : 200
-  res.header('Content-Range', 'bytes : 0-9/10') // TODO: Get the actual range
+  res.header('Content-Range', `bytes : ${(page - 1) * perPage}-${page * perPage - 1}/${transactions.count || 10}`)
   return res.status(status).json(transactions)
 }
 
 const getTransactionsForCategory = async (req, res) => {
   const {categoryId} = req.params
-  const transactions = await getTransactionsByCategoryId(categoryId)
+  const { page, perPage } = req.query
+  const transactions = await getTransactionsByCategoryId(categoryId) // TODO: Add pagination
   .catch(err => res.status(500).send(err))
   const status = transactions.failed ? 400 : 200
-  res.header('Content-Range', 'bytes : 0-9/10') // TODO: Get the actual range
+  res.header('Content-Range', `bytes : ${(page - 1) * perPage}-${page * perPage - 1}/${transactions.count || 10}`)
   return res.status(status).json(transactions)
 }
 

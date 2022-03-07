@@ -4,9 +4,10 @@ const { getAllCategories, getCategoryById, editCategoryById, deleteCategoryById,
 // TODO: Error handling
 
 const getCategories = async (req, res) => {
-  const categories = await getAllCategories()
+  const { page, perPage } = req.query
+  const categories = await getAllCategories() // TODO: Add pagination
   .catch(err => res.status(500).send(err))
-  res.header('Content-Range', 'bytes : 0-9/1971') // TODO: Get the actual range
+  res.header('Content-Range', `bytes : ${(page - 1) * perPage}-${page * perPage - 1}/${categories.count || 10}`)
   return res.json(categories)
 }
 

@@ -1,26 +1,34 @@
-module.exports = (sequelize, DataTypes) => {
-    
-    const Category = sequelize.define('category', {
-        // Note: primary key needed in model for Sequelize to merge properly on 'hasMany'
-        id: {
-            type: DataTypes.INTEGER,
-            autoIncrement: true,
-            primaryKey: true
-        },
-        name: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            unique: true
-        }
-    })
+const Sequelize = require('sequelize')
+const { Model } = require('sequelize')
 
-    Category.associate = models => {
+module.exports = (sequelize) => {
 
-        Category.hasMany(models.transaction,  {
-            foreignKey: 'categoryid'
-          });
-    
+  class Category extends Model {
+
+    static associate(models) {
+      Category.hasMany(models.transaction,  {
+        foreignKey: 'categoryid'
+      });
     }
+  }
 
-    return Category
+  Category.init({
+    // Note: primary key needed in model for Sequelize to merge properly on 'hasMany'
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    name: {
+      type: Sequelize.STRING,
+      allowNull: false,
+      unique: true
+    },
+  }, {
+    sequelize,
+    modelName: 'category',
+  })
+
+  return Category
+
 }

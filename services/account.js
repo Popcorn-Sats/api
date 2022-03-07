@@ -60,6 +60,36 @@ const getAllAccounts = async () => {
   return accountsArray
 }
 
+const getAllAccountsPaginated = async (page, perPage) => {
+  const errors = []
+  const accountsArray = []
+  const accounts = await db.account.findAllAccountsPaginated(page, perPage)
+  .catch(err => {
+    errors.push(err)
+    return errors
+  })
+  if (!accounts) {
+    return { failed: true, message: "No accounts were found" }
+  }
+
+  const { rows } = accounts
+  const {length} = rows
+
+  // TODO: DRY this up as formatAccountsObject
+  for (let i = 0; i < length; i += 1) {
+    const account = {}
+    account.id = rows[i].id
+    account.name = rows[i].name
+    account.notes = rows[i].notes
+    account.active = rows[i].active
+    account.owned = rows[i].owned
+    account.accounttype = rows[i].accounttype
+    account.balance = await getAccountBalance(rows[i].id)
+    accountsArray.push(account)
+  }
+  return { accounts: accountsArray, count: accounts.count }
+}
+
 const getNetPosition = async () => {
   const errors = []
   const accountsArray = []
@@ -454,6 +484,7 @@ include: [
 
 module.exports = {
   getAllAccounts,
+  getAllAccountsPaginated,
   getNetPosition,
   getAccountById,
   editAccountById,

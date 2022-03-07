@@ -1,14 +1,14 @@
 /* eslint-disable no-console */
-const { getAllAccounts, getNetPosition, editAccountById, deleteAccountById, createAccount, searchAllAccounts, getAccountById, scanAccount } = require('../services/account')
+const { getAllAccounts, getAllAccountsPaginated, getNetPosition, editAccountById, deleteAccountById, createAccount, searchAllAccounts, getAccountById, scanAccount } = require('../services/account')
 
 // TODO: Error handling
 
 const getAccounts = async (req, res) => {
   const { page, perPage } = req.query
-  const accounts = await getAllAccounts() // TODO: Add pagination
+  const accounts = await getAllAccountsPaginated(page, perPage)
   .catch(err => res.status(500).send(err))
-  res.header('Content-Range', `bytes : ${(page - 1) * perPage}-${page * perPage - 1}/${accounts.count || 10}`)
-  return res.json(accounts)
+  res.header('Content-Range', `bytes : ${(page - 1) * perPage}-${page * perPage - 1}/${accounts.count}`)
+  return res.json(accounts.accounts)
 }
 
 const getPosition = async (req, res) => {

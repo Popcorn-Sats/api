@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize')
 const { Model } = require('sequelize')
+const { paginate } = require('../utils/paginate')
 
 module.exports = (sequelize) => {
   class Account extends Model {
@@ -12,6 +13,18 @@ module.exports = (sequelize) => {
         include: ['xpub', 'accounttype'],
         raw : true,
         nest : true
+      })
+    }
+
+    static findAllAccountsPaginated(page, perPage) {
+      return this.findAndCountAll({
+        order: [
+            ['id', 'ASC'],
+        ],
+        include: ['xpub', 'accounttype'],
+        raw : true,
+        nest : true,
+        ...paginate({ page, perPage })
       })
     }
 

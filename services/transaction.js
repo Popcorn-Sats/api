@@ -11,6 +11,7 @@ const { checkAndCreateCategory } = require('./category')
 const { checkAndCreateUtxo } = require('./utxo')
 const { getAddressTransactions } = require('./electrum')
 const { formatTransactionsObject } = require('./transactions/formatTransactionsObject')
+const { getInitialBalance } = require('./transactions/getInitialBalance')
 const { getTransactionType } = require('./transactions/getTransactionType')
 const { paginate } = require('../utils/paginate')
 const { checkAndCreateAccount } = require('./accounts/checkAndCreateAccount')
@@ -147,8 +148,10 @@ const getAllTransactionsPaginated = async (page, perPage) => {
   if (!rawTransactions) {
     return { failed: true, message: "No transactions were found" }
   }
-  const transactions = await formatTransactionsObject({ rawTransactions: rawTransactions.rows })
-  // FIXME: formatTransactionsObject does not return the correct running total when paginating
+  const offset = rawTransactions.count < page * perPage ? 0 : page * perPage
+  const limit = rawTransactions.count < page * perPage ? 0 : rawTransactions.count - page * perPage
+  const initialBalance = await getInitialBalance({ offset, limit })
+  const transactions = await formatTransactionsObject({ rawTransactions: rawTransactions.rows, initialBalance })
   return {transactions, count: rawTransactions.count}
 }
 

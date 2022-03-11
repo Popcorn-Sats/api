@@ -155,14 +155,14 @@ const getAllTransactionsPaginated = async (page, perPage) => {
   return {transactions, count: rawTransactions.count}
 }
 
-const rawTransactionsByAccountID = async (accountId) => {
+const rawTransactionsByAccountID = async (accountId, page, perPage) => {
   const errors = []
   const transactionList = await listTransactionsByAccountId(accountId)
   .catch(err => {
     errors.push(err)
     return errors
   })
-  const transactions = await db.transaction.findAll({
+  const transactions = await db.transaction.findAndCountAll({
     order: [
       ['id', 'ASC'],
     ],
@@ -185,7 +185,9 @@ const rawTransactionsByAccountID = async (accountId) => {
             model: db.transactionledger,
             include: [db.account, db.utxo]
         }
-    ]
+    ],
+    distinct: true, // Needed to get correct count
+    ...paginate({ page, perPage })
   })
   .catch(err => {
     errors.push(err)
@@ -194,13 +196,16 @@ const rawTransactionsByAccountID = async (accountId) => {
   return transactions
 }
 
-const getTransactionsByAccountID = async (accountId) => {
-  const rawTransactions = await rawTransactionsByAccountID(accountId)
+const getTransactionsByAccountID = async (accountId, page, perPage) => {
+  const rawTransactions = await rawTransactionsByAccountID(accountId, page, perPage)
   if (!rawTransactions) {
     return { failed: true, message: "Transactions for account not found" }
   }
-  const transactions = await formatTransactionsObject({ rawTransactions, accountId })
-  return transactions
+  const offset = rawTransactions.count < page * perPage ? 0 : page * perPage
+  const limit = rawTransactions.count < page * perPage ? 0 : rawTransactions.count - page * perPage
+  const initialBalance = await getInitialBalance({ offset, limit }) // FIXME: This is broken
+  const transactions = await formatTransactionsObject({ rawTransactions: rawTransactions.rows, accountId, initialBalance })
+  return {transactions, count: rawTransactions.count}
 }
 
 const getTransactionByID = async (id) => {

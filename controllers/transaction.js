@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 const { getTransactionsByAccountID, getTransactionByID, getAllTransactions, getAllTransactionsPaginated, syncLedgerAccountId, editFullTransaction, createTransaction, changeTransactionCategory, searchAllTransactions } = require('../services/transaction')
-const { getTransactionsByCategoryId } = require('../services/transactions/getTransactionsByCategoryID')
+const { getTransactionsByCategoryId, getTransactionsByCategoryIdPaginated } = require('../services/transactions/getTransactionsByCategoryID')
 
 const getTransactions = async (req, res) => {
   const { page, perPage } = req.query
@@ -24,11 +24,11 @@ const getTransactionsForAccount = async (req, res) => {
 const getTransactionsForCategory = async (req, res) => {
   const {categoryId} = req.params
   const { page, perPage } = req.query
-  const transactions = await getTransactionsByCategoryId(categoryId) // TODO: Add pagination
+  const transactions = await getTransactionsByCategoryIdPaginated(categoryId, page, perPage)
   .catch(err => res.status(500).send(err))
   const status = transactions.failed ? 400 : 200
-  res.header('Content-Range', `bytes : ${(page - 1) * perPage}-${page * perPage - 1}/${transactions.count || 10}`)
-  return res.status(status).json(transactions)
+  res.header('Content-Range', `bytes : ${(page - 1) * perPage}-${page * perPage - 1}/${transactions.count}`)
+  return res.status(status).json(transactions.transactions)
 }
 
 const getTransactionByTransactionID = async (req, res) => {

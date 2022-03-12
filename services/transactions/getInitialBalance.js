@@ -3,6 +3,25 @@ const _ = require('lodash')
 const db = require('../../models')
 const { listTransactionsByAccountId } = require('./listTransactionsByAccountId')
 
+const getBalanceFromLedgers = async (ledgers) => {
+  const credits = []
+  const debits = []
+  ledgers.forEach(ledger => {
+    if (!ledger.transactiontypeId) {
+      console.log({failed: true, message: `Ledger ID ${ledger.id} does not have a transaction type`})
+      return({failed: true, message: `Ledger ID ${ledger.id} does not have a transaction type`})
+    }
+    if (ledger.transactiontypeId === 2) {
+      credits.push(parseInt(ledger.amount, 10))
+    }
+    else if (ledger.transactiontypeId === 1) {
+      debits.push(parseInt(ledger.amount, 10))
+    }
+  });
+  const balance = _.sum(credits) - _.sum(debits)
+  return balance
+}
+
 const getInitialBalance = async ({ categoryid, offset, limit}) => {
   const errors = []
   let transactions
@@ -57,21 +76,7 @@ const getInitialBalance = async ({ categoryid, offset, limit}) => {
     }
   })
 
-  const credits = []
-  const debits = []
-  ledgers.forEach(ledger => {
-    if (!ledger.transactiontypeId) {
-      console.log({failed: true, message: `Ledger ID ${ledger.id} does not have a transaction type`})
-      return({failed: true, message: `Ledger ID ${ledger.id} does not have a transaction type`})
-    }
-    if (ledger.transactiontypeId === 2) {
-      credits.push(parseInt(ledger.amount, 10))
-    }
-    else if (ledger.transactiontypeId === 1) {
-      debits.push(parseInt(ledger.amount, 10))
-    }
-  });
-  const balance = _.sum(credits) - _.sum(debits)
+  const balance = await getBalanceFromLedgers(ledgers)
   return balance
 }
 
@@ -99,21 +104,7 @@ const getInitialAccountBalance = async ({ accountId, offset, limit}) => { // FIX
     }
   })
 
-  const credits = []
-  const debits = []
-  ledgers.forEach(ledger => { // FIXME: DRY
-    if (!ledger.transactiontypeId) {
-      console.log({failed: true, message: `Ledger ID ${ledger.id} does not have a transaction type`})
-      return({failed: true, message: `Ledger ID ${ledger.id} does not have a transaction type`})
-    }
-    if (ledger.transactiontypeId === 2) {
-      credits.push(parseInt(ledger.amount, 10))
-    }
-    else if (ledger.transactiontypeId === 1) {
-      debits.push(parseInt(ledger.amount, 10))
-    }
-  });
-  const balance = _.sum(credits) - _.sum(debits)
+  const balance = await getBalanceFromLedgers(ledgers)
   return balance
 }
 

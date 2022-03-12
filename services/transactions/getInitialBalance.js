@@ -84,26 +84,7 @@ const getInitialAccountBalance = async ({ accountId, offset, limit}) => { // FIX
   const transactionList = await listTransactionsByAccountId(accountId)
   const orderedTransactions = _.sortBy(transactionList)
   const transactionIds = orderedTransactions.slice(offset, offset + limit)
-
-  const ledgers = await db.transactionledger.findAll({
-    attributes: ['amount', 'transactiontypeId'],
-    order: [
-      ['id', 'DESC'],
-    ],
-    include: [
-      {
-        model: db.account,
-        where: {
-          id: accountId,
-        },
-        required: true,
-      },
-    ],
-    where: {
-      transactionId: transactionIds,
-    }
-  })
-
+  const ledgers = await db.transactionledger.getAmountsFromTransactionListByAccountID(transactionIds, accountId)
   const balance = await getBalanceFromLedgers(ledgers)
   return balance
 }

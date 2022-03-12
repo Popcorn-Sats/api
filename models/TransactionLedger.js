@@ -12,6 +12,18 @@ module.exports = (sequelize) => {
       })
     }
 
+    static getAmountsFromTransactionListByAccountID(transactionIds, accountId) {
+      return this.findAll({
+        where: {
+          transactionId: {
+            [Sequelize.Op.in]: transactionIds
+          },
+          accountId
+        },
+        attributes: ['amount', 'transactiontypeId']
+      })
+    }
+
     static associate(models) {
       TransactionLedger.belongsTo(models.transaction, {
         foreignKey: 'transactionId'

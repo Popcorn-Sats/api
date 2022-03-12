@@ -1,35 +1,59 @@
-module.exports = (sequelize, DataTypes) => {
-    const TransactionLedger = sequelize.define('transactionledger', {
-        id: {
-          type: DataTypes.INTEGER,
-          autoIncrement: true,
-          primaryKey: true,
-        },
-        amount: {
-          type: DataTypes.BIGINT
-        },
-        currency: {
-          type: DataTypes.STRING
-        },
-        fiatAmount: {
-          type: DataTypes.BIGINT
-        },
-        fiatCurrency: {
-          type: DataTypes.STRING
-        }
-    })
+const Sequelize = require('sequelize')
+const { Model } = require('sequelize')
 
-    TransactionLedger.associate = (models) => {
-        TransactionLedger.belongsTo(models.transaction)
-        TransactionLedger.belongsTo(models.transactiontype)
-        TransactionLedger.belongsTo(models.account)
-        TransactionLedger.belongsTo(models.address)
-        TransactionLedger.belongsTo(models.utxo)
+module.exports = (sequelize) => {
+  class TransactionLedger extends Model {
+
+    static getTransactionLedgersByAccountID(accountId) {
+      return this.findAll({
+        where: {
+          accountId
+        }
+      })
     }
 
-    TransactionLedger.getTransactionLedgersByAccountID = (accountId) => TransactionLedger.findAll({ where: { accountId } })
+    static associate(models) {
+      TransactionLedger.belongsTo(models.transaction, {
+        foreignKey: 'transactionId'
+      })
+      TransactionLedger.belongsTo(models.transactiontype, {
+        foreignKey: 'transactiontypeId'
+      })
+      TransactionLedger.belongsTo(models.account, {
+        foreignKey: 'accountId'
+      })
+      TransactionLedger.belongsTo(models.address, {
+        foreignKey: 'addressId'
+      })
+      TransactionLedger.belongsTo(models.utxo, {
+        foreignKey: 'utxoId'
+      })
+    }
+  }
 
-    return TransactionLedger
+  TransactionLedger.init({
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    amount: {
+      type: Sequelize.BIGINT
+    },
+    currency: {
+      type: Sequelize.STRING
+    },
+    fiatAmount: {
+      type: Sequelize.BIGINT
+    },
+    fiatCurrency: {
+      type: Sequelize.STRING
+    }
+  }, {
+    sequelize,
+    modelName: 'transactionledger',
+  })
+  return TransactionLedger
 }
 
 // Each transaction ledger should have one UTXO (created or consumed). Each UTXO belongs to many (1 or 2) transaction ledgers.

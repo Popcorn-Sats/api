@@ -75,7 +75,7 @@ const getInitialBalance = async ({ categoryid, offset, limit}) => {
   return balance
 }
 
-const getInitialAccountBalance = async ({ accountId, offset, limit}) => {
+const getInitialAccountBalance = async ({ accountId, offset, limit}) => { // FIXME: Broken for Coinjoin wallets
   const transactionList = await listTransactionsByAccountId(accountId)
   const orderedTransactions = _.sortBy(transactionList)
   const transactionIds = orderedTransactions.slice(offset, offset + limit)

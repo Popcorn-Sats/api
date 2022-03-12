@@ -13,6 +13,7 @@ const { getAddressTransactions } = require('./electrum')
 const { formatTransactionsObject } = require('./transactions/formatTransactionsObject')
 const { getInitialBalance } = require('./transactions/getInitialBalance')
 const { getTransactionType } = require('./transactions/getTransactionType')
+const { listTransactionsByAccountId } = require('./transactions/listTransactionsByAccountId')
 const { paginate } = require('../utils/paginate')
 const { checkAndCreateAccount } = require('./accounts/checkAndCreateAccount')
 
@@ -57,16 +58,6 @@ const transactionByUUID = async (id) => {
     return errors
   })
   return transaction
-}
-
-const listTransactionsByAccountId = async (accountId) => {
-  const transactions = []
-  const ledgers = await db.transactionledger.getTransactionLedgersByAccountID(accountId)
-  ledgers.forEach(ledger => {
-    transactions.push(ledger.transactionId)
-  });
-  // console.log(transactions)
-  return transactions
 }
 
 const getAllTransactions = async () => {

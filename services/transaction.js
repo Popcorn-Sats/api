@@ -11,7 +11,7 @@ const { checkAndCreateCategory } = require('./category')
 const { checkAndCreateUtxo } = require('./utxo')
 const { getAddressTransactions } = require('./electrum')
 const { formatTransactionsObject } = require('./transactions/formatTransactionsObject')
-const { getInitialBalance } = require('./transactions/getInitialBalance')
+const { getInitialBalance, getInitialAccountBalance } = require('./transactions/getInitialBalance') // FIXME: DRY
 const { getTransactionType } = require('./transactions/getTransactionType')
 const { listTransactionsByAccountId } = require('./transactions/listTransactionsByAccountId')
 const { paginate } = require('../utils/paginate')
@@ -180,7 +180,7 @@ const getTransactionsByAccountID = async (accountId, page, perPage) => {
   }
   const offset = rawTransactions.count < page * perPage ? 0 : page * perPage
   const limit = rawTransactions.count < page * perPage ? 0 : rawTransactions.count - page * perPage
-  const initialBalance = await getInitialBalance({ offset, limit }) // FIXME: This is broken
+  const initialBalance = await getInitialAccountBalance({ accountId, offset, limit })
   const transactions = await formatTransactionsObject({ rawTransactions: rawTransactions.rows, accountId, initialBalance })
   return {transactions, count: rawTransactions.count}
 }

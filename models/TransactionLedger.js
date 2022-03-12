@@ -27,6 +27,8 @@ module.exports = (sequelize, DataTypes) => {
         TransactionLedger.belongsTo(models.utxo)
     }
 
+    TransactionLedger.getTransactionLedgersByAccountID = (accountId) => TransactionLedger.findAll({ where: { accountId } })
+
     return TransactionLedger
 }
 

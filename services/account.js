@@ -9,12 +9,12 @@ const config = require('../config/config.json')
 const {getAddressFromXpub} = require('./bitcoin')
 const {getAddress, initiate} = require('./electrum')
 const {checkAndCreateAddress} = require('./address')
-const {createAddressTransactions, getTransactionLedgersByAccountID} = require('./transaction')
+const {createAddressTransactions} = require('./transaction')
 
 const {Op} = Sequelize
 
 const getAccountBalance = async (accountId) => {
-  const ledgers = await getTransactionLedgersByAccountID(accountId)
+  const ledgers = await db.transactionledger.getTransactionLedgersByAccountID(accountId)
   const credits = []
   const debits = []
   ledgers.forEach(ledger => {

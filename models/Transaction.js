@@ -45,13 +45,14 @@ module.exports = (sequelize, DataTypes) => {
       attributes: {
         include: [
           [
-            sequelize.literal(`(SELECT height FROM blocks WHERE blocks."id" = transaction."blockId" ORDER BY height DESC LIMIT 1)`), 'blockHeight'
+            sequelize.literal(`(SELECT height FROM blocks WHERE blocks."id" = transaction."blockId")`), 'blockHeight'
           ]
         ]
       },
       include: ['category', 'block', 'transactiontype', {model: sequelize.models.transactionledger, include: ['account', 'utxo']}],
       order: [
         [[sequelize.literal('"blockHeight"'), 'DESC']],
+        ['id', 'DESC'],
       ],
       distinct: true, // Needed to get correct count
       ...paginate({ page, perPage })
@@ -60,8 +61,14 @@ module.exports = (sequelize, DataTypes) => {
 
   Transaction.getOffsetTransactions = (offset, limit) => 
     Transaction.findAll({
-      attributes: ['id'],
+      attributes: [
+        'id',
+        [
+          sequelize.literal(`(SELECT height FROM blocks WHERE blocks."id" = transaction."blockId")`), 'blockHeight'
+        ]
+      ],
       order: [
+        [[sequelize.literal('"blockHeight"'), 'DESC']],
         ['id', 'DESC'],
       ],
       offset,

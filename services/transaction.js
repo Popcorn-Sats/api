@@ -102,7 +102,7 @@ const getAllTransactionsPaginated = async (page, perPage) => {
   }
   const offset = rawTransactions.count < page * perPage ? 0 : page * perPage
   const limit = rawTransactions.count < page * perPage ? 0 : rawTransactions.count - page * perPage
-  const initialBalance = await getInitialBalance({ offset, limit })
+  const initialBalance = await getInitialBalance({ offset, limit }) // FIXME: Need to be ordered by blockHeight
   const transactions = await formatTransactionsObject({ rawTransactions: rawTransactions.rows, initialBalance })
   return {transactions, count: rawTransactions.count}
 }

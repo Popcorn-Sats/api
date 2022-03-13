@@ -42,9 +42,16 @@ module.exports = (sequelize, DataTypes) => {
 
   Transaction.getAllTransactionsPaginated = (page, perPage) => 
     Transaction.findAndCountAll({
+      attributes: {
+        include: [
+          [
+            sequelize.literal(`(SELECT height FROM blocks WHERE blocks."id" = transaction."blockId" ORDER BY height DESC LIMIT 1)`), 'blockHeight'
+          ]
+        ]
+      },
       include: ['category', 'block', 'transactiontype', {model: sequelize.models.transactionledger, include: ['account', 'utxo']}],
       order: [
-        ['id', 'DESC'],
+        [[sequelize.literal('"blockHeight"'), 'DESC']],
       ],
       distinct: true, // Needed to get correct count
       ...paginate({ page, perPage })

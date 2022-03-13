@@ -57,25 +57,7 @@ const getInitialBalance = async ({ categoryid, offset, limit}) => {
   }
 
   const transactionIds = transactions.map(transaction => transaction.id)
-  const ledgers = await db.transactionledger.findAll({
-    attributes: ['amount', 'transactiontypeId'],
-    order: [
-      ['id', 'DESC'],
-    ],
-    include: [
-      {
-        model: db.account,
-        where: {
-          owned: true,
-        },
-        required: true,
-      },
-    ],
-    where: {
-      transactionId: transactionIds,
-    }
-  })
-
+  const ledgers = await db.transactionledger.getAmountsFromTransactionListForOwnedAccounts(transactionIds)
   const balance = await getBalanceFromLedgers(ledgers)
   return balance
 }

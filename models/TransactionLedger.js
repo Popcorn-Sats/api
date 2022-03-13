@@ -24,6 +24,29 @@ module.exports = (sequelize) => {
       })
     }
 
+    static getAmountsFromTransactionListForOwnedAccounts(transactionIds) {
+      return this.findAll({
+        include: [
+          {
+            model: sequelize.models.account,
+            where: {
+              owned: true,
+            },
+            required: true,
+          },
+        ],
+        where: {
+          transactionId: {
+            [Sequelize.Op.in]: transactionIds
+          },
+          accountId: {
+            [Sequelize.Op.gt]: 0
+          }
+        },
+        attributes: ['amount', 'transactiontypeId'],
+      })
+    }
+
     static associate(models) {
       TransactionLedger.belongsTo(models.transaction, {
         foreignKey: 'transactionId'

@@ -38,5 +38,28 @@ module.exports = (sequelize, DataTypes) => {
 
   Transaction.findByTransactionId = (txid) => Transaction.findOne({ where: { txid } })
 
+  Transaction.getOffsetTransactions = (offset, limit) => 
+    Transaction.findAll({
+      attributes: ['id'],
+      order: [
+        ['id', 'DESC'],
+      ],
+      offset,
+      limit,
+    })
+
+  Transaction.getOffsetCategoryTransactions = (categoryid, offset, limit) =>
+    Transaction.findAll({
+      where: {
+        categoryid
+      },
+      attributes: ['id'],
+      order: [
+        ['id', 'DESC'],
+      ],
+      offset,
+      limit,
+    })
+
   return Transaction
 }

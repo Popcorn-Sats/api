@@ -23,37 +23,11 @@ const getBalanceFromLedgers = async (ledgers) => {
 }
 
 const getInitialBalance = async ({ categoryid, offset, limit}) => {
-  const errors = []
   let transactions
   if(categoryid) {
-    transactions = await db.transaction.findAll({
-      where: {
-        categoryid
-      },
-      attributes: ['id'],
-      order: [
-        ['id', 'DESC'],
-      ],
-      offset,
-      limit,
-    })
-    .catch(err => {
-      errors.push(err)
-      return errors
-    })
+    transactions = await db.transaction.getOffsetCategoryTransactions(categoryid, offset, limit)
   } else {
-    transactions = await db.transaction.findAll({
-      attributes: ['id'],
-      order: [
-        ['id', 'DESC'],
-      ],
-      offset,
-      limit,
-    })
-    .catch(err => {
-      errors.push(err)
-      return errors
-    })
+    transactions = await db.transaction.getOffsetTransactions(offset, limit)
   }
 
   const transactionIds = transactions.map(transaction => transaction.id)

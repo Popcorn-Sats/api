@@ -1,3 +1,5 @@
+const { paginate } = require('../utils/paginate')
+
 module.exports = (sequelize, DataTypes) => {
   const Transaction = sequelize.define('transaction', {
     // Note: primary key needed in model for Sequelize to merge properly on 'hasMany'
@@ -37,6 +39,17 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   Transaction.findByTransactionId = (txid) => Transaction.findOne({ where: { txid } })
+
+  Transaction.getAllTransactionsPaginated = (page, perPage) => 
+    Transaction.findAndCountAll({
+      include: ['category', 'block', 'transactiontype', {model: sequelize.models.transactionledger, include: ['account', 'utxo']}],
+      order: [
+        ['id', 'DESC'],
+      ],
+      distinct: true, // Needed to get correct count
+      ...paginate({ page, perPage })
+    })
+  
 
   Transaction.getOffsetTransactions = (offset, limit) => 
     Transaction.findAll({

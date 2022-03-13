@@ -94,35 +94,10 @@ const getAllTransactions = async () => {
 }
 
 const getAllTransactionsPaginated = async (page, perPage) => {
-  const errors = []
-  const rawTransactions = await db.transaction.findAndCountAll({
-    order: [
-      ['id', 'DESC'],
-    ],
-    include: [
-        {
-            model: db.category,
-        },
-        {
-            model: db.block,
-        },
-        {
-            model: db.transactiontype,
-        },
-        {
-            model: db.transactionledger,
-            include: [db.account, db.utxo]
-        }
-    ],
-    distinct: true, // Needed to get correct count
-    ...paginate({ page, perPage })
-  })
-  .catch(err => {
-    errors.push(err)
-    console.log({err})
-    return errors
-  })
+  const rawTransactions = await db.transaction.getAllTransactionsPaginated(page, perPage)
+  console.log({rawTransactions})
   if (!rawTransactions) {
+    console.log({ failed: true, message: "No transactions were found" })
     return { failed: true, message: "No transactions were found" }
   }
   const offset = rawTransactions.count < page * perPage ? 0 : page * perPage

@@ -4,21 +4,24 @@
         "password": "",
         "database": "lucadev",
         "host": "localhost",
-        "dialect": "postgres"
+        "dialect": "postgres",
+        "logging": false
   },
   "test": {
     "username": "postgres",
         "password": "",
         "database": "lucatest",
         "host": "localhost",
-        "dialect": "postgres"
+        "dialect": "postgres",
+        "logging": false
   },
   "production": {
     "username": "postgres",
         "password": "",
         "database": "luca",
         "host": "localhost",
-        "dialect": "postgres"
+        "dialect": "postgres",
+        "logging": false
   },
   "ELECTRUM": {
     "HOST": "",

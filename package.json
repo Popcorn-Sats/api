@@ -40,11 +40,11 @@
     "prettier": "2.4.1"
   },
   "_moduleAliases": {
-    "@root"      : ".",
-    "@config"    : "/config",
-    "@controllers": "src/controllers",
-    "@models"    : "src/models",
+    "@root": ".",
+    "@config": "./config",
+    "@controllers": "./controllers",
+    "@models": "./models",
     "@services": "./services",
-    "@utils"     : "src/utils"
+    "@utils": "./utils"
   }
 }

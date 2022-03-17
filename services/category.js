@@ -49,7 +49,8 @@ const getAllCategoriesPaginated = async (page, perPage) => {
 
   for (let j = 0; j < categories.rows.length; j += 1) {
     const transactions = await getTransactionsByCategoryId(categories.rows[j].id)
-    if (transactions.length !== 0) {
+    categories.rows[j].dataValues.balance = 0
+    if (transactions.length !== 0 && transactions[0].runningBalance) {
       categories.rows[j].dataValues.balance = transactions[0].runningBalance
     }
   }

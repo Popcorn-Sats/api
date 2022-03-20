@@ -41,8 +41,8 @@ const getAllCategories = async () => {
   return categories
 }
 
-const getAllCategoriesPaginated = async (page, perPage) => {
-  const categories = await db.category.findAllCategoriesPaginated(page, perPage)
+const getAllCategoriesPaginated = async (page, perPage, sort, order) => {
+  const categories = await db.category.findAllCategoriesPaginated(page, perPage, sort, order)
   if (!categories) {
     return { failed: true, message: "No categories were found" }
   }

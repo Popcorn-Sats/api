@@ -6,10 +6,10 @@ module.exports = (sequelize) => {
 
   class Category extends Model {
 
-    static findAllCategoriesPaginated(page, perPage) {
+    static findAllCategoriesPaginated(page, perPage, sort = 'name', order = 'ASC') {
       return this.findAndCountAll({
         order: [
-            ['name', 'ASC'],
+            [sort, order],
         ],
         ...paginate({ page, perPage })
       })

@@ -4,8 +4,9 @@ const { getAllCategories, getAllCategoriesPaginated, getCategoryById, editCatego
 // TODO: Error handling
 
 const getCategories = async (req, res) => {
-  const { page, perPage, sort, order } = req.query
-  const categories = await getAllCategoriesPaginated(page, perPage, sort, order)
+  const { page, perPage, sort, order, filter } = req.query
+  const parsedFilter = filter ? JSON.parse(filter) : null;
+  const categories = await getAllCategoriesPaginated(page, perPage, sort, order, parsedFilter)
   .catch(err => res.status(500).send(err))
   res.header('Content-Range', `bytes : ${(page - 1) * perPage}-${page * perPage - 1}/${categories.count}`)
   return res.json(categories.categories)

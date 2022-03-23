@@ -4,8 +4,9 @@ const { getAllAccounts, getAllAccountsPaginated, getNetPosition, editAccountById
 // TODO: Error handling
 
 const getAccounts = async (req, res) => {
-  const { page, perPage } = req.query
-  const accounts = await getAllAccountsPaginated(page, perPage)
+  const { page, perPage, sort, order, filter } = req.query
+  const parsedFilter = filter ? JSON.parse(filter) : null;
+  const accounts = await getAllAccountsPaginated(page, perPage, sort, order, parsedFilter)
   .catch(err => res.status(500).send(err))
   res.header('Content-Range', `bytes : ${(page - 1) * perPage}-${page * perPage - 1}/${accounts.count}`)
   return res.json(accounts.accounts)

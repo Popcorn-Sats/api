@@ -60,10 +60,10 @@ const getAllAccounts = async () => {
   return accountsArray
 }
 
-const getAllAccountsPaginated = async (page, perPage) => {
+const getAllAccountsPaginated = async (page, perPage, sort, order, filter) => {
   const errors = []
   const accountsArray = []
-  const accounts = await db.account.findAllAccountsPaginated(page, perPage)
+  const accounts = await db.account.findAllAccountsPaginated(page, perPage, sort, order, filter)
   .catch(err => {
     errors.push(err)
     return errors
@@ -84,7 +84,7 @@ const getAllAccountsPaginated = async (page, perPage) => {
     account.active = rows[i].active
     account.owned = rows[i].owned
     account.accounttype = rows[i].accounttype
-    account.balance = await getAccountBalance(rows[i].id)
+    account.balance = await getAccountBalance(rows[i].id) // FIXME: Add to model
     accountsArray.push(account)
   }
   return { accounts: accountsArray, count: accounts.count }

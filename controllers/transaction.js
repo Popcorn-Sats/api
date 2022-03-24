@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
-const { getTransactionsByAccountID, getTransactionByID, getAllTransactions, getAllTransactionsPaginated, syncLedgerAccountId, editFullTransaction, createTransaction, changeTransactionCategory, searchAllTransactions } = require('../services/transaction')
-const { getTransactionsByCategoryId, getTransactionsByCategoryIdPaginated } = require('../services/transactions/getTransactionsByCategoryID')
+const { getTransactionsByAccountID, getTransactionByID, getAllTransactions, getAllTransactionsPaginated, syncLedgerAccountId, editFullTransaction, createTransaction, changeTransactionCategory, searchAllTransactions } = require('@services/transaction')
+const { getTransactionsByCategoryId, getTransactionsByCategoryIdPaginated } = require('@services/transactions/getTransactionsByCategoryID')
 
 const getTransactions = async (req, res) => {
-  const { page, perPage } = req.query
-  const transactions = await getAllTransactionsPaginated(page, perPage)
+  const { page, perPage, sort, order, filter } = req.query
+  const transactions = await getAllTransactionsPaginated(page, perPage, sort, order, filter)
   .catch(err => res.status(500).send(err))
   const status = transactions.failed ? 400 : 200
   res.header('Content-Range', `bytes : ${(page - 1) * perPage}-${page * perPage - 1}/${transactions.count}`)

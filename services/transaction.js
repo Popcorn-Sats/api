@@ -93,8 +93,8 @@ const getAllTransactions = async () => {
   return transactions
 }
 
-const getAllTransactionsPaginated = async (page, perPage) => {
-  const rawTransactions = await db.transaction.getAllTransactionsPaginated(page, perPage)
+const getAllTransactionsPaginated = async (page, perPage, sort, order, filter) => {
+  const rawTransactions = await db.transaction.getAllTransactionsPaginated(page, perPage, sort, order, filter)
   console.log({rawTransactions})
   if (!rawTransactions) {
     console.log({ failed: true, message: "No transactions were found" })

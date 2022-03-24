@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Transaction.findByTransactionId = (txid) => Transaction.findOne({ where: { txid } })
 
-  Transaction.getAllTransactionsPaginated = (page, perPage) => 
+  Transaction.getAllTransactionsPaginated = (page, perPage, sort = 'id', order = 'DESC', filter) =>
     Transaction.findAndCountAll({
       attributes: {
         include: [
@@ -52,7 +52,7 @@ module.exports = (sequelize, DataTypes) => {
       include: ['category', 'block', 'transactiontype', {model: sequelize.models.transactionledger, include: ['account', 'utxo']}],
       order: [
         [[sequelize.literal('"blockHeight"'), 'DESC']],
-        ['id', 'DESC'],
+        [sort, order],
       ],
       distinct: true, // Needed to get correct count
       ...paginate({ page, perPage })

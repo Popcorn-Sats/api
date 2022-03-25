@@ -10,7 +10,7 @@ module.exports = (sequelize) => {
       static getAllTransactionsPaginated(page, perPage, sort = 'id', order = 'DESC', filter) {
         const where = getFilter(filter)
         return this.findAndCountAll({
-          where,
+          where, // FIXME: Not working
           attributes: {
             include: [
               [
@@ -56,6 +56,7 @@ module.exports = (sequelize) => {
           },
           attributes: ['id'],
           order: [
+            [[sequelize.literal('"blockHeight"'), 'DESC']],
             ['id', 'DESC'],
           ],
           offset,

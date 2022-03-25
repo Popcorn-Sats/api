@@ -102,7 +102,7 @@ const getAllTransactionsPaginated = async (page, perPage, sort, order, filter) =
   }
   const offset = rawTransactions.count < page * perPage ? 0 : page * perPage
   const limit = rawTransactions.count < page * perPage ? 0 : rawTransactions.count - page * perPage
-  const initialBalance = await getInitialBalance({ offset, limit }) // FIXME: Need to be ordered by blockHeight
+  const initialBalance = await getInitialBalance({ offset, limit }) // FIXME: Broken, need to be ordered by blockHeight?
   const transactions = await formatTransactionsObject({ rawTransactions: rawTransactions.rows, initialBalance })
   return {transactions, count: rawTransactions.count}
 }
@@ -155,7 +155,7 @@ const getTransactionsByAccountID = async (accountId, page, perPage) => {
   }
   const offset = rawTransactions.count < page * perPage ? 0 : page * perPage
   const limit = rawTransactions.count < page * perPage ? 0 : rawTransactions.count - page * perPage
-  const initialBalance = await getInitialAccountBalance({ accountId, offset, limit })
+  const initialBalance = await getInitialAccountBalance({ accountId, offset, limit }) // FIXME: Broken for CoinJoin
   const transactions = await formatTransactionsObject({ rawTransactions: rawTransactions.rows, accountId, initialBalance })
   return {transactions, count: rawTransactions.count}
 }

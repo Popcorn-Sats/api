@@ -11,6 +11,10 @@ module.exports = (sequelize) => {
         foreignKey: 'userId',
         otherKey: 'roleId',
       })
+      User.hasOne(models.refreshToken, {
+        foreignKey: 'userId',
+        targetKey: 'id',
+      })
     }
   };
 

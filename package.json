@@ -29,7 +29,8 @@
     "sequelize": "^6.11.0",
     "sequelize-cli": "^6.3.0",
     "supertest": "^6.1.6",
-    "unchained-bitcoin": "^0.1.8"
+    "unchained-bitcoin": "^0.1.8",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "eslint": "^7.32.0",

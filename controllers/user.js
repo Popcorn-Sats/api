@@ -7,6 +7,7 @@ const config = require('../config/auth.config')
 const { Op } = Sequelize
 const User = db.user
 const Role = db.role
+const RefreshToken = db.refreshToken
 
 const createUser = async (req, res) => {
   User.create({
@@ -45,7 +46,7 @@ const loginUser = async (req, res) => {
       username: req.body.username
     }
   })
-    .then(user => {
+    .then(async user => {
       if (!user) {
         return res.status(404).send({ message: "User Not found." });
       }
@@ -60,8 +61,9 @@ const loginUser = async (req, res) => {
         });
       }
       const token = jwt.sign({ id: user.id }, config.secret, {
-        expiresIn: 86400 // 24 hours
+        expiresIn: config.jwtExpiration
       });
+      const refreshToken = await RefreshToken.createToken(user);
       const authorities = [];
       user.getRoles().then(roles => {
         for (let i = 0; i < roles.length; i += 1) {
@@ -72,13 +74,46 @@ const loginUser = async (req, res) => {
           username: user.username,
           email: user.email,
           roles: authorities,
-          accessToken: token
+          accessToken: token,
+          refreshToken,
         });
       });
     })
     .catch(err => {
       res.status(500).send({ message: err.message });
     });
+}
+
+const refreshToken = async (req, res) => {
+  const { refreshToken: requestToken } = req.body
+  if (requestToken == null) {
+    return res.status(403).json({ message: "Refresh Token is required!" })
+  }
+  try {
+    const findRefreshToken = await RefreshToken.findOne({ where: { token: requestToken } })
+    if (!findRefreshToken) {
+      res.status(403).json({ message: "Refresh token is not in database!" })
+      return
+    }
+    if (RefreshToken.verifyExpiration(findRefreshToken)) {
+      RefreshToken.destroy({ where: { id: findRefreshToken.id } })
+      
+      res.status(403).json({
+        message: "Refresh token was expired. Please make a new signin request",
+      })
+      return
+    }
+    const user = await findRefreshToken.getUser()
+    const newAccessToken = jwt.sign({ id: user.id }, config.secret, {
+      expiresIn: config.jwtExpiration,
+    })
+    return res.status(200).json({
+      accessToken: newAccessToken,
+      refreshToken: findRefreshToken.token,
+    })
+  } catch (err) {
+    return res.status(500).send({ message: err })
+  }
 }
 
 const allAccess = (req, res) => {
@@ -108,6 +143,7 @@ const moderatorBoard = (req, res) => {
 module.exports = {
   createUser,
   loginUser,
+  refreshToken,
   allAccess,
   userBoard,
   adminBoard,

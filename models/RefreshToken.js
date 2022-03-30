@@ -8,11 +8,11 @@ const config = require('../config/auth.config');
 module.exports = (sequelize) => {
   class RefreshToken extends Model {
 
-      static createToken(user) {
+      static async createToken(user) {
         const expiredAt = new Date()
         expiredAt.setSeconds(expiredAt.getSeconds() + config.jwtRefreshExpiration)
         const _token = uuidv4()
-        const refreshToken = this.create({
+        const refreshToken = await this.create({
           token: _token,
           userId: user.id,
           expiryDate: expiredAt.getTime(),

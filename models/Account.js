@@ -70,6 +70,9 @@ module.exports = (sequelize) => {
     birthday: {
         type: Sequelize.DATE
     },
+    userId: {
+        type: Sequelize.INTEGER
+    },
     active: {
         type: Sequelize.BOOLEAN,
         allowNull: false,

@@ -9,8 +9,8 @@ const PORT = process.env.PORT || 2121
 const getRoutes = require('./routes')
 
 const corsOptions = {
-  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'X-Access-Token'],
-  exposedHeaders: 'Content-Range',
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'X-Access-Token', 'Authorization'],
+  exposedHeaders: ['Content-Range'],
 }
 
 app.use(express.urlencoded({ extended: true }))

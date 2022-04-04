@@ -20,7 +20,7 @@ const verifyToken = (req, res, next) => {
       message: "No token provided."
     });
   }
-  jwt.verify(token, config.secret, (err, decoded) => {
+  jwt.verify(token, config.security.jwt.secret, (err, decoded) => {
     if (err) {
       return res.status(401).send({
         message: "Unauthorized."

@@ -10,7 +10,7 @@ module.exports = (sequelize) => {
 
       static async createToken(user) {
         const expiredAt = new Date()
-        expiredAt.setSeconds(expiredAt.getSeconds() + config.jwtRefreshExpiration)
+        expiredAt.setSeconds(expiredAt.getSeconds() + config.security.jwt.jwtRefreshExpiration)
         const _token = uuidv4()
         const refreshToken = await this.create({
           token: _token,

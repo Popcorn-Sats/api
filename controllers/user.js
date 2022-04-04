@@ -60,8 +60,8 @@ const loginUser = async (req, res) => {
           message: "Invalid Password!"
         });
       }
-      const token = jwt.sign({ id: user.id }, config.secret, {
-        expiresIn: config.jwtExpiration
+      const token = jwt.sign({ id: user.id }, config.security.jwt.secret, {
+        expiresIn: config.security.jwt.jwtExpiration
       });
       const refreshToken = await RefreshToken.createToken(user);
       const authorities = [];
@@ -104,8 +104,8 @@ const refreshToken = async (req, res) => {
       return
     }
     const user = await findRefreshToken.getUser()
-    const newAccessToken = jwt.sign({ id: user.id }, config.secret, {
-      expiresIn: config.jwtExpiration,
+    const newAccessToken = jwt.sign({ id: user.id }, config.security.jwt.secret, {
+      expiresIn: config.security.jwt.jwtExpiration,
     })
     return res.status(200).json({
       accessToken: newAccessToken,

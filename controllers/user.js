@@ -110,6 +110,7 @@ const refreshToken = async (req, res) => {
     })
     return res.status(200).json({
       accessToken: newAccessToken,
+      tokenExpiry: config.security.jwt.jwtExpiration,
       refreshToken: findRefreshToken.token,
     })
   } catch (err) {

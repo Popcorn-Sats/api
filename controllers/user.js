@@ -75,6 +75,7 @@ const loginUser = async (req, res) => {
           email: user.email,
           roles: authorities,
           accessToken: token,
+          tokenExpiry: config.security.jwt.jwtExpiration,
           refreshToken,
         });
       });

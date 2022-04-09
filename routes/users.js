@@ -14,6 +14,7 @@ router
     ],
     ctrl.createUser)
   .post('/login', ctrl.loginUser)
+  .post('/logout', ctrl.logoutUser)
   .post('/refreshtoken', ctrl.refreshToken)
 
   .get("/test/all", ctrl.allAccess)

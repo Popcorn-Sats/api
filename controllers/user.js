@@ -85,6 +85,23 @@ const loginUser = async (req, res) => {
     });
 }
 
+const logoutUser = async (req, res) => {
+  const { refreshToken: requestToken } = req.body
+  if (requestToken == null) {
+    return res.status(403).json({ message: "Must send refresh token" })
+  }
+  try {
+    const findRefreshToken = await RefreshToken.findOne({ where: { token: requestToken } })
+    if (!findRefreshToken) {
+      return res.status(403).json({ message: "Refresh token is not in database" })
+    }
+    RefreshToken.destroy({ where: { id: findRefreshToken.id } })
+    return res.status(200).send({ message: 'Logged out successfully' })
+  } catch (err) {
+    return res.status(500).send({ message: err })
+  }
+}
+
 const refreshToken = async (req, res) => {
   const { refreshToken: requestToken } = req.body
   if (requestToken == null) {
@@ -145,6 +162,7 @@ const moderatorBoard = (req, res) => {
 module.exports = {
   createUser,
   loginUser,
+  logoutUser,
   refreshToken,
   allAccess,
   userBoard,

@@ -14,7 +14,13 @@ const catchError = (err, res) => {
 }
 
 const verifyToken = (req, res, next) => {
-  const token = req.headers["x-access-token"];
+  const authHeader = req.headers["x-access-token"] || req.headers.authorization
+  let token
+  if (authHeader.startsWith("Bearer ")){
+    token = authHeader.substring(7, authHeader.length);
+  } else {
+    return res.status(401).send({ message: "Unauthorized." })
+  }
   if (!token) {
     return res.status(403).send({
       message: "No token provided."

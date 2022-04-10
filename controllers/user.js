@@ -141,21 +141,21 @@ const allAccess = (req, res) => {
   });
 };
 
-const userBoard = (req, res) => {
+const ownerBoard = (req, res) => {
   res.status(200).send({
-    message: "You have access to user routes"
+    message: "You have access to owner routes"
   });
 };
 
 const adminBoard = (req, res) => {
   res.status(200).send({
-    message: "You have access to admin routes"
+    message: "You have access to administrator routes"
   });
 };
 
-const moderatorBoard = (req, res) => {
+const agentBoard = (req, res) => {
   res.status(200).send({
-    message: "You have access to moderator routes"
+    message: "You have access to agent routes"
   });
 };
 
@@ -165,7 +165,7 @@ module.exports = {
   logoutUser,
   refreshToken,
   allAccess,
-  userBoard,
+  ownerBoard,
   adminBoard,
-  moderatorBoard
+  agentBoard
 }

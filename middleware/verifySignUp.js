@@ -1,7 +1,10 @@
+const _ = require("lodash")
 const db = require("../models")
 
 const User = db.user
-const ROLES = ["user", "admin", "moderator"]
+const { userTypes } = require('../constants/user')
+
+const ROLES = _.values(userTypes)
 
 const checkDuplicateUsernameOrEmail = (req, res, next) => {
   // Username

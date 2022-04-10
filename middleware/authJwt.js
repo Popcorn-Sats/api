@@ -2,6 +2,7 @@
 const jwt = require("jsonwebtoken");
 const config = require("../config/auth.config");
 const db = require("../models");
+const { userTypes } = require("../constants/user")
 
 const User = db.user;
 
@@ -40,7 +41,7 @@ const isAdmin = (req, res, next) => {
   User.findByPk(req.userId).then(user => {
     user.getRoles().then(roles => {
       for (let i = 0; i < roles.length; i += 1) {
-        if (roles[i].name === "admin") {
+        if (roles[i].name === userTypes.ADMINISTRATOR) {
           next();
           return;
         }
@@ -51,36 +52,32 @@ const isAdmin = (req, res, next) => {
     });
   });
 };
-const isModerator = (req, res, next) => {
+const isAgent = (req, res, next) => {
   User.findByPk(req.userId).then(user => {
     user.getRoles().then(roles => {
       for (let i = 0; i < roles.length; i += 1) {
-        if (roles[i].name === "moderator") {
+        if (roles[i].name === userTypes.AGENT) {
           next();
           return;
         }
       }
       res.status(403).send({
-        message: "Require Moderator Role."
+        message: "Require Agent Role."
       });
     });
   });
 };
-const isModeratorOrAdmin = (req, res, next) => {
+const isAgentOrAdmin = (req, res, next) => {
   User.findByPk(req.userId).then(user => {
     user.getRoles().then(roles => {
       for (let i = 0; i < roles.length; i += 1) {
-        if (roles[i].name === "moderator") {
-          next();
-          return;
-        }
-        if (roles[i].name === "admin") {
+        if (roles[i].name === userTypes.ADMINISTRATOR || roles[i].name === userTypes.AGENT) {
           next();
           return;
         }
       }
       res.status(403).send({
-        message: "Require Moderator or Admin Role."
+        message: "Require Agent or Admin Role."
       });
     });
   });
@@ -89,8 +86,8 @@ const authJwt = {
   catchError,
   verifyToken,
   isAdmin,
-  isModerator,
-  isModeratorOrAdmin
+  isAgent,
+  isAgentOrAdmin
 };
 
 module.exports = authJwt;

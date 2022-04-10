@@ -1,3 +1,8 @@
+const _ = require('lodash')
+const { userTypes } = require('../constants/user')
+
+const ROLES = _.values(userTypes)
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('roles', {
@@ -8,7 +13,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       name: {
-        type: Sequelize.STRING
+        type: Sequelize.ENUM(...ROLES),
       },
       createdAt: {
         allowNull: false,

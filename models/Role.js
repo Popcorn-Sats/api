@@ -1,6 +1,11 @@
 const Sequelize = require('sequelize')
 const { Model } = require('sequelize')
 
+const _ = require('lodash')
+const { userTypes } = require('../constants/user')
+
+const ROLES = _.values(userTypes)
+
 module.exports = (sequelize) => {
   class Role extends Model {
     /**
@@ -23,7 +28,7 @@ module.exports = (sequelize) => {
       primaryKey: true,
     },
     name: {
-      type: Sequelize.STRING, // FIXME: should this be ENUM?
+      type: Sequelize.ENUM(...ROLES),
     },
   }, {
     sequelize,

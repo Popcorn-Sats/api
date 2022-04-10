@@ -19,14 +19,14 @@ router
 
   .get("/test/all", ctrl.allAccess)
   .get(
-    "/test/user",
+    "/test/owner",
     [authJwt.verifyToken],
-    ctrl.userBoard
+    ctrl.ownerBoard
   )
   .get(
-    "/test/mod",
-    [authJwt.verifyToken, authJwt.isModerator],
-    ctrl.moderatorBoard
+    "/test/agent",
+    [authJwt.verifyToken, authJwt.isAgent],
+    ctrl.agentBoard
   )
   .get(
     "/test/admin",

@@ -17,9 +17,11 @@
   },
   "dependencies": {
     "@swan-bitcoin/xpub-lib": "^0.1.0",
+    "bcryptjs": "^2.4.3",
     "bitcoinjs-lib": "5.2.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
     "module-alias": "^2.2.2",
     "pg": "^8.4.2",
@@ -27,7 +29,8 @@
     "sequelize": "^6.11.0",
     "sequelize-cli": "^6.3.0",
     "supertest": "^6.1.6",
-    "unchained-bitcoin": "^0.1.8"
+    "unchained-bitcoin": "^0.1.8",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "eslint": "^7.32.0",

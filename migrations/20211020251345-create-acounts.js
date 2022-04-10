@@ -19,6 +19,9 @@ module.exports = {
           allowNull: true,
           type: Sequelize.DATE
       },
+      userId: {
+          type: Sequelize.INTEGER
+      },
       active: {
           allowNull: false,
           default: true,

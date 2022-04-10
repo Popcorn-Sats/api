@@ -54,7 +54,12 @@ module.exports = (sequelize) => {
           where: {
             categoryid
           },
-          attributes: ['id'],
+          attributes: [
+            'id',
+            [
+              sequelize.literal(`(SELECT height FROM blocks WHERE blocks."id" = transaction."blockId")`), 'blockHeight'
+            ]
+          ],
           order: [
             [[sequelize.literal('"blockHeight"'), 'DESC']],
             ['id', 'DESC'],

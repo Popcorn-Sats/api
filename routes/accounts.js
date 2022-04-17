@@ -14,16 +14,20 @@ router
     '/:id',
     [authJwt.verifyToken],
      ctrl.editAccount)
-  .delete('/:id',
+  .delete(
+    '/:id',
     [authJwt.verifyToken],
     ctrl.deleteAccount)
-  .post('/',
+  .post(
+    '/',
     [authJwt.verifyToken],
     ctrl.addAccount)
-  .get('/position',
+  .get(
+    '/position',
     [authJwt.verifyToken],
     ctrl.getPosition)
-  .get('/search',
+  .get(
+    '/search',
     [authJwt.verifyToken],
     ctrl.searchAccounts)
   .get('/scan/:accountId', ctrl.scanOldAccount)

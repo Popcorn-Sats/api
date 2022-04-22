@@ -6,34 +6,40 @@ const { authJwt } = require('../middleware')
 const router = express.Router();
 
 router
+  .use(
+    authJwt.verifyToken,
+  )
   .get(
     '/',
-    [authJwt.verifyToken],
-    ctrl.getAccounts)
+    ctrl.getAccounts
+  )
   .put(
     '/:id',
-    [authJwt.verifyToken],
-     ctrl.editAccount)
+     ctrl.editAccount
+    )
   .delete(
     '/:id',
-    [authJwt.verifyToken],
-    ctrl.deleteAccount)
+    ctrl.deleteAccount
+  )
   .post(
     '/',
-    [authJwt.verifyToken],
-    ctrl.addAccount)
+    ctrl.addAccount
+  )
   .get(
     '/position',
-    [authJwt.verifyToken],
-    ctrl.getPosition)
+    ctrl.getPosition
+  )
   .get(
     '/search',
-    [authJwt.verifyToken],
-    ctrl.searchAccounts)
-  .get('/scan/:accountId', ctrl.scanOldAccount)
+    ctrl.searchAccounts
+  )
+  .get(
+    '/scan/:accountId',
+    ctrl.scanOldAccount
+  )
   .get(
     '/:accountId',
-    [authJwt.verifyToken],
-    ctrl.getSingleAccount)
+    ctrl.getSingleAccount
+  )
 
 module.exports = router

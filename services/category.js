@@ -58,7 +58,7 @@ const getAllCategoriesPaginated = async (page, perPage, sort, order, filter) => 
   return {categories: categories.rows, count: categories.count}
 }
 
-module.exports.editCategoryById = async (category, id) => {
+const editCategoryById = async (category, id) => {
   const { name } = category 
   const errors = []
 
@@ -100,7 +100,7 @@ module.exports.editCategoryById = async (category, id) => {
   return editedCategory
 }
 
-module.exports.deleteCategoryById = async (id) => {
+const deleteCategoryById = async (id) => {
   const errors = []
   const deletedCategory = await db.category.destroy({
     where: {
@@ -135,7 +135,7 @@ const getCategoryById = async (id) => {
   return category
 }
 
-module.exports.createCategory = async (category) => {
+const createCategory = async (category) => {
   const { name } = category
   const errors = []
 
@@ -160,7 +160,7 @@ module.exports.createCategory = async (category) => {
 
 }
 
-module.exports.searchAllCategories = async (term) => {
+const searchAllCategories = async (term) => {
   const errors = []
 
   if(!term) {
@@ -213,4 +213,8 @@ module.exports = {
   getAllCategories,
   getAllCategoriesPaginated,
   getCategoryById,
+  createCategory,
+  editCategoryById,
+  deleteCategoryById,
+  searchAllCategories,
 }

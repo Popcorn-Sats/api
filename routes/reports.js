@@ -7,9 +7,11 @@ const ctrl = require('../controllers/reports')
 const router = express.Router()
 
 router
+  .use(
+    authJwt.verifyToken,
+  )
   .get(
     '/',
-    [authJwt.verifyToken],
     ctrl.getReports
   )
 

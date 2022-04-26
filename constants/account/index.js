@@ -20,3 +20,10 @@ module.exports.accountTypes = {
     name: 'Income',
   },
 }
+
+module.exports.reportAccountTypes = {
+  CURRENT_ASSET: 'currentAsset',
+  FIXED_ASSET: 'fixedAsset',
+  CURRENT_LIABILITY: 'currentLiability',
+  LONG_TERM_LIABILITY: 'longTermLiability',
+}

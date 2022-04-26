@@ -14,5 +14,9 @@ router
     '/',
     ctrl.getReports
   )
+  .get(
+    '/balancesheet',
+    ctrl.getSingleBalanceSheet
+  )
 
-module.exports = router;
+module.exports = router

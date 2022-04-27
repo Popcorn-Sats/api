@@ -26,4 +26,5 @@ module.exports.reportAccountTypes = {
   FIXED_ASSET: 'fixedAsset',
   CURRENT_LIABILITY: 'currentLiability',
   LONG_TERM_LIABILITY: 'longTermLiability',
+  EQUITY: 'equity',
 }

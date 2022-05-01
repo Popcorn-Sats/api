@@ -1,7 +1,12 @@
 const Sequelize = require('sequelize')
 const { Model } = require('sequelize')
+const _ = require('lodash')
 const { getFilter } = require('../utils/getFilter')
 const { paginate } = require('../utils/paginate')
+
+const { reportAccountTypes } = require('../constants/account')
+
+const ACCOUNT_TYPES = _.values(reportAccountTypes)
 
 module.exports = (sequelize) => {
   class Account extends Model {
@@ -72,6 +77,9 @@ module.exports = (sequelize) => {
     },
     userId: {
         type: Sequelize.INTEGER
+    },
+    reportAccountType: {
+        type: Sequelize.ENUM(...ACCOUNT_TYPES)
     },
     active: {
         type: Sequelize.BOOLEAN,

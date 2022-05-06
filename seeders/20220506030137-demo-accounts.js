@@ -2,6 +2,7 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.bulkInsert('accounts', [
       {
+        id: 1,
         name: 'Electrum test account',
         notes: 'This is a demo account',
         birthday: new Date(),
@@ -13,6 +14,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
+        id: 2,
         name: 'Network Fees',
         notes: 'This is a demo account',
         birthday: new Date(),
@@ -24,6 +26,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
+        id: 3,
         name: 'Human Rights Foundation',
         notes: 'This is a demo account',
         birthday: new Date(),
@@ -35,6 +38,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
+        id: 4,
         name: 'Coinkite',
         notes: 'This is a demo account',
         birthday: new Date(),
@@ -46,6 +50,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
+        id: 5,
         name: 'Mr Boss',
         notes: 'This is a demo account',
         birthday: new Date(),
@@ -57,6 +62,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
+        id: 6,
         name: 'Cold Storage',
         notes: 'This is a demo account',
         birthday: new Date(),

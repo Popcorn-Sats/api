@@ -19,7 +19,7 @@ module.exports = {
         userId: 1,
         active: true,
         owned: false,
-        accounttypeId: 1,
+        accounttypeId: 0,
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -30,7 +30,7 @@ module.exports = {
         userId: 1,
         active: true,
         owned: false,
-        accounttypeId: 1,
+        accounttypeId: 3,
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -41,7 +41,29 @@ module.exports = {
         userId: 1,
         active: true,
         owned: false,
-        accounttypeId: 1,
+        accounttypeId: 3,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        name: 'Mr Boss',
+        notes: 'This is a demo account',
+        birthday: new Date(),
+        userId: 1,
+        active: true,
+        owned: false,
+        accounttypeId: 4,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        name: 'Cold Storage',
+        notes: 'This is a demo account',
+        birthday: new Date(),
+        userId: 1,
+        active: true,
+        owned: false,
+        accounttypeId: 2,
         createdAt: new Date(),
         updatedAt: new Date()
       }

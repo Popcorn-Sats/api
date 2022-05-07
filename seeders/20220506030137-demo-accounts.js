@@ -4,7 +4,7 @@ module.exports = {
       {
         id: 1,
         name: 'Electrum test account',
-        notes: 'This is a demo account',
+        notes: 'Main hot wallet',
         birthday: new Date(),
         userId: 1,
         active: true,
@@ -16,7 +16,7 @@ module.exports = {
       {
         id: 2,
         name: 'Network Fees',
-        notes: 'This is a demo account',
+        notes: 'Miner transaction fees',
         birthday: new Date(),
         userId: 1,
         active: true,
@@ -28,7 +28,7 @@ module.exports = {
       {
         id: 3,
         name: 'Human Rights Foundation',
-        notes: 'This is a demo account',
+        notes: 'Charitable donations',
         birthday: new Date(),
         userId: 1,
         active: true,
@@ -40,7 +40,7 @@ module.exports = {
       {
         id: 4,
         name: 'Coinkite',
-        notes: 'This is a demo account',
+        notes: 'Hardware and security',
         birthday: new Date(),
         userId: 1,
         active: true,
@@ -52,7 +52,7 @@ module.exports = {
       {
         id: 5,
         name: 'Mr Boss',
-        notes: 'This is a demo account',
+        notes: 'Monthly salary',
         birthday: new Date(),
         userId: 1,
         active: true,
@@ -64,7 +64,7 @@ module.exports = {
       {
         id: 6,
         name: 'Cold Storage',
-        notes: 'This is a demo account',
+        notes: 'Multisig vault',
         birthday: new Date(),
         userId: 1,
         active: true,

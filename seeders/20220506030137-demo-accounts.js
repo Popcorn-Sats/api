@@ -74,6 +74,19 @@ module.exports = {
         accounttypeId: 2,
         createdAt: new Date(),
         updatedAt: new Date()
+      },
+      {
+        id: 7,
+        name: 'Unchained Capital Loan',
+        notes: 'Loan to buy miners',
+        birthday: new Date(),
+        userId: 1,
+        reportAccountType: 'currentLiability',
+        active: true,
+        owned: true,
+        accounttypeId: 5,
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ], {})
   },

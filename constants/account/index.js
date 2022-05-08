@@ -23,6 +23,10 @@ module.exports.accountTypes = {
     key: 5,
     name: 'Liability',
   },
+  OTHER_ASSET: {
+    key: 6,
+    name: 'Other Asset',
+  },
 }
 
 module.exports.reportAccountTypes = {

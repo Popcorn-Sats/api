@@ -87,6 +87,45 @@ module.exports = {
         accounttypeId: 5,
         createdAt: new Date(),
         updatedAt: new Date()
+      },
+      {
+        id: 8,
+        name: 'Mortgage',
+        notes: 'Mortgage on homestead',
+        birthday: new Date(),
+        userId: 1,
+        reportAccountType: 'longTermLiability',
+        active: true,
+        owned: true,
+        accounttypeId: 5,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: 9,
+        name: 'Homestead',
+        notes: 'Florida ranch property',
+        birthday: new Date(),
+        userId: 1,
+        reportAccountType: 'fixedAsset',
+        active: true,
+        owned: true,
+        accounttypeId: 6,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: 10,
+        name: 'Miners',
+        notes: 'Miners on homestead',
+        birthday: new Date(),
+        userId: 1,
+        reportAccountType: 'fixedAsset',
+        active: true,
+        owned: true,
+        accounttypeId: 6,
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ], {})
   },

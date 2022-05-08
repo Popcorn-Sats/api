@@ -19,6 +19,10 @@ module.exports.accountTypes = {
     key: 4,
     name: 'Income',
   },
+  LIABILITY: {
+    key: 5,
+    name: 'Liability',
+  },
 }
 
 module.exports.reportAccountTypes = {

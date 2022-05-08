@@ -7,6 +7,7 @@ module.exports = {
         notes: 'Main hot wallet',
         birthday: new Date(),
         userId: 1,
+        reportAccountType: 'currentAsset',
         active: true,
         owned: true,
         accounttypeId: 1,
@@ -67,8 +68,9 @@ module.exports = {
         notes: 'Multisig vault',
         birthday: new Date(),
         userId: 1,
+        reportAccountType: 'currentAsset',
         active: true,
-        owned: false,
+        owned: true,
         accounttypeId: 2,
         createdAt: new Date(),
         updatedAt: new Date()

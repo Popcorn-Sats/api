@@ -48,6 +48,18 @@ module.exports = {
         transactiontypeId: 1,
         createdAt: new Date(),
         updatedAt: new Date()
+      },
+      {
+        id: 5,
+        txid: 'deffacbee72f139b291395fcfd5c6cbdbc92a91ed1fd95a77744aef259d056bf',
+        description: 'Loan from Unchained',
+        network_fee: 220,
+        size: 140,
+        blockId: 3,
+        categoryid: 5,
+        transactiontypeId: 2,
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ])
   },

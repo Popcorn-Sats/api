@@ -97,6 +97,30 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date()
       },
+      {
+        amount: 1000220,
+        accountId: 7,
+        transactionId: 5,
+        transactiontypeId: 1,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        amount: 220,
+        accountId: 2,
+        transactionId: 5,
+        transactiontypeId: 2,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        amount: 1000000,
+        accountId: 1,
+        transactionId: 5,
+        transactiontypeId: 2,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
     ], {})
   },
 

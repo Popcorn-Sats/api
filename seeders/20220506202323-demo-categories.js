@@ -24,6 +24,12 @@ module.exports = {
         name: 'Bitcoin Hardware',
         createdAt: new Date(),
         updatedAt: new Date()
+      },
+      {
+        id: 5,
+        name: 'Loan',
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ], {})
   },

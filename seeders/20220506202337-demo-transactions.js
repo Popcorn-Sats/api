@@ -60,6 +60,18 @@ module.exports = {
         transactiontypeId: 2,
         createdAt: new Date(),
         updatedAt: new Date()
+      },
+      {
+        id: 6,
+        txid: 'c171fe5507aa7bf1c8d7242b6aa24ad8d69ef704d419e6cb9c7cef920f231d6b',
+        description: 'Buy Antminer S19j Pro 104 TH',
+        network_fee: 220,
+        size: 140,
+        blockId: 3,
+        categoryid: 6,
+        transactiontypeId: 2,
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ])
   },

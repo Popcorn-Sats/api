@@ -30,6 +30,12 @@ module.exports = {
         name: 'Loan',
         createdAt: new Date(),
         updatedAt: new Date()
+      },
+      {
+        id: 6,
+        name: 'Miners',
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ], {})
   },

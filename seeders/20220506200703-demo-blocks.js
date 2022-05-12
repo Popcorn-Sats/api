@@ -28,6 +28,27 @@ module.exports = {
         timestamp: 1546548700,
         createdAt: new Date(),
         updatedAt: new Date()
+      },
+      {
+        id: 5,
+        height: 735991,
+        timestamp: 1652332047,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: 6,
+        height: 735994,
+        timestamp: 1652332690,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: 7,
+        height: 735996,
+        timestamp: 1652332954,
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ], {})
   },

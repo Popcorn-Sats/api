@@ -72,7 +72,19 @@ module.exports = {
         transactiontypeId: 2,
         createdAt: new Date(),
         updatedAt: new Date()
-      }
+      },
+      {
+        id: 7,
+        txid: '4057e9bb1d4581e0330085d6b61f607a9de29e75c6457646957942e18b7f6240',
+        description: 'Wages',
+        network_fee: 220,
+        size: 140,
+        blockId: 6,
+        categoryid: 1,
+        transactiontypeId: 2,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
     ])
   },
 

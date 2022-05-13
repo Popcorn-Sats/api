@@ -69,7 +69,7 @@ module.exports = {
         size: 140,
         blockId: 6,
         categoryid: 6,
-        transactiontypeId: 2,
+        transactiontypeId: 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -82,6 +82,18 @@ module.exports = {
         blockId: 6,
         categoryid: 1,
         transactiontypeId: 2,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: 8,
+        txid: 'b6217732da1750fac2463ad7bc98bb47fc07776ee9aba69649c99d553863a83a',
+        description: 'Pay Unchained Interest',
+        network_fee: 220,
+        size: 140,
+        blockId: 7,
+        categoryid: 1,
+        transactiontypeId: 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },

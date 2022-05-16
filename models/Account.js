@@ -22,6 +22,20 @@ module.exports = (sequelize) => {
       })
     }
 
+    static findAllAccountsByUserId(userId) {
+      return this.findAll({
+        where: {
+          userId,
+        },
+        order: [
+            ['id', 'ASC'],
+        ],
+        include: ['xpub', 'accounttype'],
+        raw : true,
+        nest : true
+      })
+    }
+
     static findAllAccountsPaginated(page, perPage, sort = 'id', order = 'ASC', filter) {
       const where = getFilter(filter)
       return this.findAndCountAll({

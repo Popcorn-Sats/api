@@ -10,7 +10,7 @@ const getReports = async (req, res) => {
   const { page, perPage, sort, order, filter } = req.query
   const parsedFilter = filter ? JSON.parse(filter) : null;
   const reports = await getAllReportsPaginated(page, perPage, sort, order, parsedFilter)
-  .catch(err => res.status(500).send(err))
+    .catch(err => res.status(500).send(err))
   res.header('Content-Range', `bytes : ${(page - 1) * perPage}-${page * perPage - 1}/${reports.count}`)
   return res.json(reports.reports)
 }
@@ -18,8 +18,8 @@ const getReports = async (req, res) => {
 const getSingleBalanceSheet = async (req, res) => {
   const { userId, year } = req.query
   const reports = await getBalanceSheet(userId, year)
-  .catch(err => res.status(500).send(err))
-  return res.json(reports.reports)
+    .catch(err => res.status(500).send(err))
+  return res.json(reports)
 }
 
 module.exports = {

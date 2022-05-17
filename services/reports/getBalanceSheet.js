@@ -1,13 +1,16 @@
-const db = require('../../models')
 const { reportAccountTypes } = require('../../constants/account/index')
-const { getAllAccounts } = require('../account')
+const { getAllAccounts, getAllAccountsByYear } = require('../account')
 
 const getBalanceSheet = async (userId, year) => {
-  const currentYear = new Date().getFullYear()
+  const currentYear = new Date().getFullYear().toString()
   const isCurrentYear = year === currentYear
 
-  const organizeAccountsBySubType = (accounts) => {
-    const accountsBySubType = accounts.reduce((acc, account) => {
+  const accounts = isCurrentYear ? await getAllAccounts(userId) : await getAllAccountsByYear(userId, year)
+
+  console.log({accounts})
+
+  const organizeAccountsBySubType = (subType) => {
+    const accountsBySubType = subType.reduce((acc, account) => {
       const { reportAccountSubType } = account
       if (!acc[reportAccountSubType]) {
         acc[reportAccountSubType] = []
@@ -17,11 +20,9 @@ const getBalanceSheet = async (userId, year) => {
     }, {})
     return accountsBySubType
   }
-
-  const accounts = await getAllAccounts() // TODO: filter by userId / entityId
-  .catch(err => console.log(err))
   
   const currentAssets = accounts.filter(account => account.reportAccountType === reportAccountTypes.CURRENT_ASSET)
+  console.log({currentAssets})
   const currentAssetsBySubType = organizeAccountsBySubType(currentAssets)
   const currentAssetsBySubTypeSum = Object.keys(currentAssetsBySubType).reduce((acc, curr) => {
     acc[curr] = currentAssetsBySubType[curr].reduce((acc2, curr2) => acc2 + curr2.balance, 0)

@@ -7,8 +7,6 @@ const getBalanceSheet = async (userId, year) => {
 
   const accounts = isCurrentYear ? await getAllAccounts(userId) : await getAllAccountsByYear(userId, year)
 
-  console.log({accounts})
-
   const organizeAccountsBySubType = (subType) => {
     const accountsBySubType = subType.reduce((acc, account) => {
       const { reportAccountSubType } = account
@@ -22,7 +20,6 @@ const getBalanceSheet = async (userId, year) => {
   }
   
   const currentAssets = accounts.filter(account => account.reportAccountType === reportAccountTypes.CURRENT_ASSET)
-  console.log({currentAssets})
   const currentAssetsBySubType = organizeAccountsBySubType(currentAssets)
   const currentAssetsBySubTypeSum = Object.keys(currentAssetsBySubType).reduce((acc, curr) => {
     acc[curr] = currentAssetsBySubType[curr].reduce((acc2, curr2) => acc2 + curr2.balance, 0)

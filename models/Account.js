@@ -30,7 +30,7 @@ module.exports = (sequelize) => {
         order: [
             ['id', 'ASC'],
         ],
-        include: ['xpub', 'accounttype'],
+        include: ['xpub', 'accounttype', 'reportaccountsubtype'],
         raw : true,
         nest : true
       })
@@ -71,6 +71,8 @@ module.exports = (sequelize) => {
         onDelete: "cascade"
       }) // Should account just have an optional unique XPub field?
       Account.belongsTo(models.accounttype, {
+      })
+      Account.belongsTo(models.reportaccountsubtype, {
       })
       Account.hasMany(models.transactionledger)
       Account.hasMany(models.address)

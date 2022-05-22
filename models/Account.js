@@ -16,7 +16,7 @@ module.exports = (sequelize) => {
         order: [
             ['id', 'ASC'],
         ],
-        include: ['xpub', 'accounttype'],
+        include: ['xpub', 'accounttype', 'reportaccountsubtype'],
         raw : true,
         nest : true
       })

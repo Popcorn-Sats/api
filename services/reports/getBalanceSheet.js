@@ -1,11 +1,11 @@
 const { reportAccountTypes } = require('../../constants/account/index')
-const { getAllAccounts, getAllAccountsByYear } = require('../account')
+const { getAllAccounts } = require('../account')
 
 const getBalanceSheet = async (userId, year) => {
   const currentYear = new Date().getFullYear().toString()
   const isCurrentYear = year === currentYear
 
-  const accounts = isCurrentYear ? await getAllAccounts(userId) : await getAllAccountsByYear(userId, year)
+  const accounts = await getAllAccounts(userId, isCurrentYear ? null : year)
 
   const organizeAccountsBySubType = (subType) => {
     const accountsBySubType = subType.reduce((acc, account) => {

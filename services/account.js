@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable camelcase */
 /* eslint-disable no-console */
@@ -10,17 +11,25 @@ const {getAddressFromXpub} = require('./bitcoin')
 const {getAddress, initiate} = require('./electrum')
 const {checkAndCreateAddress} = require('./address')
 const {createAddressTransactions} = require('./transaction')
+const { getYearFromUnixTimestamp } = require('../utils/getInfoFromTimestamp')
 
 const {Op} = Sequelize
 
-const getAccountBalance = async (accountId) => {
+const getAccountBalance = async (accountId, year = null) => {
   const ledgers = await db.transactionledger.getTransactionLedgersByAccountID(accountId)
+  .catch(err => {
+    console.log(err)
+  })
   const credits = []
   const debits = []
   ledgers.forEach(ledger => {
+    const txYear = getYearFromUnixTimestamp(ledger.transaction.block.timestamp).toString()
     if (!ledger.transactiontypeId) {
       console.log({failed: true, message: `Ledger ID ${ledger.id} does not have a transaction type`})
       return({failed: true, message: `Ledger ID ${ledger.id} does not have a transaction type`})
+    }
+    if (year && year !== txYear) {
+      return
     }
     if (ledger.transactiontypeId === 2) {
       credits.push(parseInt(ledger.amount, 10))
@@ -33,10 +42,10 @@ const getAccountBalance = async (accountId) => {
   return balance
 }
 
-const getAllAccounts = async () => {
+const getAllAccounts = async (userId = null, year = null) => {
   const errors = []
   const accountsArray = []
-  const accounts = await db.account.findAllAccounts()
+  const accounts = userId ? await db.account.findAllAccountsByUserId(userId) : await db.account.findAllAccounts() // TODO: restrict to userId accounts after testing
   .catch(err => {
     errors.push(err)
     return errors
@@ -54,7 +63,9 @@ const getAllAccounts = async () => {
     account.active = accounts[i].active
     account.owned = accounts[i].owned
     account.accounttype = accounts[i].accounttype
-    account.balance = await getAccountBalance(accounts[i].id)
+    account.reportAccountType = accounts[i].reportAccountType
+    account.reportAccountSubType = accounts[i].reportaccountsubtype.name
+    account.balance = await getAccountBalance(accounts[i].id, year || null)
     accountsArray.push(account)
   }
   return accountsArray

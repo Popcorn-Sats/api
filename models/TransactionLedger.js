@@ -8,7 +8,8 @@ module.exports = (sequelize) => {
       return this.findAll({
         where: {
           accountId
-        }
+        },
+        include: [{model: sequelize.models.transaction, include: ['block']}]
       })
     }
 

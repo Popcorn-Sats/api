@@ -32,6 +32,18 @@ module.exports = {
         name: accountTypes.INCOME.name,
         createdAt: new Date(),
         updatedAt: new Date()
+      },
+      {
+        id: 5,
+        name: "Debt",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: 6,
+        name: "Fixed Assets",
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
       ], {});
     

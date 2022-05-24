@@ -10,7 +10,7 @@ const checkDuplicateUsernameOrEmail = (req, res, next) => {
   // Username
   User.findOne({
     where: {
-      username: req.body.username
+      username: req.body.username || null
     }
   }).then(username => {
     if (username) {
@@ -22,7 +22,7 @@ const checkDuplicateUsernameOrEmail = (req, res, next) => {
     // Email
     User.findOne({
       where: {
-        email: req.body.email
+        email: req.body.email || null
       }
     }).then(useremail => {
       if (useremail) {

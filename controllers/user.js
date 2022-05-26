@@ -10,10 +10,11 @@ const Role = db.role
 const RefreshToken = db.refreshToken
 
 const createUser = async (req, res) => {
-  User.create({
+  const salt = bcrypt.genSaltSync(10);
+  await User.create({
     username: req.body.username,
     email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, 8)
+    password: bcrypt.hashSync(req.body.password, salt)
   })
     .then(user => {
       if (req.body.roles) {

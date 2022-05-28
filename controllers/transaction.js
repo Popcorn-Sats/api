@@ -3,9 +3,17 @@ const { getTransactionsByAccountID, getTransactionByID, getAllTransactions, getA
 const { getTransactionsByCategoryId, getTransactionsByCategoryIdPaginated } = require('@services/transactions/getTransactionsByCategoryID')
 
 const getTransactions = async (req, res) => {
+  const errors = {}
   const { page, perPage, sort, order, filter } = req.query
   const transactions = await getAllTransactionsPaginated(page, perPage, sort, order, filter)
-  .catch(err => res.status(500).send(err))
+  .catch(err => {
+    console.log(err)
+    errors.failed = true
+    errors.message = err.message
+  })
+  if (errors.failed) {
+    return res.status(500).send(errors)
+  }
   const status = transactions.failed ? 400 : 200
   res.header('Content-Range', `bytes : ${(page - 1) * perPage}-${page * perPage - 1}/${transactions.count}`)
   return res.status(status).json(transactions.transactions)

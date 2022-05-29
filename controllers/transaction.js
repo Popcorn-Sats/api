@@ -20,10 +20,18 @@ const getTransactions = async (req, res) => {
 }
 
 const getTransactionsForAccount = async (req, res) => {
+  const errors = {}
   const {accountId} = req.params
   const { page, perPage } = req.query
   const transactions = await getTransactionsByAccountID(accountId, page, perPage)
-  .catch(err => res.status(500).send(err))
+  .catch(err => {
+    console.log(err)
+    errors.failed = true
+    errors.message = err.message
+  })
+  if (errors.failed) {
+    return res.status(500).send(errors)
+  }
   const status = transactions.failed ? 400 : 200
   res.header('Content-Range', `bytes : ${(page - 1) * perPage}-${page * perPage - 1}/${transactions.count}`)
   return res.status(status).json(transactions.transactions)

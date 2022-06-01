@@ -73,4 +73,7 @@ const KEYS = {
   },
 }
 
-export { KEY, KEYS }
+module.exports = {
+  KEY,
+  KEYS,
+}

@@ -116,8 +116,8 @@ describe("getAddressFromXpub(MAINNET)", () => {
   })
 })
 
-describe("getAddressFromXpub", () => {
-  test("default address generation from xpub on mainnet", () => {
+describe("getAddressFromXpub defaults", () => {
+  test("default address generation from xpub on mainnet should be BECH32", () => {
     expect(
       getAddressFromXpub(KEY.MAIN.XPUB).address
     ).toBe(KEY.MAIN.BECH32)

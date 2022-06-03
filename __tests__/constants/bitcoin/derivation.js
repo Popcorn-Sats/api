@@ -17,6 +17,14 @@ const KEY = {
       SEGWIT: "3EdfREdHwcZ6AFmaL6mDkmvLw2qfb31ori",
       BECH32: "bc1qz7cv7zmexlsn0k6ny6sc0m9v8zwcrnlv5ndyqr",
     },
+    LEGACY_3: "1BtUM8uVSqjA5NNW7U9nx35xs2qnvGtnPT",
+    SEGWIT_3: "3MEHFxH9eUe7aP8wGkLrCgpyEnXQ7NooYJ",
+    BECH32_3: "bc1qwak5e4m7r4c0sp4893373zcxgzz0nca2zxk2tl",
+    CHANGE_3: {
+      LEGACY: "12zUSVvMkKPJiNRNPPt8y3eH3f2JXGFQWY",
+      SEGWIT: "33jngmsGyZ7v7zeCTYL1NoH5QxDJJf9YRm",
+      BECH32: "bc1qzhttmd0p0kw52tzydazlftkal0hwvdkezrv2w9",
+    },
   },
   TEST: {
     TPUB:

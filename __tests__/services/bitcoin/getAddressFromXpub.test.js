@@ -35,6 +35,21 @@ describe("getAddressFromXpub(MAINNET)", () => {
       getAddressFromXpub(KEY.MAIN.ZPUB, 0, 'P2PKH', 0, 0).address
     ).toBe(KEY.MAIN.LEGACY)
   })
+  test("P2PKH address generation key index 3 from xpub", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.XPUB, 3, 'P2PKH', 0, 0).address
+    ).toBe(KEY.MAIN.LEGACY_3)
+  })
+  test("P2PKH address generation key index 3 from ypub", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.YPUB, 3, 'P2PKH', 0, 0).address
+    ).toBe(KEY.MAIN.LEGACY_3)
+  })
+  test("P2PKH address generation key index 3 from zpub", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.ZPUB, 3, 'P2PKH', 0, 0).address
+    ).toBe(KEY.MAIN.LEGACY_3)
+  })
   test("P2PKH change address generation from xpub", () => {
     expect(
       getAddressFromXpub(KEY.MAIN.XPUB, 0, 'P2PKH', 1, 0).address
@@ -49,6 +64,21 @@ describe("getAddressFromXpub(MAINNET)", () => {
     expect(
       getAddressFromXpub(KEY.MAIN.ZPUB, 0, 'P2PKH', 1, 0).address
     ).toBe(KEY.MAIN.CHANGE.LEGACY)
+  })
+  test("P2PKH change address generation key index 3 from xpub", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.XPUB, 3, 'P2PKH', 1, 0).address
+    ).toBe(KEY.MAIN.CHANGE_3.LEGACY)
+  })
+  test("P2PKH change address generation key index 3 from ypub", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.YPUB, 3, 'P2PKH', 1, 0).address
+    ).toBe(KEY.MAIN.CHANGE_3.LEGACY)
+  })
+  test("P2PKH change address generation key index 3 from zpub", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.ZPUB, 3, 'P2PKH', 1, 0).address
+    ).toBe(KEY.MAIN.CHANGE_3.LEGACY)
   })
 
   // BIP 49
@@ -67,6 +97,21 @@ describe("getAddressFromXpub(MAINNET)", () => {
       getAddressFromXpub(KEY.MAIN.ZPUB, 0, 'P2SH', 0, 0).address
     ).toBe(KEY.MAIN.SEGWIT)
   })
+  test("P2SH address generation key index 3 from xpub", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.XPUB, 3, 'P2SH', 0, 0).address
+    ).toBe(KEY.MAIN.SEGWIT_3)
+  })
+  test("P2SH address generation key index 3 from ypub", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.YPUB, 3, 'P2SH', 0, 0).address
+    ).toBe(KEY.MAIN.SEGWIT_3)
+  })
+  test("P2SH address generation key index 3 from zpub", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.ZPUB, 3, 'P2SH', 0, 0).address
+    ).toBe(KEY.MAIN.SEGWIT_3)
+  })
   test("P2SH change address generation from xpub", () => {
     expect(
       getAddressFromXpub(KEY.MAIN.XPUB, 0, 'P2SH', 1, 0).address
@@ -81,6 +126,21 @@ describe("getAddressFromXpub(MAINNET)", () => {
     expect(
       getAddressFromXpub(KEY.MAIN.ZPUB, 0, 'P2SH', 1, 0).address
     ).toBe(KEY.MAIN.CHANGE.SEGWIT)
+  })
+  test("P2SH change address generation key index 3 from xpub", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.XPUB, 3, 'P2SH', 1, 0).address
+    ).toBe(KEY.MAIN.CHANGE_3.SEGWIT)
+  })
+  test("P2SH change address generation key index 3 from ypub", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.YPUB, 3, 'P2SH', 1, 0).address
+    ).toBe(KEY.MAIN.CHANGE_3.SEGWIT)
+  })
+  test("P2SH change address generation key index 3 from zpub", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.ZPUB, 3, 'P2SH', 1, 0).address
+    ).toBe(KEY.MAIN.CHANGE_3.SEGWIT)
   })
 
   // BIP 84
@@ -99,6 +159,21 @@ describe("getAddressFromXpub(MAINNET)", () => {
       getAddressFromXpub(KEY.MAIN.ZPUB, 0, 'P2WPKH', 0, 0).address
     ).toBe(KEY.MAIN.BECH32)
   })
+  test("P2WPKH address generation key index 3 from xpub", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.XPUB, 3, 'P2WPKH', 0, 0).address
+    ).toBe(KEY.MAIN.BECH32_3)
+  })
+  test("P2WPKH address generation key index 3 from ypub", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.YPUB, 3, 'P2WPKH', 0, 0).address
+    ).toBe(KEY.MAIN.BECH32_3)
+  })
+  test("P2WPKH address generation key index 3 from zpub", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.ZPUB, 3, 'P2WPKH', 0, 0).address
+    ).toBe(KEY.MAIN.BECH32_3)
+  })
   test("P2WPKH change address generation from xpub", () => {
     expect(
       getAddressFromXpub(KEY.MAIN.XPUB, 0, 'P2WPKH', 1, 0).address
@@ -113,6 +188,21 @@ describe("getAddressFromXpub(MAINNET)", () => {
     expect(
       getAddressFromXpub(KEY.MAIN.ZPUB, 0, 'P2WPKH', 1, 0).address
     ).toBe(KEY.MAIN.CHANGE.BECH32)
+  })
+  test("P2WPKH change address generation key index 3 from xpub", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.XPUB, 3, 'P2WPKH', 1, 0).address
+    ).toBe(KEY.MAIN.CHANGE_3.BECH32)
+  })
+  test("P2WPKH change address generation key index 3 from ypub", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.YPUB, 3, 'P2WPKH', 1, 0).address
+    ).toBe(KEY.MAIN.CHANGE_3.BECH32)
+  })
+  test("P2WPKH change address generation key index 3 from zpub", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.ZPUB, 3, 'P2WPKH', 1, 0).address
+    ).toBe(KEY.MAIN.CHANGE_3.BECH32)
   })
 })
 

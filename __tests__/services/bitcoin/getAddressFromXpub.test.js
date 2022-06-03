@@ -116,10 +116,20 @@ describe("getAddressFromXpub(MAINNET)", () => {
   })
 })
 
-describe("getAddressFromXpub defaults", () => {
+describe("getAddressFromXpub defaults to BECH32", () => {
   test("default address generation from xpub on mainnet should be BECH32", () => {
     expect(
       getAddressFromXpub(KEY.MAIN.XPUB).address
+    ).toBe(KEY.MAIN.BECH32)
+  })
+  test("default address generation from ypub on mainnet should be BECH32", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.YPUB).address
+    ).toBe(KEY.MAIN.BECH32)
+  })
+  test("default address generation from zpub on mainnet should be BECH32", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.ZPUB).address
     ).toBe(KEY.MAIN.BECH32)
   })
 })
@@ -129,5 +139,15 @@ describe("account number has no effect on derived address", () => {
     expect(
       getAddressFromXpub(KEY.MAIN.XPUB, 0, 'P2PKH', 0, 1).address
     ).toBe(KEY.MAIN.LEGACY)
+  })
+  test("P2PKH address generation from xpub", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.XPUB, 0, 'P2PKH', 0, 2).address
+    ).toBe(KEY.MAIN.LEGACY)
+  })
+  test("P2PKH address generation from xpub", () => {
+    expect(
+      getAddressFromXpub(KEY.MAIN.XPUB, 0, 'P2PKH', 1, 1).address
+    ).toBe(KEY.MAIN.CHANGE.LEGACY)
   })
 })

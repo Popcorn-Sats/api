@@ -63,6 +63,10 @@ Testing with [Jest](https://jestjs.io)
 
 Run `npm run test` to run the entire test suite.
 
+Run a single test: `npm run test -- __tests__/services/bitcoin/getAddressFromXpub.test.js`
+
+Run a single test and watch for changes: `npm run test -- __tests__/services/bitcoin/getAddressFromXpub.test.js --watch`
+
 # Tor
 
 Using the Popcorn fork of the [electrum-client](https://github.com/Popcorn-Sats/electrum-client) (already installed before as a submodule) you can proxy electrum requests through tor to query your self-hosted node (e.g. Umbrel).

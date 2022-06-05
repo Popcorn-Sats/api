@@ -12,6 +12,10 @@ Or, to start PostgresSQL automatically on login:
 
 `brew services start postgresql`
 
+Make sure you have a superuser called `postgres`:
+
+`createuser postgres -s`
+
 Log in as postgres
 
 `psql postgres`
@@ -19,6 +23,8 @@ Log in as postgres
 Create database
 
 `CREATE DATABASE luca;`
+
+(Optional) You can also create other databases to be used in different environments defined by your config (below). I like to create `popcorndev` and `popcorntest` while I'm at it
 
 [Read more about using Postgres with Homebrew here](https://dyclassroom.com/howto-mac/how-to-install-postgresql-on-mac-using-homebrew)
 
@@ -28,11 +34,11 @@ Run from the project directory:
 
 `npm install`
 
-Configure the database credentials in `./config/config.json` for the local environment.
+Configure the database credentials in `./config/config.json` for the local environment. If you're following this guide without changing any database names or setting passwords, then the default options should work. You can also take this time to enter the HOST for your Electrum server (more details below).
 
-Set environment:
+Set environment from your terminal:
 
-`export NODE_ENV=local`
+`export NODE_ENV=production`
 
 `export NODE_CONFIG_DIR="$(pwd)/config/"`
 

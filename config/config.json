@@ -2,7 +2,7 @@
   "development": {
     "username": "postgres",
         "password": "",
-        "database": "lucadev",
+        "database": "popcorndev",
         "host": "localhost",
         "dialect": "postgres",
         "logging": false
@@ -10,7 +10,7 @@
   "test": {
     "username": "postgres",
         "password": "",
-        "database": "lucatest",
+        "database": "popcorntest",
         "host": "localhost",
         "dialect": "postgres",
         "logging": false
@@ -18,7 +18,7 @@
   "production": {
     "username": "postgres",
         "password": "",
-        "database": "luca",
+        "database": "popcorn",
         "host": "localhost",
         "dialect": "postgres",
         "logging": false
@@ -29,7 +29,7 @@
     },
     "name": "Popcorn",
     "version": "0.0.1",
-    "description": "Luca is a Bitcoin accounting system for Node.js"
+    "description": "Popcorn is a Bitcoin accounting system for Node.js"
   },
   "ELECTRUM": {
     "HOST": "",

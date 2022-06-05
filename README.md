@@ -22,7 +22,7 @@ Log in as postgres
 
 Create database
 
-`CREATE DATABASE luca;`
+`CREATE DATABASE popcorn;`
 
 (Optional) You can also create other databases to be used in different environments defined by your config (below). I like to create `popcorndev` and `popcorntest` while I'm at it
 

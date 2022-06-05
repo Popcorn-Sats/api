@@ -23,6 +23,14 @@
         "dialect": "postgres",
         "logging": false
   },
+  "APPLICATION": {
+    "hostname": {
+      "admin": "http://localhost:3000"
+    },
+    "name": "Popcorn",
+    "version": "0.0.1",
+    "description": "Luca is a Bitcoin accounting system for Node.js"
+  },
   "ELECTRUM": {
     "HOST": "",
     "PORT": 50001,

@@ -1,3 +1,5 @@
+# Basic Set Up
+
 ## Set up PostgresSQL database (MacOS)
 
 Install postgres
@@ -63,7 +65,7 @@ git submodule update
 
 `npm start`
 
-## Test
+# Tests
 
 Testing with [Jest](https://jestjs.io)
 

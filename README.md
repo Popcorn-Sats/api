@@ -50,7 +50,13 @@ Set environment from your terminal:
 
 ## Run DB Seeders
 
+### Development / testing
+
 `npx sequelize-cli db:seed:all`
+
+### Production
+
+For now, run the same command as for Development above, then delete anything you don't want. A production seed script is coming Soon™
 
 ## Add submodule(s)
 

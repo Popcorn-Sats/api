@@ -1,4 +1,4 @@
-const getAllReportsPaginated = async (userId, year) => {
+const getAllReports = async (userId, year) => {
   const currentYear = new Date().getFullYear().toString()
   const isCurrentYear = year === currentYear
 
@@ -31,5 +31,5 @@ const getAllReportsPaginated = async (userId, year) => {
 }
 
 module.exports = {
-  getAllReportsPaginated
+  getAllReports
 }

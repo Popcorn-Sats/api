@@ -99,7 +99,8 @@ const getBalanceSheet = async (userId, year) => {
     },
     check: {
       balance: check,
-    }
+    },
+    finalized: !isCurrentYear
   }
 
   return balanceSheet

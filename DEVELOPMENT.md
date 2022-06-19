@@ -41,3 +41,7 @@ module.exports.getAllCategories = async () => {
   return categories
 }
 ```
+
+# Generate a new migration file
+
+`npx sequelize-cli migration:generate --name [name_of_your_migration]`
